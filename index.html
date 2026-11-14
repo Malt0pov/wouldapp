@@ -861,34 +861,35 @@
        M3 MODAL SHEETS & DIALOGS (Add Subscription, QR, Promo)
        ========================================================================== */
     .m3-scrim {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(3px);
-      z-index: 150;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(4px);
+      z-index: 999;
       display: none;
-      align-items: flex-end;
+      align-items: center;
+      justify-content: center;
     }
     .m3-scrim.visible { display: flex; }
     .m3-modal-sheet {
-      width: 100%;
-      max-height: 85%;
+      width: 92%;
+      max-width: 480px;
       background: var(--md-sys-color-surface-container-high);
-      border-radius: 28px 28px 0 0;
-      padding: 16px 20px 24px;
+      border-radius: 28px;
+      padding: 20px 24px 26px;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      box-shadow: var(--md-sys-elevation-3);
-      border-top: 1px solid var(--md-sys-color-outline-variant);
-      animation: sheetAnim 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      animation: sheetAnim 0.22s cubic-bezier(0.1, 0.9, 0.2, 1);
     }
     @keyframes sheetAnim {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
     .m3-sheet-handle {
       width: 32px;
@@ -1178,44 +1179,6 @@
       </div>
 
       <!-- ==============================================================
-           MODAL: ADD KEY / SUBSCRIPTION SHEET
-           ============================================================== -->
-      <div class="m3-scrim" id="modal-add-sheet" onclick="closeAddKeyModal(event)">
-        <div class="m3-modal-sheet" onclick="event.stopPropagation()">
-          <div class="m3-sheet-handle"></div>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 17px; font-weight: 700;">Импорт узла или подписки</span>
-            <button class="btn-back" onclick="closeAddKeyModal()">
-              <span class="material-symbols-outlined">close</span>
-            </button>
-          </div>
-
-          <div class="m3-field-container">
-            <span class="m3-field-label">Ключ или ссылка подписки</span>
-            <input type="text" class="m3-field-input" id="custom-link-val" placeholder="vless://... или https://sub...">
-          </div>
-
-          <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">Быстрые пресеты:</div>
-          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <button class="btn-mini-chip" onclick="pastePreset('🇳🇱 Amsterdam VLESS Reality', '185.220.101.44', '🇳🇱', 'VLESS Reality')">+ Amsterdam</button>
-            <button class="btn-mini-chip" onclick="pastePreset('🇩🇪 Frankfurt Hysteria 2', '45.142.214.88', '🇩🇪', 'Hysteria 2')">+ Frankfurt</button>
-            <button class="btn-mini-chip" onclick="pastePreset('🇺🇸 New York Trojan', '198.51.100.22', '🇺🇸', 'Trojan TLS')">+ New York</button>
-          </div>
-
-          <div style="display: flex; gap: 8px; margin-top: 6px;">
-            <button class="btn-filled-tonal" style="flex: 1; height: 42px; justify-content: center;" onclick="confirmAddKey()">
-              <span class="material-symbols-outlined">save</span>
-              Сохранить узел
-            </button>
-            <button class="btn-mini-chip" style="height: 42px; padding: 0 14px;" onclick="simulateQrScan()">
-              <span class="material-symbols-outlined">qr_code_scanner</span>
-              QR-код
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ==============================================================
            FULL-SCREEN SETTINGS VIEW (Opened via Gear Icon)
            ============================================================== -->
       <div class="settings-view" id="mobile-settings-screen">
@@ -1430,8 +1393,12 @@
           <div class="toolbar-avatar" style="width: 24px; height: 24px; font-size: 11px;">W</div>
           <span style="font-size: 12px; font-weight: 500;">WouldApp • Windows 11 Edition</span>
         </div>
-        <div style="display: flex; gap: 8px;">
-          <button class="icon-btn-gear" style="width: 28px; height: 28px;" onclick="openSettingsView()" title="Настройки">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="btn-mini-chip" style="background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font-weight: 600; padding: 4px 10px; height: 28px;" onclick="openAddKeyModal()" title="Добавить подписку или VLESS ключ">
+            <span class="material-symbols-outlined" style="font-size: 15px;">add</span>
+            <span>Добавить подписку</span>
+          </button>
+          <button class="icon-btn-gear" style="width: 28px; height: 28px;" onclick="switchDesktopTab('settings')" title="Настройки">
             <span class="material-symbols-outlined" style="font-size: 16px;">settings</span>
           </button>
         </div>
@@ -1442,6 +1409,11 @@
           <button class="rail-btn active" id="desk-nav-home" onclick="switchDesktopTab('home')">
             <span class="material-symbols-outlined">shield</span>
             <span style="font-size: 10px; margin-top: 4px;">Главная</span>
+          </button>
+
+          <button class="rail-btn" id="desk-nav-subs" onclick="switchDesktopTab('subs')">
+            <span class="material-symbols-outlined">playlist_add</span>
+            <span style="font-size: 10px; margin-top: 4px;">Подписки</span>
           </button>
 
           <button class="rail-btn" id="desk-nav-settings" onclick="switchDesktopTab('settings')">
@@ -1503,15 +1475,70 @@
                   <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary); font-size: 18px;">dns</span>
                   <span>Список серверов</span>
                 </div>
-                <button class="btn-mini-chip" onclick="testAllPings()">
-                  <span class="material-symbols-outlined" style="font-size: 14px;">bolt</span>
-                  Пинг
-                </button>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn-mini-chip" style="background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); font-weight: 600;" onclick="openAddKeyModal()">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">add</span>
+                    Добавить
+                  </button>
+                  <button class="btn-mini-chip" onclick="testAllPings()">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">bolt</span>
+                    Пинг
+                  </button>
+                </div>
               </div>
               <div class="server-collapsible-body" id="desk-server-list" style="max-height: 250px;">
                 <!-- Rendered by JS -->
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- ==============================================================
+             DESKTOP SUBSCRIPTIONS PANE
+             ============================================================== -->
+        <div class="desktop-subs-pane" id="desktop-subs-pane" style="display: none; flex: 1; padding: 22px 24px; overflow-y: auto; flex-direction: column; gap: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--md-sys-color-outline-variant); padding-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button class="btn-back" onclick="switchDesktopTab('home')">
+                <span class="material-symbols-outlined">arrow_back</span>
+              </button>
+              <span style="font-size: 18px; font-weight: 700;">Управление подписками и ключами</span>
+            </div>
+            <button class="btn-mini-chip" style="background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font-weight: 600;" onclick="openAddKeyModal()">
+              <span class="material-symbols-outlined" style="font-size: 15px;">add</span>
+              Быстрый импорт
+            </button>
+          </div>
+
+          <div class="m3-settings-card">
+            <div style="font-size: 14px; font-weight: 600; color: var(--md-sys-color-on-surface); margin-bottom: 6px;">Импортировать ссылку подписки или ключи</div>
+            <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 12px;">
+              Вставьте ссылку подписки (https://...), список ключей или отдельный ключ (VLESS Reality, Hysteria 2, Trojan, Shadowsocks):
+            </div>
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+              <textarea id="desk-sub-input" rows="3" class="m3-field-input" style="height: auto; padding: 12px; resize: vertical; font-family: monospace; font-size: 12px;" placeholder="Вставьте ссылку подписки (https://...) или vless://..."></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                  <button class="btn-mini-chip" onclick="pasteDeskPreset('Amsterdam VLESS Reality', '185.220.101.44', '🇳🇱', 'VLESS Reality')">+ Amsterdam</button>
+                  <button class="btn-mini-chip" onclick="pasteDeskPreset('Frankfurt Hysteria 2', '45.142.214.88', '🇩🇪', 'Hysteria 2')">+ Frankfurt</button>
+                  <button class="btn-mini-chip" onclick="pasteDeskPreset('Helsinki Direct', '95.217.34.12', '🇫🇮', 'VLESS Reality')">+ Helsinki</button>
+                </div>
+                <button class="btn-filled-tonal" style="height: 38px; padding: 0 20px; font-weight: 600;" onclick="confirmDeskSubImport()">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+                  Импортировать
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="m3-card-promo" onclick="triggerWouldTgPromo()" style="margin-top: 4px;">
+            <div class="promo-header">
+              <span class="badge-label">ПРЯМАЯ ИНТЕГРАЦИЯ</span>
+              <span class="material-symbols-outlined" style="font-size: 16px;">bolt</span>
+            </div>
+            <div class="promo-title">Франшиза Would.tg • Автоподписка</div>
+            <div class="promo-body">При покупке доступа в боте @Would_tg_bot за 200 ₽/мес подписка активируется автоматически без ручной вставки.</div>
+            <button class="btn-filled-tonal" style="align-self: flex-start; margin-top: 4px;">Открыть бота @Would_tg_bot</button>
           </div>
         </div>
 
@@ -1661,6 +1688,46 @@
 
   </div>
 
+  <!-- ==============================================================
+       GLOBAL MODAL: ADD KEY / SUBSCRIPTION SHEET & DIALOG
+       ============================================================== -->
+  <div class="m3-scrim" id="modal-add-sheet" onclick="closeAddKeyModal(event)">
+    <div class="m3-modal-sheet" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">playlist_add</span>
+          <span style="font-size: 17px; font-weight: 700;">Импорт узла или подписки</span>
+        </div>
+        <button class="btn-back" onclick="closeAddKeyModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="m3-field-container">
+        <span class="m3-field-label">Ключ или ссылка подписки</span>
+        <input type="text" class="m3-field-input" id="custom-link-val" placeholder="vless://... или https://sub.would.tg/...">
+      </div>
+
+      <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">Быстрые пресеты для теста:</div>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <button class="btn-mini-chip" onclick="pastePreset('🇳🇱 Amsterdam VLESS Reality', '185.220.101.44', '🇳🇱', 'VLESS Reality')">+ Amsterdam</button>
+        <button class="btn-mini-chip" onclick="pastePreset('🇩🇪 Frankfurt Hysteria 2', '45.142.214.88', '🇩🇪', 'Hysteria 2')">+ Frankfurt</button>
+        <button class="btn-mini-chip" onclick="pastePreset('🇫🇮 Helsinki Direct', '95.217.34.12', '🇫🇮', 'VLESS Reality')">+ Helsinki</button>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 6px;">
+        <button class="btn-filled-tonal" style="flex: 1; height: 42px; justify-content: center; font-weight: 600;" onclick="confirmAddKey()">
+          <span class="material-symbols-outlined">download</span>
+          Импортировать
+        </button>
+        <button class="btn-mini-chip" style="height: 42px; padding: 0 14px;" onclick="simulateQrScan()">
+          <span class="material-symbols-outlined">qr_code_scanner</span>
+          QR-код
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // State Model
     const appState = {
@@ -1705,13 +1772,33 @@
 
     function setDeviceMode(mode) {
       playBeep(450, 0.03);
-      document.getElementById('seg-mobile').classList.toggle('selected', mode === 'mobile');
-      document.getElementById('seg-desktop').classList.toggle('selected', mode === 'desktop');
-      document.getElementById('view-mobile').style.display = mode === 'mobile' ? 'flex' : 'none';
-      document.getElementById('view-desktop').style.display = mode === 'desktop' ? 'flex' : 'none';
+      try { localStorage.setItem('wouldapp_device_mode', mode); } catch (e) {}
+      const segM = document.getElementById('seg-mobile');
+      const segD = document.getElementById('seg-desktop');
+      if (segM) segM.classList.toggle('selected', mode === 'mobile');
+      if (segD) segD.classList.toggle('selected', mode === 'desktop');
+      const viewM = document.getElementById('view-mobile');
+      const viewD = document.getElementById('view-desktop');
+      if (viewM) viewM.style.display = mode === 'mobile' ? 'flex' : 'none';
+      if (viewD) viewD.style.display = mode === 'desktop' ? 'flex' : 'none';
       if (mode === 'desktop') {
         switchDesktopTab('home');
       }
+    }
+
+    function initDeviceMode() {
+      let mode = 'desktop';
+      try {
+        const saved = localStorage.getItem('wouldapp_device_mode');
+        if (saved) {
+          mode = saved;
+        } else {
+          // If on a desktop OS or wide screen, default to Windows 11 Desktop UI!
+          const isMobile = (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) || (window.innerWidth < 768);
+          mode = isMobile ? 'mobile' : 'desktop';
+        }
+      } catch (e) {}
+      setDeviceMode(mode);
     }
 
     function toggleServerCollapse() {
@@ -1877,6 +1964,43 @@
       playBeep(620, 0.03);
       document.getElementById('custom-link-val').value = `vless://uuid-test@${ip}:443?security=reality#${encodeURIComponent(name)}`;
     }
+    async function handleParsedNodes(nodes, rawInput) {
+      if (!nodes || nodes.length === 0) {
+        showSnackbar('Не удалось распознать ключи или подписку');
+        return;
+      }
+      const added = [];
+      nodes.forEach((n, idx) => {
+        const outbound = n.outbound || {
+          type: 'vless',
+          tag: 'proxy',
+          server: '194.87.112.4',
+          server_port: 443,
+          uuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+        };
+        const item = {
+          id: 'user-' + Date.now() + '-' + idx,
+          name: n.name || `Узел #${idx + 1}`,
+          flag: '🌐',
+          ping: Math.floor(Math.random() * 25 + 18),
+          proto: (outbound.type || 'vless').toUpperCase() + (outbound.tls ? ' Reality' : ''),
+          ip: outbound.server || '194.87.112.4',
+          outbound: outbound,
+          rawLink: n.rawLink || rawInput
+        };
+        appState.servers.unshift(item);
+        added.push(item);
+      });
+      appState.selectedId = added[0].id;
+      renderAllServers();
+      const msg = added.length > 1
+        ? `✓ Добавлено ${added.length} узлов из подписки!`
+        : `✓ Узел "${added[0].name}" успешно добавлен!`;
+      showSnackbar(msg);
+      pushLog(`[sub] ${msg}`);
+      playBeep(920, 0.12);
+    }
+
     async function confirmAddKey() {
       const val = document.getElementById('custom-link-val').value.trim();
       if (!val) {
@@ -1892,43 +2016,52 @@
           body: JSON.stringify({ link: val })
         });
         const res = await resp.json();
-
-        let newSrv = null;
-        if (res.success && res.data) {
-          const parsed = res.data;
-          newSrv = {
-            id: 'user-' + Date.now(),
-            name: parsed.name || 'Пользовательский узел',
-            flag: '🌐',
-            ping: Math.floor(Math.random() * 25 + 18),
-            proto: (parsed.outbound.type || 'vless').toUpperCase() + (parsed.outbound.tls ? ' Reality' : ''),
-            ip: parsed.outbound.server || '194.87.112.4',
-            outbound: parsed.outbound,
-            rawLink: val
-          };
+        if (res.success && (res.nodes || res.data)) {
+          const list = res.nodes || [res.data];
+          await handleParsedNodes(list, val);
+          closeAddKeyModal();
+          document.getElementById('custom-link-val').value = '';
         } else {
-          newSrv = {
-            id: 'user-' + Date.now(),
-            name: val.includes('#') ? decodeURIComponent(val.split('#')[1]) : 'Пользовательский узел (' + val.slice(0, 10) + '...)',
-            flag: '🌐',
-            ping: Math.floor(Math.random() * 25 + 18),
-            proto: 'VLESS Reality',
-            ip: '194.87.112.4',
-            rawLink: val
-          };
+          showSnackbar(res.error || 'Ошибка распознавания ссылки');
         }
-
-        appState.servers.unshift(newSrv);
-        appState.selectedId = newSrv.id;
-        renderAllServers();
-        closeAddKeyModal();
-        document.getElementById('custom-link-val').value = '';
-        showSnackbar(`✓ Узел "${newSrv.name}" успешно добавлен!`);
-        pushLog(`[sub] Импортирован и распарсен узел: ${newSrv.name}`);
       } catch (err) {
-        showSnackbar('Ошибка парсинга ссылки');
+        showSnackbar('Ошибка связи с сервером');
       }
     }
+
+    async function confirmDeskSubImport() {
+      const val = document.getElementById('desk-sub-input').value.trim();
+      if (!val) {
+        showSnackbar('Вставьте ссылку подписки или ключи!');
+        return;
+      }
+      playBeep(800, 0.06);
+
+      try {
+        const resp = await fetch('/api/parse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ link: val })
+        });
+        const res = await resp.json();
+        if (res.success && (res.nodes || res.data)) {
+          const list = res.nodes || [res.data];
+          await handleParsedNodes(list, val);
+          document.getElementById('desk-sub-input').value = '';
+          switchDesktopTab('home');
+        } else {
+          showSnackbar(res.error || 'Ошибка распознавания ссылки');
+        }
+      } catch (err) {
+        showSnackbar('Ошибка связи с сервером');
+      }
+    }
+
+    function pasteDeskPreset(name, ip, flag, proto) {
+      playBeep(620, 0.03);
+      document.getElementById('desk-sub-input').value = `vless://uuid-test@${ip}:443?security=reality#${encodeURIComponent(name)}`;
+    }
+
     function simulateQrScan() {
       playBeep(750, 0.05);
       showSnackbar('📷 Сканирование QR-кода камеры: конфигурация найдена!');
@@ -1947,20 +2080,28 @@
     function switchDesktopTab(tab) {
       playBeep(520, 0.03);
       const mainPane = document.getElementById('desktop-main-pane');
+      const subsPane = document.getElementById('desktop-subs-pane');
       const settingsPane = document.getElementById('desktop-settings-pane');
       const navHome = document.getElementById('desk-nav-home');
+      const navSubs = document.getElementById('desk-nav-subs');
       const navSettings = document.getElementById('desk-nav-settings');
 
+      if (navHome) navHome.classList.toggle('active', tab === 'home');
+      if (navSubs) navSubs.classList.toggle('active', tab === 'subs');
+      if (navSettings) navSettings.classList.toggle('active', tab === 'settings');
+
       if (tab === 'settings') {
-        mainPane.style.display = 'none';
-        settingsPane.style.display = 'flex';
-        if (navHome) navHome.classList.remove('active');
-        if (navSettings) navSettings.classList.add('active');
+        if (mainPane) mainPane.style.display = 'none';
+        if (subsPane) subsPane.style.display = 'none';
+        if (settingsPane) settingsPane.style.display = 'flex';
+      } else if (tab === 'subs') {
+        if (mainPane) mainPane.style.display = 'none';
+        if (settingsPane) settingsPane.style.display = 'none';
+        if (subsPane) subsPane.style.display = 'flex';
       } else {
-        settingsPane.style.display = 'none';
-        mainPane.style.display = 'grid';
-        if (navSettings) navSettings.classList.remove('active');
-        if (navHome) navHome.classList.add('active');
+        if (settingsPane) settingsPane.style.display = 'none';
+        if (subsPane) subsPane.style.display = 'none';
+        if (mainPane) mainPane.style.display = 'grid';
       }
     }
 
@@ -2217,8 +2358,9 @@
       showSnackbar('Открытие бота @Would_tg_bot... При покупке подписка импортируется автоматически!');
     }
 
-    // Initial render
+    // Initial render and device detection
     renderAllServers();
+    initDeviceMode();
   </script>
 </body>
 </html>

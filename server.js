@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { spawn, exec } = require('child_process');
@@ -41,11 +42,11 @@ function disableWindowsProxy(cb) {
   });
 }
 
-// Universal parser for vless://, trojan://, ss://
+// Universal parser for vless://, trojan://, ss://, hysteria2://
 function parseVlessUrl(link) {
   try {
     const raw = link.trim();
-    if (!raw.startsWith('vless://') && !raw.startsWith('trojan://') && !raw.startsWith('ss://')) {
+    if (!raw.startsWith('vless://') && !raw.startsWith('trojan://') && !raw.startsWith('ss://') && !raw.startsWith('hysteria2://') && !raw.startsWith('hy2://')) {
       return null;
     }
 
@@ -54,46 +55,142 @@ function parseVlessUrl(link) {
     const mainUri = hashParts[0];
 
     const parsed = new URL(mainUri);
-    const type = parsed.protocol.replace(':', '');
+    let type = parsed.protocol.replace(':', '');
+    if (type === 'hy2') type = 'hysteria2';
     const uuid = parsed.username;
     const server = parsed.hostname;
     const port = parseInt(parsed.port, 10) || 443;
     const params = Object.fromEntries(parsed.searchParams.entries());
 
-    const outbound = {
-      type: type,
-      tag: 'proxy',
-      server: server,
-      server_port: port,
-      uuid: uuid
-    };
+    let outbound;
 
-    if (params.flow) outbound.flow = params.flow;
-
-    if (params.security === 'reality' || params.security === 'tls') {
-      outbound.tls = {
-        enabled: true,
-        server_name: params.sni || server,
-        utls: {
+    if (type === 'hysteria2') {
+      outbound = {
+        type: 'hysteria2',
+        tag: 'proxy',
+        server: server,
+        server_port: port,
+        password: uuid,
+        tls: {
           enabled: true,
-          fingerprint: params.fp || 'chrome'
+          server_name: params.sni || server,
+          insecure: params.insecure === '1' || params.allowInsecure === '1'
         }
       };
-
-      if (params.security === 'reality') {
-        outbound.tls.reality = {
-          enabled: true,
-          public_key: params.pbk || '',
-          short_id: params.sid || ''
+      if (params.obfs) {
+        outbound.obfs = {
+          type: params.obfs,
+          password: params['obfs-password'] || ''
         };
+      }
+    } else {
+      outbound = {
+        type: type,
+        tag: 'proxy',
+        server: server,
+        server_port: port,
+        uuid: uuid
+      };
+
+      if (params.flow) outbound.flow = params.flow;
+
+      if (params.security === 'reality' || params.security === 'tls') {
+        outbound.tls = {
+          enabled: true,
+          server_name: params.sni || server,
+          utls: {
+            enabled: true,
+            fingerprint: params.fp || 'chrome'
+          }
+        };
+
+        if (params.security === 'reality') {
+          outbound.tls.reality = {
+            enabled: true,
+            public_key: params.pbk || '',
+            short_id: params.sid || ''
+          };
+        }
       }
     }
 
-    return { name, outbound };
+    return { name, outbound, rawLink: link.trim() };
   } catch (err) {
-    console.error('Parse error:', err);
     return null;
   }
+}
+
+// Fetch subscription from URL (supports HTTP/HTTPS and redirects)
+function fetchSubscription(urlStr) {
+  return new Promise((resolve, reject) => {
+    try {
+      const client = urlStr.startsWith('https:') ? https : http;
+      const options = {
+        headers: {
+          'User-Agent': 'WouldApp/1.0 (v2rayNG/sing-box)'
+        },
+        timeout: 10000
+      };
+
+      const req = client.get(urlStr, options, (res) => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          const redirectUrl = new URL(res.headers.location, urlStr).toString();
+          return resolve(fetchSubscription(redirectUrl));
+        }
+
+        if (res.statusCode !== 200) {
+          return reject(new Error(`Сервер подписки ответил ошибкой HTTP ${res.statusCode}`));
+        }
+
+        let body = '';
+        res.on('data', chunk => body += chunk);
+        res.on('end', () => resolve(body));
+      });
+
+      req.on('error', err => reject(new Error(`Ошибка подключения к подписке: ${err.message}`)));
+      req.on('timeout', () => {
+        req.destroy();
+        reject(new Error('Превышен таймаут загрузки подписки (10 сек)'));
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+// Universal parser for: single link, multiline links, base64 data, or subscription URL
+async function parseAnyInput(input) {
+  if (!input) return [];
+  let raw = input.trim();
+
+  // If input is an HTTP/HTTPS subscription URL
+  if (raw.startsWith('http://') || raw.startsWith('https://')) {
+    addLog(`[sub] Загрузка подписки по URL: ${raw}...`);
+    raw = await fetchSubscription(raw);
+  }
+
+  // If content is Base64 encoded (common in V2Ray/Xray subscriptions)
+  if (!raw.includes('vless://') && !raw.includes('trojan://') && !raw.includes('ss://') && !raw.includes('hysteria2://')) {
+    try {
+      const decoded = Buffer.from(raw.replace(/\s+/g, ''), 'base64').toString('utf8');
+      if (decoded.includes('://')) {
+        raw = decoded;
+      }
+    } catch (e) {}
+  }
+
+  const lines = raw.split(/[\r\n]+/).map(l => l.trim()).filter(Boolean);
+  const nodes = [];
+
+  for (const line of lines) {
+    const item = parseVlessUrl(line);
+    if (item) {
+      nodes.push(item);
+    }
+  }
+
+  addLog(`[sub] Распознано узлов: ${nodes.length}`);
+  return nodes;
 }
 
 // Build valid sing-box 1.14 configuration
@@ -267,20 +364,25 @@ const server = http.createServer((req, res) => {
     }));
   }
 
-  // API: Parse link
+  // API: Parse single link or subscription URL or multiline keys
   if (req.method === 'POST' && urlParsed === '/api/parse') {
     let body = '';
     req.on('data', chunk => body += chunk);
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
         const { link } = JSON.parse(body);
-        const parsed = parseVlessUrl(link);
-        if (parsed) {
+        const nodes = await parseAnyInput(link);
+        if (nodes && nodes.length > 0) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ success: true, data: parsed }));
+          res.end(JSON.stringify({
+            success: true,
+            count: nodes.length,
+            data: nodes[0],
+            nodes: nodes
+          }));
         } else {
           res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ success: false, error: 'Неверный формат ссылки' }));
+          res.end(JSON.stringify({ success: false, error: 'Не удалось распознать ключи или подписку' }));
         }
       } catch (err) {
         res.writeHead(400, { 'Content-Type': 'application/json' });

@@ -2,3 +2,5 @@ node_modules/
 bin/
 *.zip
 *.log
+WouldApp-Setup.exe
+payload.zip
