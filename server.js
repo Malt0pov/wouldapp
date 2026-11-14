@@ -1,7 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
 const { URL } = require('url');
 
 const PORT = 3005;
@@ -13,6 +13,7 @@ const CONFIG_PATH = path.join(BIN_DIR, 'active-config.json');
 let singboxProcess = null;
 let processStartTime = null;
 let logsBuffer = [];
+let activeMode = 'proxy'; // 'tun' or 'proxy'
 
 function addLog(msg) {
   const line = `[${new Date().toTimeString().split(' ')[0]}] ${msg}`;
@@ -21,7 +22,26 @@ function addLog(msg) {
   console.log(line);
 }
 
-// Universal parser for vless:// and other URLs
+// Windows System Proxy Manager (No Admin Rights Required!)
+function enableWindowsProxy(proxyPort = 2080, cb) {
+  const cmd = `reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f && reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d "127.0.0.1:${proxyPort}" /f`;
+  exec(cmd, (err) => {
+    if (err) addLog(`[proxy] Ошибка включения системного прокси: ${err.message}`);
+    else addLog(`[proxy] Системный прокси Windows активирован на 127.0.0.1:${proxyPort}`);
+    if (cb) cb();
+  });
+}
+
+function disableWindowsProxy(cb) {
+  const cmd = `reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f`;
+  exec(cmd, (err) => {
+    if (err) addLog(`[proxy] Ошибка отключения системного прокси: ${err.message}`);
+    else addLog(`[proxy] Системный прокси Windows отключен`);
+    if (cb) cb();
+  });
+}
+
+// Universal parser for vless://, trojan://, ss://
 function parseVlessUrl(link) {
   try {
     const raw = link.trim();
@@ -76,28 +96,26 @@ function parseVlessUrl(link) {
   }
 }
 
-// Generate sing-box 1.14 valid config
-function buildSingBoxConfig(outbound, mode = 'tun') {
+// Build valid sing-box 1.14 configuration
+function buildSingBoxConfig(outbound, withTun = false) {
   const inbounds = [
     {
       type: 'mixed',
       tag: 'mixed-in',
       listen: '127.0.0.1',
-      listen_port: 2080,
-      sniff: true
+      listen_port: 2080
     }
   ];
 
-  if (mode === 'tun') {
+  if (withTun) {
     inbounds.push({
       type: 'tun',
       tag: 'tun-in',
       interface_name: 'wintun',
-      inet4_address: '172.19.0.1/30',
+      address: ['172.19.0.1/30'],
       auto_route: true,
       strict_route: true,
-      stack: 'system',
-      sniff: true
+      stack: 'system'
     });
   }
 
@@ -105,11 +123,6 @@ function buildSingBoxConfig(outbound, mode = 'tun') {
     log: {
       level: 'info',
       timestamp: true
-    },
-    experimental: {
-      clash_api: {
-        external_controller: '127.0.0.1:9090'
-      }
     },
     inbounds: inbounds,
     outbounds: [
@@ -120,64 +133,116 @@ function buildSingBoxConfig(outbound, mode = 'tun') {
       }
     ],
     route: {
+      rules: [
+        {
+          action: 'sniff'
+        }
+      ],
       auto_detect_interface: true,
       final: 'proxy'
     }
   };
 }
 
-function startSingBox(configObj, cb) {
+function startSingBox(outbound, requestedMode, cb) {
   stopSingBox(() => {
+    const tryTun = requestedMode === 'tun';
+    const configObj = buildSingBoxConfig(outbound, tryTun);
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(configObj, null, 2), 'utf8');
 
-    addLog(`Запуск ядра sing-box...`);
-    singboxProcess = spawn(SINGBOX_EXE, ['run', '-c', CONFIG_PATH], {
+    addLog(`Запуск sing-box (режим: ${tryTun ? 'TUN (Wintun)' : 'Системный прокси'})...`);
+    let proc = spawn(SINGBOX_EXE, ['run', '-c', CONFIG_PATH], {
       cwd: BIN_DIR,
       windowsHide: true
     });
 
-    processStartTime = Date.now();
+    let hasExited = false;
+    let exitError = null;
 
-    singboxProcess.stdout.on('data', (data) => {
-      addLog(`[stdout] ${data.toString().trim()}`);
+    proc.stdout.on('data', (d) => {
+      addLog(`[stdout] ${d.toString().trim()}`);
     });
 
-    singboxProcess.stderr.on('data', (data) => {
-      addLog(`[stderr] ${data.toString().trim()}`);
-    });
-
-    singboxProcess.on('error', (err) => {
-      addLog(`[error] Ошибка запуска: ${err.message}`);
-    });
-
-    singboxProcess.on('exit', (code) => {
-      addLog(`Ядро sing-box остановлено с кодом ${code}`);
-      singboxProcess = null;
-      processStartTime = null;
-    });
-
-    setTimeout(() => {
-      if (singboxProcess) {
-        cb(null, { running: true, pid: singboxProcess.pid });
-      } else {
-        cb(new Error('Не удалось запустить sing-box (проверьте права администратора для TUN).'));
+    proc.stderr.on('data', (d) => {
+      const msg = d.toString().trim();
+      addLog(`[stderr] ${msg}`);
+      if (msg.includes('Access is denied') || msg.includes('FATAL')) {
+        exitError = msg;
       }
-    }, 700);
+    });
+
+    proc.on('exit', (code) => {
+      hasExited = true;
+      if (singboxProcess === proc) {
+        singboxProcess = null;
+        processStartTime = null;
+        disableWindowsProxy();
+      }
+    });
+
+    // Check after 600ms if process survived
+    setTimeout(() => {
+      if (!hasExited && !exitError) {
+        singboxProcess = proc;
+        processStartTime = Date.now();
+        activeMode = tryTun ? 'tun' : 'proxy';
+
+        if (!tryTun) {
+          enableWindowsProxy(2080);
+        }
+
+        return cb(null, { running: true, pid: proc.pid, mode: activeMode });
+      }
+
+      // If TUN failed due to Access is denied (not running as Administrator), gracefully fallback to System Proxy!
+      if (tryTun) {
+        addLog(`[warning] TUN режим требует прав Администратора. Автоматическое переключение на системный прокси Windows (127.0.0.1:2080)...`);
+        try { proc.kill('SIGTERM'); } catch (e) {}
+
+        const fallbackConfig = buildSingBoxConfig(outbound, false);
+        fs.writeFileSync(CONFIG_PATH, JSON.stringify(fallbackConfig, null, 2), 'utf8');
+
+        let fallbackProc = spawn(SINGBOX_EXE, ['run', '-c', CONFIG_PATH], {
+          cwd: BIN_DIR,
+          windowsHide: true
+        });
+
+        fallbackProc.stdout.on('data', d => addLog(`[stdout] ${d.toString().trim()}`));
+        fallbackProc.stderr.on('data', d => addLog(`[stderr] ${d.toString().trim()}`));
+        fallbackProc.on('exit', () => {
+          singboxProcess = null;
+          processStartTime = null;
+          disableWindowsProxy();
+        });
+
+        setTimeout(() => {
+          singboxProcess = fallbackProc;
+          processStartTime = Date.now();
+          activeMode = 'proxy';
+          enableWindowsProxy(2080);
+          return cb(null, { running: true, pid: fallbackProc.pid, mode: 'proxy', note: 'Запущен в режиме системного прокси' });
+        }, 500);
+      } else {
+        cb(new Error(exitError || 'Не удалось запустить sing-box'));
+      }
+    }, 600);
   });
 }
 
 function stopSingBox(cb) {
-  if (singboxProcess) {
-    addLog(`Остановка процесса sing-box (PID: ${singboxProcess.pid})...`);
-    try {
-      singboxProcess.kill('SIGTERM');
-    } catch (e) {}
-    singboxProcess = null;
-    processStartTime = null;
-    setTimeout(cb, 300);
-  } else {
-    if (cb) cb();
-  }
+  disableWindowsProxy(() => {
+    if (singboxProcess) {
+      addLog(`Остановка процесса sing-box (PID: ${singboxProcess.pid})...`);
+      try {
+        singboxProcess.kill('SIGTERM');
+      } catch (e) {}
+      singboxProcess = null;
+      processStartTime = null;
+      setTimeout(cb, 300);
+    } else {
+      if (cb) cb();
+    }
+  });
 }
 
 const MIME = {
@@ -196,6 +261,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({
       running: !!singboxProcess,
+      mode: activeMode,
       uptime: processStartTime ? Math.floor((Date.now() - processStartTime) / 1000) : 0,
       logs: logsBuffer.slice(-20)
     }));
@@ -243,8 +309,7 @@ const server = http.createServer((req, res) => {
           return res.end(JSON.stringify({ success: false, error: 'Нет данных узла' }));
         }
 
-        const config = buildSingBoxConfig(outbound, payload.mode || 'tun');
-        startSingBox(config, (err, result) => {
+        startSingBox(outbound, payload.mode || 'tun', (err, result) => {
           if (err) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ success: false, error: err.message }));
@@ -288,3 +353,7 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(`WouldApp Server running at http://localhost:${PORT}/`);
   addLog(`WouldApp backend initialized with Sing-box 1.14 engine.`);
 });
+
+// Clean up proxy on exit
+process.on('SIGINT', () => { stopSingBox(() => process.exit(0)); });
+process.on('SIGTERM', () => { stopSingBox(() => process.exit(0)); });

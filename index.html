@@ -2115,10 +2115,15 @@
             cardD.className = 'm3-connection-card connected';
             titleM.textContent = 'Подключено';
             titleD.textContent = 'Подключено';
-            descM.textContent = `Защищено • IP: ${activeServer.ip} (${activeServer.ping} ms)`;
-            descD.textContent = `Туннель Wintun активен • IP: ${activeServer.ip}`;
-            pushLog(`[sing-box] Процесс ядра активен (PID: ${result.result.pid}). Wintun маршрутизирует трафик.`);
-            showSnackbar(`✓ Ядро Sing-box запущено: ${activeServer.name}`);
+            const isProxy = result.result && result.result.mode === 'proxy';
+            const modeText = isProxy ? 'Системный прокси' : 'Wintun TUN';
+            descM.textContent = `Защищено (${modeText}) • IP: ${activeServer.ip}`;
+            descD.textContent = `${modeText} активен • IP: ${activeServer.ip}`;
+            pushLog(`[sing-box] Процесс ядра активен (PID: ${result.result.pid}). Режим: ${modeText}.`);
+            if (isProxy) {
+              pushLog(`[hint] Для активации режима Wintun (весь трафик ПК) запустите WouldApp от имени администратора.`);
+            }
+            showSnackbar(`✓ Sing-box запущен (${modeText}): ${activeServer.name}`);
             startSpeedTicker();
           } else {
             throw new Error(result.error);
