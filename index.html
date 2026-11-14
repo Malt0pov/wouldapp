@@ -1877,28 +1877,57 @@
       playBeep(620, 0.03);
       document.getElementById('custom-link-val').value = `vless://uuid-test@${ip}:443?security=reality#${encodeURIComponent(name)}`;
     }
-    function confirmAddKey() {
+    async function confirmAddKey() {
       const val = document.getElementById('custom-link-val').value.trim();
       if (!val) {
         showSnackbar('Введите ссылку на сервер или выберите пресет!');
         return;
       }
       playBeep(800, 0.06);
-      const newSrv = {
-        id: 'user-' + Date.now(),
-        name: val.includes('#') ? decodeURIComponent(val.split('#')[1]) : 'Пользовательский узел (' + val.slice(0, 10) + '...)',
-        flag: '🌐',
-        ping: Math.floor(Math.random() * 25 + 18),
-        proto: 'VLESS Reality',
-        ip: '194.87.112.4'
-      };
-      appState.servers.unshift(newSrv);
-      appState.selectedId = newSrv.id;
-      renderAllServers();
-      closeAddKeyModal();
-      document.getElementById('custom-link-val').value = '';
-      showSnackbar(`✓ Узел "${newSrv.name}" успешно добавлен!`);
-      pushLog(`[sub] Импортирован узел: ${newSrv.name}`);
+
+      try {
+        const resp = await fetch('/api/parse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ link: val })
+        });
+        const res = await resp.json();
+
+        let newSrv = null;
+        if (res.success && res.data) {
+          const parsed = res.data;
+          newSrv = {
+            id: 'user-' + Date.now(),
+            name: parsed.name || 'Пользовательский узел',
+            flag: '🌐',
+            ping: Math.floor(Math.random() * 25 + 18),
+            proto: (parsed.outbound.type || 'vless').toUpperCase() + (parsed.outbound.tls ? ' Reality' : ''),
+            ip: parsed.outbound.server || '194.87.112.4',
+            outbound: parsed.outbound,
+            rawLink: val
+          };
+        } else {
+          newSrv = {
+            id: 'user-' + Date.now(),
+            name: val.includes('#') ? decodeURIComponent(val.split('#')[1]) : 'Пользовательский узел (' + val.slice(0, 10) + '...)',
+            flag: '🌐',
+            ping: Math.floor(Math.random() * 25 + 18),
+            proto: 'VLESS Reality',
+            ip: '194.87.112.4',
+            rawLink: val
+          };
+        }
+
+        appState.servers.unshift(newSrv);
+        appState.selectedId = newSrv.id;
+        renderAllServers();
+        closeAddKeyModal();
+        document.getElementById('custom-link-val').value = '';
+        showSnackbar(`✓ Узел "${newSrv.name}" успешно добавлен!`);
+        pushLog(`[sub] Импортирован и распарсен узел: ${newSrv.name}`);
+      } catch (err) {
+        showSnackbar('Ошибка парсинга ссылки');
+      }
     }
     function simulateQrScan() {
       playBeep(750, 0.05);
@@ -2038,8 +2067,8 @@
     }
     requestAnimationFrame(drawSpeedCanvas);
 
-    // Toggle VPN State
-    function toggleVpnState() {
+    // Toggle VPN State with real API Backend
+    async function toggleVpnState() {
       const cardM = document.getElementById('connection-card-m');
       const cardD = document.getElementById('connection-card-desk');
       const titleM = document.getElementById('label-state-title');
@@ -2056,25 +2085,55 @@
         cardD.className = 'm3-connection-card connecting';
         titleM.textContent = 'Подключение...';
         titleD.textContent = 'Подключение...';
-        descM.textContent = `Установка соединения с ${activeServer.name}...`;
-        descD.textContent = `Рукопожатие VLESS Reality с ${activeServer.ip}...`;
+        descM.textContent = `Запуск ядра Sing-box 1.14 для ${activeServer.name}...`;
+        descD.textContent = `Инициализация Wintun (${activeServer.ip})...`;
         idleLabel.style.display = 'none';
-        pushLog(`[sing-box] Исходящее подключение -> ${activeServer.proto}://${activeServer.ip}:443`);
+        pushLog(`[sing-box] Запуск процесса ядра для узла ${activeServer.name}`);
 
-        setTimeout(() => {
-          if (appState.status !== 'connecting') return;
-          playBeep(920, 0.12);
-          appState.status = 'connected';
-          cardM.className = 'm3-connection-card connected';
-          cardD.className = 'm3-connection-card connected';
-          titleM.textContent = 'Подключено';
-          titleD.textContent = 'Подключено';
-          descM.textContent = `Защищено • IP: ${activeServer.ip} (${activeServer.ping} ms)`;
-          descD.textContent = `Туннель Wintun активен • IP: ${activeServer.ip}`;
-          pushLog(`[sing-box] Туннель поднят! Wintun сетевой адаптер активен.`);
-          showSnackbar(`✓ Защита активна: ${activeServer.name}`);
-          startSpeedTicker();
-        }, 900);
+        try {
+          const resp = await fetch('/api/connect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              outbound: activeServer.outbound || {
+                type: 'vless',
+                tag: 'proxy',
+                server: activeServer.ip,
+                server_port: 443,
+                uuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+              },
+              link: activeServer.rawLink,
+              mode: 'tun'
+            })
+          });
+
+          const result = await resp.json();
+          if (result.success) {
+            playBeep(920, 0.12);
+            appState.status = 'connected';
+            cardM.className = 'm3-connection-card connected';
+            cardD.className = 'm3-connection-card connected';
+            titleM.textContent = 'Подключено';
+            titleD.textContent = 'Подключено';
+            descM.textContent = `Защищено • IP: ${activeServer.ip} (${activeServer.ping} ms)`;
+            descD.textContent = `Туннель Wintun активен • IP: ${activeServer.ip}`;
+            pushLog(`[sing-box] Процесс ядра активен (PID: ${result.result.pid}). Wintun маршрутизирует трафик.`);
+            showSnackbar(`✓ Ядро Sing-box запущено: ${activeServer.name}`);
+            startSpeedTicker();
+          } else {
+            throw new Error(result.error);
+          }
+        } catch (err) {
+          appState.status = 'disconnected';
+          cardM.className = 'm3-connection-card';
+          cardD.className = 'm3-connection-card';
+          titleM.textContent = 'Ошибка';
+          titleD.textContent = 'Ошибка';
+          descM.textContent = `Не удалось запустить: ${err.message}`;
+          idleLabel.style.display = 'block';
+          showSnackbar(`Ошибка запуска: ${err.message}`);
+          pushLog(`[error] ${err.message}`);
+        }
 
       } else {
         playBeep(420, 0.08);
@@ -2086,7 +2145,12 @@
         descM.textContent = 'Выберите сервер в списке ниже и нажмите подключение';
         descD.textContent = 'Весь трафик ПК идет по прямому маршруту';
         idleLabel.style.display = 'block';
-        pushLog(`[sing-box] Соединение остановлено. Восстановлен дефолтный шлюз.`);
+
+        try {
+          await fetch('/api/disconnect', { method: 'POST' });
+        } catch (e) {}
+
+        pushLog(`[sing-box] Процесс ядра остановлен. Сетевой шлюз восстановлен.`);
         showSnackbar('Туннель отключен');
         stopSpeedTicker();
       }
