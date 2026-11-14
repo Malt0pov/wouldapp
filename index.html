@@ -1,0 +1,2155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WouldApp • Google Material 3 Client</title>
+  
+  <!-- Google Fonts: Roboto & Material Symbols (Official M3) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       MATERIAL DESIGN 3 DESIGN TOKENS (Dynamic Palettes & Themes)
+       Governed by skydashnet/material-design-3-ui-skill
+       ========================================================================== */
+    :root, [data-theme="pixel"] {
+      --md-sys-color-primary: #a8c7fa;
+      --md-sys-color-on-primary: #08305c;
+      --md-sys-color-primary-container: #234774;
+      --md-sys-color-on-primary-container: #d3e3fd;
+
+      --md-sys-color-secondary: #bdc7dc;
+      --md-sys-color-on-secondary: #273141;
+      --md-sys-color-secondary-container: #3d4758;
+      --md-sys-color-on-secondary-container: #d9e3f9;
+
+      --md-sys-color-tertiary: #d7bee4;
+      --md-sys-color-on-tertiary: #3b2948;
+      --md-sys-color-tertiary-container: #533f60;
+      --md-sys-color-on-tertiary-container: #f3daff;
+
+      --md-sys-color-surface: #111318;
+      --md-sys-color-surface-dim: #111318;
+      --md-sys-color-surface-bright: #37393e;
+      --md-sys-color-surface-container-lowest: #0c0e13;
+      --md-sys-color-surface-container-low: #191c20;
+      --md-sys-color-surface-container: #1d2024;
+      --md-sys-color-surface-container-high: #282a2f;
+      --md-sys-color-surface-container-highest: #33353a;
+      
+      --md-sys-color-on-surface: #e2e2e9;
+      --md-sys-color-on-surface-variant: #c4c6d0;
+      --md-sys-color-outline: #8e919a;
+      --md-sys-color-outline-variant: #44474e;
+
+      --md-sys-color-success: #6dd58c;
+      --md-sys-color-on-success: #003915;
+      --md-sys-color-success-container: #0f5223;
+      --md-sys-color-on-success-container: #89f2a6;
+
+      --md-sys-color-warning: #ffb74d;
+      --md-sys-color-error: #f2b8b5;
+      --md-sys-color-on-error: #601410;
+      --md-sys-color-error-container: #8c1d18;
+      --md-sys-color-on-error-container: #f9dedc;
+
+      --bg-ambient: #090a0d;
+      --chart-glow: rgba(109, 213, 140, 0.25);
+    }
+
+    /* AMOLED Pure Black Theme */
+    [data-theme="amoled"] {
+      --md-sys-color-primary: #70aaff;
+      --md-sys-color-on-primary: #002c61;
+      --md-sys-color-primary-container: #1a3866;
+      --md-sys-color-on-primary-container: #d3e3fd;
+
+      --md-sys-color-surface: #000000;
+      --md-sys-color-surface-dim: #000000;
+      --md-sys-color-surface-container-lowest: #000000;
+      --md-sys-color-surface-container-low: #0a0b0e;
+      --md-sys-color-surface-container: #101217;
+      --md-sys-color-surface-container-high: #191b22;
+      --md-sys-color-surface-container-highest: #23262f;
+
+      --md-sys-color-outline-variant: #2d3038;
+      --bg-ambient: #000000;
+      --chart-glow: rgba(112, 170, 255, 0.35);
+    }
+
+    /* Clean Light M3 Theme */
+    [data-theme="light"] {
+      --md-sys-color-primary: #005fb0;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-primary-container: #d4e3ff;
+      --md-sys-color-on-primary-container: #001c3b;
+
+      --md-sys-color-secondary: #555f71;
+      --md-sys-color-on-secondary: #ffffff;
+      --md-sys-color-secondary-container: #d9e3f8;
+      --md-sys-color-on-secondary-container: #121c2b;
+
+      --md-sys-color-tertiary: #6e5676;
+      --md-sys-color-tertiary-container: #f7d8ff;
+      --md-sys-color-on-tertiary-container: #271430;
+
+      --md-sys-color-surface: #fdfcff;
+      --md-sys-color-surface-dim: #ded8e1;
+      --md-sys-color-surface-container-lowest: #ffffff;
+      --md-sys-color-surface-container-low: #f7f2fa;
+      --md-sys-color-surface-container: #f1ecf4;
+      --md-sys-color-surface-container-high: #ebe6ee;
+      --md-sys-color-surface-container-highest: #e5e1e9;
+
+      --md-sys-color-on-surface: #1a1c1e;
+      --md-sys-color-on-surface-variant: #43474e;
+      --md-sys-color-outline: #74777f;
+      --md-sys-color-outline-variant: #c4c6d0;
+
+      --md-sys-color-success: #198754;
+      --md-sys-color-success-container: #c4eed0;
+      --md-sys-color-on-success-container: #00210b;
+
+      --bg-ambient: #e9ecf2;
+      --chart-glow: rgba(0, 95, 176, 0.15);
+    }
+
+    /* Shape Scale */
+    :root {
+      --md-sys-shape-corner-xs: 4px;
+      --md-sys-shape-corner-s: 8px;
+      --md-sys-shape-corner-m: 12px;
+      --md-sys-shape-corner-l: 16px;
+      --md-sys-shape-corner-xl: 28px;
+      --md-sys-shape-corner-full: 9999px;
+
+      --md-sys-elevation-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.25);
+      --md-sys-elevation-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.35);
+      --md-sys-elevation-3: 0px 4px 12px 3px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-ambient);
+      color: var(--md-sys-color-on-surface);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    /* Top Device Mode Toolbar */
+    .viewport-toolbar {
+      width: 100%;
+      max-width: 900px;
+      background: var(--md-sys-color-surface-container);
+      border-radius: var(--md-sys-shape-corner-l);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      box-shadow: var(--md-sys-elevation-1);
+    }
+    .toolbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .toolbar-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--md-sys-shape-corner-m);
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .toolbar-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    .toolbar-sub {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .segmented-group {
+      display: inline-flex;
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-sys-shape-corner-full);
+      overflow: hidden;
+    }
+    .segmented-item {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      background: transparent;
+      color: var(--md-sys-color-on-surface-variant);
+      border: none;
+      border-right: 1px solid var(--md-sys-color-outline);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .segmented-item:last-child { border-right: none; }
+    .segmented-item.selected {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      font-weight: 700;
+    }
+
+    /* Stage */
+    .stage {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* Mobile Frame */
+    .device-mobile {
+      width: 410px;
+      height: 870px;
+      background: var(--md-sys-color-surface);
+      border-radius: 46px;
+      border: 10px solid #282a2f;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    /* System Status Bar */
+    .system-status-bar {
+      height: 36px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      z-index: 5;
+    }
+    .system-notch {
+      width: 84px;
+      height: 14px;
+      background: #000;
+      border-radius: 10px;
+    }
+
+    /* Top App Bar with Gear Settings Button */
+    .top-app-bar {
+      height: 60px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--md-sys-color-surface);
+      border-bottom: 1px solid var(--md-sys-color-surface-container-low);
+    }
+    .top-app-bar-headline {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-btn-gear {
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface);
+      width: 40px;
+      height: 40px;
+      border-radius: var(--md-sys-shape-corner-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .icon-btn-gear:hover {
+      background: var(--md-sys-color-surface-container-high);
+      transform: rotate(45deg);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    /* Content Area */
+    .mobile-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--md-sys-color-surface-container-highest) transparent;
+    }
+
+    /* Promo Card (Would.tg) */
+    .m3-card-promo {
+      background: var(--md-sys-color-tertiary-container);
+      color: var(--md-sys-color-on-tertiary-container);
+      border-radius: var(--md-sys-shape-corner-l);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .m3-card-promo:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--md-sys-elevation-1);
+    }
+    .promo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .badge-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      background: rgba(0, 0, 0, 0.22);
+      padding: 2px 8px;
+      border-radius: var(--md-sys-shape-corner-xs);
+    }
+    .promo-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .promo-body {
+      font-size: 11.5px;
+      opacity: 0.9;
+      line-height: 1.35;
+    }
+    .promo-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2px;
+    }
+    .promo-price-tag {
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .btn-filled-tonal {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      border: none;
+      height: 34px;
+      padding: 0 14px;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    /* M3 Primary Connection Unit (Elevated Card) */
+    .m3-connection-card {
+      background: var(--md-sys-color-surface-container);
+      border-radius: var(--md-sys-shape-corner-xl);
+      padding: 20px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      box-shadow: var(--md-sys-elevation-1);
+      position: relative;
+    }
+
+    .power-action-container {
+      position: relative;
+      width: 126px;
+      height: 126px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0 14px;
+    }
+    .power-wave {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--md-sys-color-primary);
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+    }
+    .connected .power-wave {
+      border-color: var(--md-sys-color-success);
+      animation: m3Pulse 2.4s infinite cubic-bezier(0.2, 0, 0, 1);
+    }
+    .connecting .power-wave {
+      border-color: var(--md-sys-color-warning);
+      animation: m3PulseFast 1.2s infinite ease-out;
+    }
+    @keyframes m3Pulse {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+    @keyframes m3PulseFast {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+
+    .m3-power-fab {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      border: none;
+      background: var(--md-sys-color-surface-container-highest);
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--md-sys-elevation-2);
+      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+      z-index: 2;
+    }
+    .m3-power-fab .material-symbols-outlined {
+      font-size: 42px;
+      transition: transform 0.25s;
+    }
+    .m3-power-fab:hover {
+      box-shadow: var(--md-sys-elevation-3);
+      transform: scale(1.03);
+    }
+    .m3-power-fab:active {
+      transform: scale(0.96);
+    }
+
+    .connected .m3-power-fab {
+      background: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-on-success-container);
+    }
+    .connecting .m3-power-fab {
+      background: #78350f;
+      color: #fde68a;
+    }
+    .connecting .m3-power-fab .material-symbols-outlined {
+      animation: m3Spin 1.6s infinite linear;
+    }
+    @keyframes m3Spin { 100% { transform: rotate(360deg); } }
+
+    .connection-headline {
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--md-sys-color-outline);
+    }
+    .connected .status-badge-dot { background: var(--md-sys-color-success); }
+    .connecting .status-badge-dot { background: var(--md-sys-color-warning); }
+
+    .connection-subhead {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 4px;
+    }
+
+    /* Interactive Live Canvas Speed Graph */
+    .canvas-container {
+      width: 100%;
+      height: 54px;
+      margin-top: 14px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border-radius: var(--md-sys-shape-corner-m);
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+    canvas#traffic-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .canvas-overlay-text {
+      position: absolute;
+      font-size: 10px;
+      color: var(--md-sys-color-outline);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .telemetry-container {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: var(--md-sys-color-surface-container-low);
+      border-radius: var(--md-sys-shape-corner-m);
+      padding: 10px 6px;
+      margin-top: 12px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .telemetry-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .telemetry-caption {
+      font-size: 9px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-bottom: 2px;
+    }
+    .telemetry-number {
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Roboto Mono', monospace;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    /* ==========================================================================
+       INLINE COLLAPSIBLE SERVERS SECTION (With Search & Add Modal)
+       ========================================================================== */
+    .server-section-card {
+      background: var(--md-sys-color-surface-container);
+      border-radius: var(--md-sys-shape-corner-l);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+    .server-section-header {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      background: var(--md-sys-color-surface-container);
+    }
+    .server-section-title {
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-mini-chip {
+      background: var(--md-sys-color-surface-container-highest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-primary);
+      padding: 4px 8px;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s;
+    }
+    .btn-mini-chip:hover {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+
+    /* Filter & Search Bar */
+    .server-search-strip {
+      padding: 0 12px 8px;
+      display: flex;
+      gap: 8px;
+    }
+    .search-input-m3 {
+      flex: 1;
+      height: 36px;
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-full);
+      padding: 0 12px 0 34px;
+      color: var(--md-sys-color-on-surface);
+      font-size: 12px;
+      outline: none;
+      position: relative;
+    }
+    .search-icon-pos {
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--md-sys-color-outline);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .server-collapsible-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 0 12px 12px;
+      max-height: 420px;
+      overflow-y: auto;
+      transition: max-height 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s;
+    }
+    .server-collapsible-body.collapsed {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    .m3-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--md-sys-color-surface-container-low);
+      border-radius: var(--md-sys-shape-corner-m);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .m3-list-item:hover {
+      background: var(--md-sys-color-surface-container-high);
+      transform: translateX(2px);
+    }
+    .m3-list-item.selected {
+      border-color: var(--md-sys-color-primary);
+      background: rgba(168, 199, 250, 0.1);
+    }
+    .badge-latency {
+      background: rgba(109, 213, 140, 0.15);
+      color: var(--md-sys-color-success);
+      padding: 2px 6px;
+      border-radius: var(--md-sys-shape-corner-xs);
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 500;
+      font-size: 10px;
+    }
+
+    /* M3 FAB Add Button */
+    .btn-add-server {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       FULLSCREEN SETTINGS VIEW (Opened via Gear Icon)
+       ========================================================================== */
+    .settings-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--md-sys-color-surface);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      animation: m3SlideRight 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+    .settings-view.active {
+      display: flex;
+    }
+    @keyframes m3SlideRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    .settings-topbar {
+      height: 60px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--md-sys-color-surface);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .settings-headline {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .btn-back {
+      background: none;
+      border: none;
+      color: var(--md-sys-color-on-surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-radius: var(--md-sys-shape-corner-full);
+    }
+    .btn-back:hover {
+      background: var(--md-sys-color-surface-container);
+    }
+
+    .settings-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .settings-category {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .category-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--md-sys-color-primary);
+      padding-left: 4px;
+    }
+
+    .m3-settings-card {
+      background: var(--md-sys-color-surface-container);
+      border-radius: var(--md-sys-shape-corner-l);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      padding: 4px 14px;
+    }
+    .m3-setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .m3-setting-row:last-child { border-bottom: none; }
+    .m3-setting-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding-right: 8px;
+    }
+    .setting-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    .setting-caption {
+      font-size: 11.5px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .m3-switch-control {
+      width: 52px;
+      height: 32px;
+      background: var(--md-sys-color-surface-container-highest);
+      border: 2px solid var(--md-sys-color-outline);
+      border-radius: 16px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+      flex-shrink: 0;
+    }
+    .m3-switch-thumb {
+      width: 16px;
+      height: 16px;
+      background: var(--md-sys-color-outline);
+      border-radius: 50%;
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .m3-switch-control.checked {
+      background: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+    }
+    .m3-switch-control.checked .m3-switch-thumb {
+      background: var(--md-sys-color-on-primary);
+      transform: translateX(20px);
+      width: 24px;
+      height: 24px;
+      top: 2px;
+      left: 2px;
+    }
+
+    .m3-select {
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-s);
+      color: var(--md-sys-color-on-surface);
+      padding: 6px 10px;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Terminal Console (Inside Settings) */
+    .m3-terminal {
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-m);
+      padding: 10px 12px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      max-height: 140px;
+      overflow-y: auto;
+      line-height: 1.45;
+    }
+    .term-row.info { color: var(--md-sys-color-primary); }
+    .term-row.success { color: var(--md-sys-color-success); }
+
+    /* ==========================================================================
+       M3 MODAL SHEETS & DIALOGS (Add Subscription, QR, Promo)
+       ========================================================================== */
+    .m3-scrim {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(3px);
+      z-index: 150;
+      display: none;
+      align-items: flex-end;
+    }
+    .m3-scrim.visible { display: flex; }
+    .m3-modal-sheet {
+      width: 100%;
+      max-height: 85%;
+      background: var(--md-sys-color-surface-container-high);
+      border-radius: 28px 28px 0 0;
+      padding: 16px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: var(--md-sys-elevation-3);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      animation: sheetAnim 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+    @keyframes sheetAnim {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .m3-sheet-handle {
+      width: 32px;
+      height: 4px;
+      background: var(--md-sys-color-outline);
+      border-radius: 2px;
+      align-self: center;
+    }
+
+    /* M3 Outlined Text Field */
+    .m3-field-container {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin-top: 6px;
+    }
+    .m3-field-input {
+      background: transparent;
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-sys-shape-corner-s);
+      height: 48px;
+      padding: 0 14px;
+      font-size: 13px;
+      color: var(--md-sys-color-on-surface);
+      outline: none;
+    }
+    .m3-field-input:focus {
+      border-color: var(--md-sys-color-primary);
+      border-width: 2px;
+    }
+    .m3-field-label {
+      position: absolute;
+      top: -8px;
+      left: 12px;
+      background: var(--md-sys-color-surface-container-high);
+      padding: 0 4px;
+      font-size: 11px;
+      color: var(--md-sys-color-primary);
+      font-weight: 500;
+    }
+
+    /* M3 Snackbar Component */
+    .m3-snackbar {
+      position: absolute;
+      bottom: 24px;
+      left: 20px;
+      right: 20px;
+      background: var(--md-sys-color-inverse-surface, #e2e2e9);
+      color: var(--md-sys-color-inverse-on-surface, #1e1f24);
+      padding: 12px 16px;
+      border-radius: var(--md-sys-shape-corner-s);
+      box-shadow: var(--md-sys-elevation-3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 200;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+      pointer-events: none;
+    }
+    .m3-snackbar.active {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ==========================================================================
+       DESKTOP WINDOW VIEW (Windows 11)
+       ========================================================================== */
+    .device-desktop {
+      width: 880px;
+      height: 660px;
+      background: var(--md-sys-color-surface);
+      border-radius: var(--md-sys-shape-corner-l);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    .desktop-titlebar {
+      height: 40px;
+      background: var(--md-sys-color-surface-container-lowest);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    .desktop-body {
+      display: flex;
+      flex: 1;
+      height: calc(100% - 40px);
+    }
+    .desktop-rail {
+      width: 76px;
+      background: var(--md-sys-color-surface-container);
+      border-right: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 0;
+      gap: 16px;
+    }
+    .rail-btn {
+      background: none;
+      border: none;
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .rail-btn.active { color: var(--md-sys-color-on-surface); }
+    .rail-btn.active .material-symbols-outlined {
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-radius: var(--md-sys-shape-corner-full);
+      padding: 6px 14px;
+    }
+
+    .desktop-main-pane {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      padding: 20px;
+      gap: 20px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body data-theme="pixel">
+
+  <!-- Top Viewport Control Bar -->
+  <div class="viewport-toolbar">
+    <div class="toolbar-brand">
+      <div class="toolbar-avatar">W</div>
+      <div>
+        <div class="toolbar-title">WOULDAPP CLIENT</div>
+        <div class="toolbar-sub">Google Material 3 Specification • Sing-box Core</div>
+      </div>
+    </div>
+
+    <!-- M3 Segmented Button -->
+    <div class="segmented-group">
+      <button class="segmented-item selected" id="seg-mobile" onclick="setDeviceMode('mobile')">
+        <span class="material-symbols-outlined" style="font-size: 16px;">smartphone</span>
+        Android Вид
+      </button>
+      <button class="segmented-item" id="seg-desktop" onclick="setDeviceMode('desktop')">
+        <span class="material-symbols-outlined" style="font-size: 16px;">desktop_windows</span>
+        Windows Вид
+      </button>
+    </div>
+  </div>
+
+  <div class="stage">
+
+    <!-- ==================== 1. ANDROID M3 MOBILE ==================== -->
+    <div class="device-mobile" id="view-mobile">
+      
+      <!-- System Status Bar -->
+      <div class="system-status-bar">
+        <span>20:50</span>
+        <div class="system-notch"></div>
+        <div style="display: flex; gap: 4px; align-items: center;">
+          <span class="material-symbols-outlined" style="font-size: 14px;">signal_cellular_alt</span>
+          <span class="material-symbols-outlined" style="font-size: 14px;">wifi</span>
+          <span class="material-symbols-outlined" style="font-size: 14px;">battery_full</span>
+        </div>
+      </div>
+
+      <!-- Top App Bar with Settings Gear Button -->
+      <div class="top-app-bar">
+        <div class="top-app-bar-headline">
+          <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">shield</span>
+          <span>WouldApp</span>
+        </div>
+        <button class="icon-btn-gear" onclick="openSettingsView()" title="Настройки">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+      </div>
+
+      <!-- Main Scrollable Screen Content -->
+      <div class="mobile-content">
+
+        <!-- WOULD.TG Promotion Card (Filled Card) -->
+        <div class="m3-card-promo" onclick="triggerWouldTgPromo()">
+          <div class="promo-header">
+            <span class="badge-label">ПРОВАЙДЕР WOULD.TG</span>
+            <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
+          </div>
+          <div class="promo-title">Скоростной европейский канал</div>
+          <div class="promo-body">YouTube 4K, соцсети и мессенджеры без задержек. Протокол VLESS Reality.</div>
+          <div class="promo-footer">
+            <span class="promo-price-tag">200 ₽ / месяц</span>
+            <button class="btn-filled-tonal">
+              Подключить
+              <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- M3 Elevated Connection Card -->
+        <div class="m3-connection-card" id="connection-card-m">
+          <div class="power-action-container">
+            <div class="power-wave"></div>
+            <button class="m3-power-fab" id="fab-power" onclick="toggleVpnState()">
+              <span class="material-symbols-outlined" id="fab-icon">power_settings_new</span>
+            </button>
+          </div>
+
+          <div class="connection-headline">
+            <span class="status-badge-dot"></span>
+            <span id="label-state-title">Отключено</span>
+          </div>
+          <div class="connection-subhead" id="label-state-desc">Выберите сервер в списке ниже и нажмите подключение</div>
+
+          <!-- Real-Time Wave Graph Canvas -->
+          <div class="canvas-container">
+            <canvas id="traffic-canvas" width="340" height="54"></canvas>
+            <div class="canvas-overlay-text" id="canvas-idle-label">ОЖИДАНИЕ ТРАФИКА</div>
+          </div>
+
+          <!-- Telemetry Metrics Bar -->
+          <div class="telemetry-container">
+            <div class="telemetry-cell">
+              <span class="telemetry-caption">СКАЧИВАНИЕ</span>
+              <span class="telemetry-number" id="m-down">0.0 MB/s</span>
+            </div>
+            <div class="telemetry-cell">
+              <span class="telemetry-caption">ОТДАЧА</span>
+              <span class="telemetry-number" id="m-up">0.0 MB/s</span>
+            </div>
+            <div class="telemetry-cell">
+              <span class="telemetry-caption">СЕССИЯ</span>
+              <span class="telemetry-number" id="m-time">00:00:00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==============================================================
+             INLINE COLLAPSIBLE SERVERS SECTION (With Search & Add Modal)
+             ============================================================== -->
+        <div class="server-section-card">
+          <div class="server-section-header" onclick="toggleServerCollapse()">
+            <div class="server-section-title">
+              <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary); font-size: 20px;">dns</span>
+              <span>Список серверов</span>
+              <span style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">(<span id="srv-count">5</span>)</span>
+            </div>
+            <div class="header-actions">
+              <!-- Add Key Button -->
+              <button class="btn-add-server" onclick="event.stopPropagation(); openAddKeyModal()" title="Добавить сервер">
+                <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+              </button>
+              <!-- Sort by Ping -->
+              <button class="btn-mini-chip" onclick="event.stopPropagation(); sortByPing()" title="Сортировать по задержке">
+                <span class="material-symbols-outlined" style="font-size: 14px;">sort</span>
+                Топ
+              </button>
+              <!-- Ping Test -->
+              <button class="btn-mini-chip" onclick="event.stopPropagation(); testAllPings()">
+                <span class="material-symbols-outlined" style="font-size: 14px;">bolt</span>
+                Пинг
+              </button>
+              <span class="material-symbols-outlined" id="collapse-chevron" style="color: var(--md-sys-color-outline);">expand_less</span>
+            </div>
+          </div>
+
+          <!-- Instant Search Filter -->
+          <div class="server-search-strip" id="search-strip" style="position: relative;">
+            <span class="material-symbols-outlined search-icon-pos">search</span>
+            <input type="text" class="search-input-m3" id="server-filter-input" placeholder="Поиск по стране или протоколу..." oninput="filterServers(this.value)">
+          </div>
+
+          <div class="server-collapsible-body" id="collapsible-server-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==============================================================
+           MODAL: ADD KEY / SUBSCRIPTION SHEET
+           ============================================================== -->
+      <div class="m3-scrim" id="modal-add-sheet" onclick="closeAddKeyModal(event)">
+        <div class="m3-modal-sheet" onclick="event.stopPropagation()">
+          <div class="m3-sheet-handle"></div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 17px; font-weight: 700;">Импорт узла или подписки</span>
+            <button class="btn-back" onclick="closeAddKeyModal()">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div class="m3-field-container">
+            <span class="m3-field-label">Ключ или ссылка подписки</span>
+            <input type="text" class="m3-field-input" id="custom-link-val" placeholder="vless://... или https://sub...">
+          </div>
+
+          <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">Быстрые пресеты:</div>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="btn-mini-chip" onclick="pastePreset('🇳🇱 Amsterdam VLESS Reality', '185.220.101.44', '🇳🇱', 'VLESS Reality')">+ Amsterdam</button>
+            <button class="btn-mini-chip" onclick="pastePreset('🇩🇪 Frankfurt Hysteria 2', '45.142.214.88', '🇩🇪', 'Hysteria 2')">+ Frankfurt</button>
+            <button class="btn-mini-chip" onclick="pastePreset('🇺🇸 New York Trojan', '198.51.100.22', '🇺🇸', 'Trojan TLS')">+ New York</button>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <button class="btn-filled-tonal" style="flex: 1; height: 42px; justify-content: center;" onclick="confirmAddKey()">
+              <span class="material-symbols-outlined">save</span>
+              Сохранить узел
+            </button>
+            <button class="btn-mini-chip" style="height: 42px; padding: 0 14px;" onclick="simulateQrScan()">
+              <span class="material-symbols-outlined">qr_code_scanner</span>
+              QR-код
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==============================================================
+           FULL-SCREEN SETTINGS VIEW (Opened via Gear Icon)
+           ============================================================== -->
+      <div class="settings-view" id="mobile-settings-screen">
+        <div class="settings-topbar">
+          <button class="btn-back" onclick="closeSettingsView()">
+            <span class="material-symbols-outlined">arrow_back</span>
+          </button>
+          <span class="settings-headline">Настройки</span>
+        </div>
+
+        <div class="settings-scroll">
+          
+          <!-- Category 1: Interface Settings -->
+          <div class="settings-category">
+            <div class="category-title">1. Интерфейс и звук</div>
+            <div class="m3-settings-card">
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Тема оформления</div>
+                  <div class="setting-caption">Цветовая схема приложения</div>
+                </div>
+                <select class="m3-select" id="theme-selector" onchange="changeTheme(this.value)">
+                  <option value="pixel" selected>Material You Navy</option>
+                  <option value="amoled">AMOLED Тёмная</option>
+                  <option value="light">Светлая M3</option>
+                </select>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Тактильный щелчок / Аудио</div>
+                  <div class="setting-caption">Звуковой отклик при включении VPN</div>
+                </div>
+                <div class="m3-switch-control checked" id="audio-toggle" onclick="toggleM3Switch(this)">
+                  <div class="m3-switch-thumb"></div>
+                </div>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">График скорости на экране</div>
+                  <div class="setting-caption">Анимация живой кривой передачи данных</div>
+                </div>
+                <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
+                  <div class="m3-switch-thumb"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 2: Tunnel Settings -->
+          <div class="settings-category">
+            <div class="category-title">2. Настройки туннеля</div>
+            <div class="m3-settings-card">
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Режим работы ядра</div>
+                  <div class="setting-caption">Метод перехвата системного сетевого стека</div>
+                </div>
+                <select class="m3-select">
+                  <option selected>TUN (Wintun адаптер)</option>
+                  <option>Системный прокси</option>
+                </select>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Размер MTU</div>
+                  <div class="setting-caption">Максимальный размер сетевого пакета</div>
+                </div>
+                <select class="m3-select">
+                  <option selected>1500 (Стандарт)</option>
+                  <option>1400 (Для мобильных)</option>
+                  <option>9000 (Jumbo)</option>
+                </select>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Kill Switch</div>
+                  <div class="setting-caption">Блокировать интернет при обрыве соединения</div>
+                </div>
+                <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
+                  <div class="m3-switch-thumb"></div>
+                </div>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Защита от утечек IPv6</div>
+                  <div class="setting-caption">Автоматическая изоляция внешних IPv6-маршрутов</div>
+                </div>
+                <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
+                  <div class="m3-switch-thumb"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 3: Advanced Subscription & Ping Settings -->
+          <div class="settings-category">
+            <div class="category-title">3. Расширенные настройки (Подписки и Пинг)</div>
+            <div class="m3-settings-card">
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Автообновление подписок</div>
+                  <div class="setting-caption">Периодичность синхронизации узлов</div>
+                </div>
+                <select class="m3-select">
+                  <option selected>Каждые 12 часов</option>
+                  <option>Каждые 24 часа</option>
+                  <option>Только вручную</option>
+                </select>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Тип проверки пинга</div>
+                  <div class="setting-caption">Метод замера задержки до серверов</div>
+                </div>
+                <select class="m3-select">
+                  <option selected>Real TCP Handshake</option>
+                  <option>HTTP 204 Request</option>
+                  <option>ICMP Ping</option>
+                </select>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Таймаут прокси-пинга</div>
+                  <div class="setting-caption">Время ожидания ответа узла до сброса</div>
+                </div>
+                <select class="m3-select">
+                  <option selected>2000 мс</option>
+                  <option>3000 мс</option>
+                  <option>5000 мс</option>
+                </select>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">URL проверки доступности</div>
+                  <div class="setting-caption">http://cp.cloudflare.com/generate_204</div>
+                </div>
+                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary); font-size: 18px; cursor: pointer;">edit</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 4: Other Settings (Stats, Logs, Reset) -->
+          <div class="settings-category">
+            <div class="category-title">4. Другие настройки и диагностика</div>
+            <div class="m3-settings-card">
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Статистика трафика</div>
+                  <div class="setting-caption" id="traffic-stat-label">Скачано: 18.4 GB • Отдано: 2.7 GB</div>
+                </div>
+                <button class="btn-mini-chip" onclick="resetTrafficStats()">Сброс</button>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title">Журнал событий ядра</div>
+                  <div class="setting-caption">Технические логи подключений Sing-box</div>
+                </div>
+                <button class="btn-mini-chip" onclick="toggleSettingsLog()">Логи</button>
+              </div>
+              <div id="settings-log-box" style="display: none; padding-bottom: 8px;">
+                <div class="m3-terminal" id="terminal-settings" style="max-height: 140px;">
+                  <div class="term-row info">[sing-box] Core engine running on Android VpnService/TUN</div>
+                </div>
+              </div>
+
+              <div class="m3-setting-row">
+                <div class="m3-setting-text">
+                  <div class="setting-title" style="color: var(--md-sys-color-error);">Сброс настроек</div>
+                  <div class="setting-caption">Вернуть конфигурацию приложения к заводской</div>
+                </div>
+                <button class="btn-mini-chip" style="color: var(--md-sys-color-error); border-color: var(--md-sys-color-error);" onclick="confirmResetAll()">Сбросить</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 5: About & Information (At the bottom) -->
+          <div class="settings-category" style="margin-top: 6px;">
+            <div class="category-title">5. Информация о приложении</div>
+            <div class="m3-settings-card" style="padding: 12px 16px; font-size: 12px; color: var(--md-sys-color-on-surface-variant); line-height: 1.6;">
+              <div style="font-weight: 700; color: var(--md-sys-color-on-surface); font-size: 14px; margin-bottom: 4px;">WouldApp Client</div>
+              <div>Версия приложения: <strong>v1.3.0-flagship</strong></div>
+              <div>Сетевое ядро: <strong>Sing-box Core v1.10.0 (Go 1.23)</strong></div>
+              <div>Официальный провайдер: <strong>@Would_tg_bot</strong></div>
+              <div>Лицензия: Open Source (MIT)</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- M3 Global Snackbar -->
+      <div class="m3-snackbar" id="global-snackbar">
+        <span id="snackbar-text">Уведомление</span>
+        <button style="background: none; border: none; color: var(--md-sys-color-primary); font-weight: 700; cursor: pointer;" onclick="hideSnackbar()">OK</button>
+      </div>
+
+    </div>
+
+    <!-- ==================== 2. WINDOWS 11 M3 DESKTOP ==================== -->
+    <div class="device-desktop" id="view-desktop">
+      <div class="desktop-titlebar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="toolbar-avatar" style="width: 24px; height: 24px; font-size: 11px;">W</div>
+          <span style="font-size: 12px; font-weight: 500;">WouldApp • Windows 11 Edition</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="icon-btn-gear" style="width: 28px; height: 28px;" onclick="openSettingsView()" title="Настройки">
+            <span class="material-symbols-outlined" style="font-size: 16px;">settings</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="desktop-body">
+        <div class="desktop-rail">
+          <button class="rail-btn active" id="desk-nav-home" onclick="switchDesktopTab('home')">
+            <span class="material-symbols-outlined">shield</span>
+            <span style="font-size: 10px; margin-top: 4px;">Главная</span>
+          </button>
+
+          <button class="rail-btn" id="desk-nav-settings" onclick="switchDesktopTab('settings')">
+            <span class="material-symbols-outlined">settings</span>
+            <span style="font-size: 10px; margin-top: 4px;">Опции</span>
+          </button>
+        </div>
+
+        <div class="desktop-main-pane" id="desktop-main-pane">
+          <!-- Left Column -->
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="m3-connection-card" id="connection-card-desk">
+              <div class="power-action-container" style="width: 120px; height: 120px; margin: 4px 0 16px;">
+                <div class="power-wave"></div>
+                <button class="m3-power-fab" style="width: 90px; height: 90px;" onclick="toggleVpnState()">
+                  <span class="material-symbols-outlined" style="font-size: 38px;">power_settings_new</span>
+                </button>
+              </div>
+
+              <div class="connection-headline">
+                <span class="status-badge-dot"></span>
+                <span id="desk-state-title">Отключено</span>
+              </div>
+              <div class="connection-subhead" id="desk-state-desc">Весь трафик ПК идет по прямому маршруту</div>
+
+              <div class="telemetry-container">
+                <div class="telemetry-cell">
+                  <span class="telemetry-caption">СКАЧИВАНИЕ</span>
+                  <span class="telemetry-number" id="desk-down">0.0 MB/s</span>
+                </div>
+                <div class="telemetry-cell">
+                  <span class="telemetry-caption">ОТДАЧА</span>
+                  <span class="telemetry-number" id="desk-up">0.0 MB/s</span>
+                </div>
+                <div class="telemetry-cell">
+                  <span class="telemetry-caption">ВРЕМЯ</span>
+                  <span class="telemetry-number" id="desk-time">00:00:00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div class="m3-card-promo" onclick="triggerWouldTgPromo()">
+              <div class="promo-header">
+                <span class="badge-label">WOULD.TG 200 ₽</span>
+                <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
+              </div>
+              <div class="promo-title">Подписка Would.tg Premium</div>
+              <div class="promo-body">Быстрые европейские узлы без лимита по трафику.</div>
+              <button class="btn-filled-tonal" style="align-self: flex-start; margin-top: 4px;">Перейти в бота</button>
+            </div>
+
+            <!-- Desktop Server List -->
+            <div class="server-section-card" style="flex: 1;">
+              <div class="server-section-header">
+                <div class="server-section-title">
+                  <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary); font-size: 18px;">dns</span>
+                  <span>Список серверов</span>
+                </div>
+                <button class="btn-mini-chip" onclick="testAllPings()">
+                  <span class="material-symbols-outlined" style="font-size: 14px;">bolt</span>
+                  Пинг
+                </button>
+              </div>
+              <div class="server-collapsible-body" id="desk-server-list" style="max-height: 250px;">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==============================================================
+             DESKTOP SETTINGS PANE
+             ============================================================== -->
+        <div class="desktop-settings-pane" id="desktop-settings-pane" style="display: none; flex: 1; padding: 22px 24px; overflow-y: auto; flex-direction: column; gap: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--md-sys-color-outline-variant); padding-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button class="btn-back" onclick="switchDesktopTab('home')">
+                <span class="material-symbols-outlined">arrow_back</span>
+              </button>
+              <span style="font-size: 18px; font-weight: 700;">Параметры клиента (Windows 11)</span>
+            </div>
+            <span class="badge-label" style="background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); padding: 4px 10px;">Sing-box Core 1.10.0</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+            <!-- Column 1: Interface & Tunnel -->
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div class="settings-category">
+                <div class="category-title">1. Интерфейс и звук</div>
+                <div class="m3-settings-card">
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title">Тема оформления</div>
+                      <div class="setting-caption">Цветовая схема приложения</div>
+                    </div>
+                    <select class="m3-select" onchange="changeTheme(this.value)">
+                      <option value="pixel" selected>Material You Navy</option>
+                      <option value="amoled">AMOLED Тёмная</option>
+                      <option value="light">Светлая M3</option>
+                    </select>
+                  </div>
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title">Звуковой отклик</div>
+                      <div class="setting-caption">Тактильный щелчок при действиях</div>
+                    </div>
+                    <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
+                      <div class="m3-switch-thumb"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-category">
+                <div class="category-title">2. Настройки туннеля (Windows)</div>
+                <div class="m3-settings-card">
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title">Режим работы</div>
+                      <div class="setting-caption">Wintun адаптер (весь трафик ПК)</div>
+                    </div>
+                    <select class="m3-select">
+                      <option selected>TUN (Wintun)</option>
+                      <option>Системный прокси</option>
+                    </select>
+                  </div>
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title">Kill Switch</div>
+                      <div class="setting-caption">Блокировка сети при разрыве туннеля</div>
+                    </div>
+                    <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
+                      <div class="m3-switch-thumb"></div>
+                    </div>
+                  </div>
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title">Размер MTU</div>
+                      <div class="setting-caption">Максимальный размер пакета</div>
+                    </div>
+                    <select class="m3-select">
+                      <option selected>1500 (Стандарт)</option>
+                      <option>9000 (Jumbo)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Column 2: Advanced & Info -->
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div class="settings-category">
+                <div class="category-title">3. Подписки и замер пинга</div>
+                <div class="m3-settings-card">
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title">Тип проверки пинга</div>
+                      <div class="setting-caption">Замер реального времени рукопожатия</div>
+                    </div>
+                    <select class="m3-select">
+                      <option selected>Real TCP Handshake</option>
+                      <option>HTTP 204 Request</option>
+                      <option>ICMP Ping</option>
+                    </select>
+                  </div>
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title">Таймаут пинга</div>
+                      <div class="setting-caption">Лимит ожидания ответа узла</div>
+                    </div>
+                    <select class="m3-select">
+                      <option selected>2000 мс</option>
+                      <option>3000 мс</option>
+                    </select>
+                  </div>
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title">Автообновление подписок</div>
+                      <div class="setting-caption">Синхронизация узлов Would.tg</div>
+                    </div>
+                    <select class="m3-select">
+                      <option selected>Каждые 12 часов</option>
+                      <option>Каждые 24 часа</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-category">
+                <div class="category-title">4. Диагностика и информация</div>
+                <div class="m3-settings-card">
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title">Статистика трафика</div>
+                      <div class="setting-caption">Скачано: 18.4 GB • Отдано: 2.7 GB</div>
+                    </div>
+                    <button class="btn-mini-chip" onclick="resetTrafficStats()">Сбросить</button>
+                  </div>
+                  <div class="m3-setting-row">
+                    <div class="m3-setting-text">
+                      <div class="setting-title" style="color: var(--md-sys-color-error);">Сброс настроек</div>
+                      <div class="setting-caption">Вернуть конфигурацию к заводской</div>
+                    </div>
+                    <button class="btn-mini-chip" style="color: var(--md-sys-color-error); border-color: var(--md-sys-color-error);" onclick="confirmResetAll()">Сброс</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // State Model
+    const appState = {
+      status: 'disconnected', // disconnected, connecting, connected
+      selectedId: 'nl-1',
+      serversCollapsed: false,
+      searchQuery: '',
+      secondsElapsed: 0,
+      soundEnabled: true,
+      timerHandle: null,
+      speedHandle: null,
+      reconnectTimer: null,
+      waveData: new Array(40).fill(0),
+      servers: [
+        { id: 'nl-1', name: 'Нидерланды #1 • Amsterdam Fast', flag: '🇳🇱', ping: 22, proto: 'VLESS Reality', ip: '185.220.101.44' },
+        { id: 'de-1', name: 'Германия #2 • Frankfurt High-Speed', flag: '🇩🇪', ping: 35, proto: 'Hysteria 2', ip: '45.142.214.88' },
+        { id: 'fi-1', name: 'Финляндия #1 • Helsinki Direct', flag: '🇫🇮', ping: 17, proto: 'VLESS Reality', ip: '95.217.34.12' },
+        { id: 'us-1', name: 'США #1 • New York Streaming', flag: '🇺🇸', ping: 108, proto: 'Trojan TLS', ip: '198.51.100.22' },
+        { id: 'sg-1', name: 'Сингапур #1 • Asia Gateway', flag: '🇸🇬', ping: 168, proto: 'VLESS Reality', ip: '103.253.14.9' }
+      ]
+    };
+
+    // Web Audio Synthesizer (High-tech Click)
+    let audioCtx = null;
+    function playBeep(freq = 600, duration = 0.05) {
+      if (!appState.soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function setDeviceMode(mode) {
+      playBeep(450, 0.03);
+      document.getElementById('seg-mobile').classList.toggle('selected', mode === 'mobile');
+      document.getElementById('seg-desktop').classList.toggle('selected', mode === 'desktop');
+      document.getElementById('view-mobile').style.display = mode === 'mobile' ? 'flex' : 'none';
+      document.getElementById('view-desktop').style.display = mode === 'desktop' ? 'flex' : 'none';
+      if (mode === 'desktop') {
+        switchDesktopTab('home');
+      }
+    }
+
+    function toggleServerCollapse() {
+      playBeep(520, 0.03);
+      appState.serversCollapsed = !appState.serversCollapsed;
+      const list = document.getElementById('collapsible-server-list');
+      const chevron = document.getElementById('collapse-chevron');
+      if (appState.serversCollapsed) {
+        list.classList.add('collapsed');
+        chevron.textContent = 'expand_more';
+      } else {
+        list.classList.remove('collapsed');
+        chevron.textContent = 'expand_less';
+      }
+    }
+
+    function filterServers(query) {
+      appState.searchQuery = query.toLowerCase().trim();
+      renderAllServers();
+    }
+
+    function sortByPing() {
+      playBeep(650, 0.04);
+      appState.servers.sort((a, b) => a.ping - b.ping);
+      renderAllServers();
+      showSnackbar('Серверы отсортированы по минимальной задержке ⚡');
+    }
+
+    function renderAllServers() {
+      const filtered = appState.servers.filter(s => 
+        s.name.toLowerCase().includes(appState.searchQuery) ||
+        s.proto.toLowerCase().includes(appState.searchQuery)
+      );
+
+      document.getElementById('srv-count').textContent = appState.servers.length;
+
+      const makeItem = (s) => `
+        <div class="m3-list-item ${s.id === appState.selectedId ? 'selected' : ''}" onclick="pickServer('${s.id}')">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 20px;">${s.flag}</span>
+            <div>
+              <div style="font-size: 13px; font-weight: 500; color: var(--md-sys-color-on-surface);">${s.name}</div>
+              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">${s.proto} • IP: ${s.ip}</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="badge-latency" id="ping-${s.id}">${s.ping} ms</span>
+            ${s.id === appState.selectedId ? '<span class="material-symbols-outlined" style="font-size: 18px; color: var(--md-sys-color-primary);">check</span>' : ''}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('collapsible-server-list').innerHTML = filtered.map(makeItem).join('');
+      document.getElementById('desk-server-list').innerHTML = appState.servers.map(makeItem).join('');
+    }
+
+    function pickServer(id) {
+      if (appState.selectedId === id) {
+        if (appState.status === 'connected') {
+          showSnackbar('Уже подключено к этому серверу');
+        }
+        return;
+      }
+
+      const oldServer = appState.servers.find(srv => srv.id === appState.selectedId);
+      const newServer = appState.servers.find(srv => srv.id === id);
+      appState.selectedId = id;
+      renderAllServers();
+
+      const cardM = document.getElementById('connection-card-m');
+      const cardD = document.getElementById('connection-card-desk');
+      const titleM = document.getElementById('label-state-title');
+      const titleD = document.getElementById('desk-state-title');
+      const descM = document.getElementById('label-state-desc');
+      const descD = document.getElementById('desk-state-desc');
+
+      if (appState.status === 'connected' || appState.status === 'connecting') {
+        // Clear any previous reconnection process
+        if (appState.reconnectTimer) clearTimeout(appState.reconnectTimer);
+
+        // STEP 1: Disconnect from the old server
+        playBeep(420, 0.05);
+        appState.status = 'connecting';
+        cardM.className = 'm3-connection-card connecting';
+        cardD.className = 'm3-connection-card connecting';
+        
+        titleM.textContent = 'Отключение...';
+        titleD.textContent = 'Отключение...';
+        descM.textContent = `Разрыв соединения с ${oldServer ? oldServer.name : 'сервером'}...`;
+        descD.textContent = `Закрытие туннеля Wintun (${oldServer ? oldServer.ip : ''})...`;
+
+        // Dip speed graph temporarily
+        appState.waveData = appState.waveData.map(v => Math.max(0, v * 0.3));
+        pushLog(`[sing-box] Отключение от предыдущего узла: ${oldServer ? oldServer.name : 'Outbound'}`);
+        pushLog(`[sing-box] Остановка активных сокетов. Подготовка к переключению...`);
+
+        // STEP 2: Initiate connection to the new server
+        appState.reconnectTimer = setTimeout(() => {
+          titleM.textContent = 'Подключение...';
+          titleD.textContent = 'Подключение...';
+          descM.textContent = `Рукопожатие с ${newServer.name} (${newServer.ip})...`;
+          descD.textContent = `Установка соединения с ${newServer.name}...`;
+          pushLog(`[sing-box] Установка нового исходящего соединения -> ${newServer.proto}://${newServer.ip}:443`);
+
+          // STEP 3: Successfully connected to the new server
+          appState.reconnectTimer = setTimeout(() => {
+            appState.status = 'connected';
+            cardM.className = 'm3-connection-card connected';
+            cardD.className = 'm3-connection-card connected';
+
+            titleM.textContent = 'Подключено';
+            titleD.textContent = 'Подключено';
+            descM.textContent = `Защищено • IP: ${newServer.ip} (${newServer.ping} ms)`;
+            descD.textContent = `Туннель Wintun активен • IP: ${newServer.ip}`;
+
+            playBeep(920, 0.1);
+            pushLog(`[sing-box] Туннель переключен на ${newServer.name}! Сетевой маршрут обновлен.`);
+            showSnackbar(`✓ Переключено на: ${newServer.name}`);
+            renderAllServers();
+          }, 800);
+
+        }, 500);
+
+      } else {
+        // If disconnected, just select it without connecting
+        playBeep(580, 0.03);
+        descM.textContent = `Выбран ${newServer.name}. Нажмите кнопку для подключения`;
+        descD.textContent = `Выбран ${newServer.name}. Нажмите кнопку для подключения`;
+        pushLog(`[routing] Выбран профиль: ${newServer.name} (${newServer.ip})`);
+        showSnackbar(`Выбран: ${newServer.name}`);
+      }
+    }
+
+    function testAllPings() {
+      playBeep(700, 0.05);
+      pushLog('[sing-box] Запущен тест TCP-рукопожатия для всех узлов...');
+      appState.servers.forEach(s => {
+        const pingEl = document.getElementById(`ping-${s.id}`);
+        if (pingEl) pingEl.textContent = '...';
+      });
+
+      setTimeout(() => {
+        appState.servers.forEach(s => {
+          const delta = Math.floor(Math.random() * 8) - 4;
+          s.ping = Math.max(12, s.ping + delta);
+        });
+        renderAllServers();
+        pushLog('[sing-box] Замер пинга завершен успешно.');
+        showSnackbar('Пинг успешно обновлён для всех узлов');
+      }, 550);
+    }
+
+    // Modal: Add Key & Presets
+    function openAddKeyModal() {
+      playBeep(600, 0.03);
+      document.getElementById('modal-add-sheet').classList.add('visible');
+    }
+    function closeAddKeyModal(e) {
+      if (e && e.target !== e.currentTarget && !e.target.closest('.btn-back')) return;
+      document.getElementById('modal-add-sheet').classList.remove('visible');
+    }
+    function pastePreset(name, ip, flag, proto) {
+      playBeep(620, 0.03);
+      document.getElementById('custom-link-val').value = `vless://uuid-test@${ip}:443?security=reality#${encodeURIComponent(name)}`;
+    }
+    function confirmAddKey() {
+      const val = document.getElementById('custom-link-val').value.trim();
+      if (!val) {
+        showSnackbar('Введите ссылку на сервер или выберите пресет!');
+        return;
+      }
+      playBeep(800, 0.06);
+      const newSrv = {
+        id: 'user-' + Date.now(),
+        name: val.includes('#') ? decodeURIComponent(val.split('#')[1]) : 'Пользовательский узел (' + val.slice(0, 10) + '...)',
+        flag: '🌐',
+        ping: Math.floor(Math.random() * 25 + 18),
+        proto: 'VLESS Reality',
+        ip: '194.87.112.4'
+      };
+      appState.servers.unshift(newSrv);
+      appState.selectedId = newSrv.id;
+      renderAllServers();
+      closeAddKeyModal();
+      document.getElementById('custom-link-val').value = '';
+      showSnackbar(`✓ Узел "${newSrv.name}" успешно добавлен!`);
+      pushLog(`[sub] Импортирован узел: ${newSrv.name}`);
+    }
+    function simulateQrScan() {
+      playBeep(750, 0.05);
+      showSnackbar('📷 Сканирование QR-кода камеры: конфигурация найдена!');
+      setTimeout(() => {
+        pastePreset('Финляндия Helsinki (QR)', '95.217.34.12', '🇫🇮', 'VLESS Reality');
+      }, 400);
+    }
+
+    // Theme Switcher
+    function changeTheme(theme) {
+      playBeep(550, 0.03);
+      document.body.setAttribute('data-theme', theme);
+      showSnackbar(`Тема переключена: ${theme.toUpperCase()}`);
+    }
+
+    function switchDesktopTab(tab) {
+      playBeep(520, 0.03);
+      const mainPane = document.getElementById('desktop-main-pane');
+      const settingsPane = document.getElementById('desktop-settings-pane');
+      const navHome = document.getElementById('desk-nav-home');
+      const navSettings = document.getElementById('desk-nav-settings');
+
+      if (tab === 'settings') {
+        mainPane.style.display = 'none';
+        settingsPane.style.display = 'flex';
+        if (navHome) navHome.classList.remove('active');
+        if (navSettings) navSettings.classList.add('active');
+      } else {
+        settingsPane.style.display = 'none';
+        mainPane.style.display = 'grid';
+        if (navSettings) navSettings.classList.remove('active');
+        if (navHome) navHome.classList.add('active');
+      }
+    }
+
+    // Settings Navigation
+    function openSettingsView() {
+      playBeep(520, 0.03);
+      const isDesktop = document.getElementById('view-desktop').style.display === 'flex';
+      if (isDesktop) {
+        switchDesktopTab('settings');
+      } else {
+        document.getElementById('mobile-settings-screen').classList.add('active');
+      }
+    }
+    function closeSettingsView() {
+      playBeep(480, 0.03);
+      document.getElementById('mobile-settings-screen').classList.remove('active');
+      const settingsPane = document.getElementById('desktop-settings-pane');
+      if (settingsPane) switchDesktopTab('home');
+    }
+
+    function toggleM3Switch(el) {
+      playBeep(640, 0.03);
+      el.classList.toggle('checked');
+      if (el.id === 'audio-toggle') {
+        appState.soundEnabled = el.classList.contains('checked');
+      }
+      const title = el.previousElementSibling.querySelector('.setting-title').textContent;
+      pushLog(`[settings] Переключен параметр: "${title}"`);
+    }
+
+    function toggleSettingsLog() {
+      const box = document.getElementById('settings-log-box');
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function resetTrafficStats() {
+      playBeep(500, 0.04);
+      document.getElementById('traffic-stat-label').textContent = 'Скачано: 0.0 MB • Отдано: 0.0 MB';
+      showSnackbar('Статистика трафика обнулена!');
+    }
+    function confirmResetAll() {
+      if (confirm('Сбросить все настройки клиента до заводских?')) {
+        playBeep(400, 0.08);
+        showSnackbar('Все параметры сброшены до начальных.');
+      }
+    }
+
+    // Global Snackbar
+    let snackbarTimer = null;
+    function showSnackbar(msg) {
+      const bar = document.getElementById('global-snackbar');
+      document.getElementById('snackbar-text').textContent = msg;
+      bar.classList.add('active');
+      clearTimeout(snackbarTimer);
+      snackbarTimer = setTimeout(hideSnackbar, 3200);
+    }
+    function hideSnackbar() {
+      document.getElementById('global-snackbar').classList.remove('active');
+    }
+
+    // Live Speed Canvas Graph Animation
+    const canvas = document.getElementById('traffic-canvas');
+    const ctx = canvas.getContext('2d');
+    function drawSpeedCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const isLive = appState.status === 'connected';
+
+      // Push new speed wave point
+      if (isLive) {
+        const val = Math.sin(Date.now() / 300) * 8 + Math.random() * 12 + 18;
+        appState.waveData.push(val);
+      } else {
+        appState.waveData.push(0);
+      }
+      appState.waveData.shift();
+
+      // Render Line & Fill
+      ctx.beginPath();
+      const step = canvas.width / (appState.waveData.length - 1);
+      ctx.moveTo(0, canvas.height - appState.waveData[0]);
+
+      for (let i = 1; i < appState.waveData.length; i++) {
+        const x = i * step;
+        const y = canvas.height - appState.waveData[i] - 4;
+        ctx.lineTo(x, y);
+      }
+
+      ctx.strokeStyle = isLive ? '#6dd58c' : '#44474e';
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+
+      if (isLive) {
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.lineTo(0, canvas.height);
+        ctx.closePath();
+        const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        grad.addColorStop(0, 'rgba(109, 213, 140, 0.35)');
+        grad.addColorStop(1, 'rgba(109, 213, 140, 0.0)');
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      requestAnimationFrame(drawSpeedCanvas);
+    }
+    requestAnimationFrame(drawSpeedCanvas);
+
+    // Toggle VPN State
+    function toggleVpnState() {
+      const cardM = document.getElementById('connection-card-m');
+      const cardD = document.getElementById('connection-card-desk');
+      const titleM = document.getElementById('label-state-title');
+      const titleD = document.getElementById('desk-state-title');
+      const descM = document.getElementById('label-state-desc');
+      const descD = document.getElementById('desk-state-desc');
+      const idleLabel = document.getElementById('canvas-idle-label');
+      const activeServer = appState.servers.find(s => s.id === appState.selectedId);
+
+      if (appState.status === 'disconnected') {
+        playBeep(720, 0.08);
+        appState.status = 'connecting';
+        cardM.className = 'm3-connection-card connecting';
+        cardD.className = 'm3-connection-card connecting';
+        titleM.textContent = 'Подключение...';
+        titleD.textContent = 'Подключение...';
+        descM.textContent = `Установка соединения с ${activeServer.name}...`;
+        descD.textContent = `Рукопожатие VLESS Reality с ${activeServer.ip}...`;
+        idleLabel.style.display = 'none';
+        pushLog(`[sing-box] Исходящее подключение -> ${activeServer.proto}://${activeServer.ip}:443`);
+
+        setTimeout(() => {
+          if (appState.status !== 'connecting') return;
+          playBeep(920, 0.12);
+          appState.status = 'connected';
+          cardM.className = 'm3-connection-card connected';
+          cardD.className = 'm3-connection-card connected';
+          titleM.textContent = 'Подключено';
+          titleD.textContent = 'Подключено';
+          descM.textContent = `Защищено • IP: ${activeServer.ip} (${activeServer.ping} ms)`;
+          descD.textContent = `Туннель Wintun активен • IP: ${activeServer.ip}`;
+          pushLog(`[sing-box] Туннель поднят! Wintun сетевой адаптер активен.`);
+          showSnackbar(`✓ Защита активна: ${activeServer.name}`);
+          startSpeedTicker();
+        }, 900);
+
+      } else {
+        playBeep(420, 0.08);
+        appState.status = 'disconnected';
+        cardM.className = 'm3-connection-card';
+        cardD.className = 'm3-connection-card';
+        titleM.textContent = 'Отключено';
+        titleD.textContent = 'Отключено';
+        descM.textContent = 'Выберите сервер в списке ниже и нажмите подключение';
+        descD.textContent = 'Весь трафик ПК идет по прямому маршруту';
+        idleLabel.style.display = 'block';
+        pushLog(`[sing-box] Соединение остановлено. Восстановлен дефолтный шлюз.`);
+        showSnackbar('Туннель отключен');
+        stopSpeedTicker();
+      }
+    }
+
+    function startSpeedTicker() {
+      appState.secondsElapsed = 0;
+      clearInterval(appState.timerHandle);
+      clearInterval(appState.speedHandle);
+
+      appState.timerHandle = setInterval(() => {
+        appState.secondsElapsed++;
+        const h = String(Math.floor(appState.secondsElapsed / 3600)).padStart(2, '0');
+        const m = String(Math.floor((appState.secondsElapsed % 3600) / 60)).padStart(2, '0');
+        const s = String(appState.secondsElapsed % 60).padStart(2, '0');
+        const timeStr = `${h}:${m}:${s}`;
+        document.getElementById('m-time').textContent = timeStr;
+        document.getElementById('desk-time').textContent = timeStr;
+      }, 1000);
+
+      appState.speedHandle = setInterval(() => {
+        const down = (Math.random() * 9.2 + 1.8).toFixed(1);
+        const up = (Math.random() * 2.4 + 0.3).toFixed(1);
+        document.getElementById('m-down').textContent = `${down} MB/s`;
+        document.getElementById('m-up').textContent = `${up} MB/s`;
+        document.getElementById('desk-down').textContent = `${down} MB/s`;
+        document.getElementById('desk-up').textContent = `${up} MB/s`;
+      }, 700);
+    }
+
+    function stopSpeedTicker() {
+      clearInterval(appState.timerHandle);
+      clearInterval(appState.speedHandle);
+      document.getElementById('m-down').textContent = '0.0 MB/s';
+      document.getElementById('m-up').textContent = '0.0 MB/s';
+      document.getElementById('m-time').textContent = '00:00:00';
+      document.getElementById('desk-down').textContent = '0.0 MB/s';
+      document.getElementById('desk-up').textContent = '0.0 MB/s';
+      document.getElementById('desk-time').textContent = '00:00:00';
+    }
+
+    function pushLog(text) {
+      const time = new Date().toTimeString().split(' ')[0];
+      const div = document.createElement('div');
+      div.className = 'term-row';
+      if (text.includes('поднят') || text.includes('успешно') || text.includes('Импортирован')) div.className += ' success';
+      if (text.includes('Исходящее') || text.includes('Запущен')) div.className += ' info';
+      div.textContent = `[${time}] ${text}`;
+
+      const tS = document.getElementById('terminal-settings');
+      if (tS) {
+        tS.appendChild(div);
+        tS.scrollTop = tS.scrollHeight;
+      }
+    }
+
+    function triggerWouldTgPromo() {
+      playBeep(700, 0.05);
+      showSnackbar('Открытие бота @Would_tg_bot... При покупке подписка импортируется автоматически!');
+    }
+
+    // Initial render
+    renderAllServers();
+  </script>
+</body>
+</html>
