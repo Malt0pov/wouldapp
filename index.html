@@ -388,75 +388,116 @@
     }
 
     /* ==========================================================================
-       THE ROTATING WAVY PROGRESS CIRCLE (Material 3 Expressive Scalloped Circle)
+       THE WAVY SCALLOPED POWER BUTTON (Material 3 Expressive Scallop Shape)
        ========================================================================== */
-    .connection-circle-stage {
+    .connection-stage-wrap {
       position: relative;
-      width: 220px;
-      height: 220px;
-      margin: 12px auto 20px;
+      margin: 16px auto 20px;
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 175px;
+      height: 175px;
     }
 
-    /* Wavy Scalloped SVG Canvas Ring */
-    .wavy-svg-ring {
+    .m3-wavy-power-btn {
+      position: relative;
+      width: 165px;
+      height: 165px;
+      background: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .m3-wavy-power-btn:hover {
+      transform: scale(1.06);
+    }
+
+    .m3-wavy-power-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Wavy Scalloped SVG Shape */
+    .wavy-btn-svg {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      transform-origin: center center;
+      overflow: visible;
+      transform-origin: 50% 50%;
     }
 
-    .wavy-path {
-      fill: none;
-      stroke: var(--md-sys-color-outline);
-      stroke-width: 3.5px;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      transition: all 0.4s ease;
+    .wavy-btn-shape {
+      fill: url(#btnGradDisconnected);
+      stroke: rgba(56, 189, 248, 0.45);
+      stroke-width: 3px;
+      transition: fill 0.35s ease, stroke 0.35s ease, filter 0.35s ease;
+      filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5));
     }
 
-    /* Rotating state during CONNECTING */
-    .connection-circle-stage.connecting .wavy-svg-ring {
-      animation: spinWavy 2.2s linear infinite;
+    .m3-wavy-power-btn:hover .wavy-btn-shape {
+      stroke: var(--md-sys-color-primary);
+      filter: drop-shadow(0 10px 24px rgba(56, 189, 248, 0.35));
     }
 
-    .connection-circle-stage.connecting .wavy-path {
-      stroke: url(#wavyGradient);
-      stroke-width: 5px;
-      filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 24px rgba(2, 132, 199, 0.6));
-    }
-
-    /* Rotating Counter-Harmonic Dotted Halo */
-    .wavy-halo {
-      position: absolute;
-      width: 184px;
-      height: 184px;
-      border-radius: 50%;
-      border: 2px dashed rgba(56, 189, 248, 0.2);
+    /* Centered Power Glyph */
+    .wavy-power-glyph {
+      position: relative;
+      z-index: 3;
+      font-size: 52px;
+      color: #94a3b8;
+      transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
       pointer-events: none;
-      transition: all 0.3s ease;
     }
 
-    .connection-circle-stage.connecting .wavy-halo {
-      border-color: rgba(56, 189, 248, 0.6);
-      animation: spinReverse 4s linear infinite;
+    .m3-wavy-power-btn:hover .wavy-power-glyph {
+      color: #f8fafc;
+      transform: scale(1.05);
     }
 
-    /* Solid Connected Glow */
-    .connection-circle-stage.connected .wavy-path {
-      stroke: var(--md-sys-color-success);
-      stroke-width: 4.5px;
-      filter: drop-shadow(0 0 14px rgba(16, 185, 129, 0.8));
+    /* CONNECTING: The Wavy Button Shape Spins and Glows Cyan */
+    .connection-stage-wrap.connecting .wavy-btn-svg,
+    .m3-wavy-power-btn.connecting .wavy-btn-svg {
+      animation: spinWavy 2.5s linear infinite;
     }
 
-    .connection-circle-stage.connected .wavy-halo {
-      border-color: rgba(16, 185, 129, 0.4);
-      border-style: solid;
+    .connection-stage-wrap.connecting .wavy-btn-shape,
+    .m3-wavy-power-btn.connecting .wavy-btn-shape {
+      fill: url(#btnGradConnecting);
+      stroke: #e0f2fe;
+      stroke-width: 3.5px;
+      filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.85));
+    }
+
+    .connection-stage-wrap.connecting .wavy-power-glyph,
+    .m3-wavy-power-btn.connecting .wavy-power-glyph {
+      color: #ffffff;
+      text-shadow: 0 0 16px rgba(255, 255, 255, 0.95);
+      animation: pulseGlyph 1.4s ease-in-out infinite alternate;
+    }
+
+    /* CONNECTED: Solid Emerald Green Glow & Vibrant Shield */
+    .connection-stage-wrap.connected .wavy-btn-shape,
+    .m3-wavy-power-btn.connected .wavy-btn-shape {
+      fill: url(#btnGradConnected);
+      stroke: #a7f3d0;
+      stroke-width: 3.5px;
+      filter: drop-shadow(0 0 25px rgba(16, 185, 129, 0.85));
+    }
+
+    .connection-stage-wrap.connected .wavy-power-glyph,
+    .m3-wavy-power-btn.connected .wavy-power-glyph {
+      color: #ffffff;
+      text-shadow: 0 0 16px rgba(255, 255, 255, 0.95);
     }
 
     @keyframes spinWavy {
@@ -464,56 +505,9 @@
       100% { transform: rotate(360deg); }
     }
 
-    @keyframes spinReverse {
-      0% { transform: rotate(360deg); }
-      100% { transform: rotate(0deg); }
-    }
-
-    /* Center M3 Power Button */
-    .m3-power-btn {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      border: none;
-      background: var(--md-sys-color-surface-container-high);
-      color: var(--md-sys-color-on-surface-variant);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      position: relative;
-      z-index: 2;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
-      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-    }
-
-    .m3-power-btn .material-symbols-outlined {
-      font-size: 46px;
-      transition: all 0.3s ease;
-    }
-
-    .m3-power-btn:hover {
-      transform: scale(1.05);
-      background: var(--md-sys-color-surface-container-highest);
-      color: var(--md-sys-color-primary);
-      box-shadow: 0 12px 30px rgba(56, 189, 248, 0.25);
-    }
-
-    .m3-power-btn:active {
-      transform: scale(0.96);
-    }
-
-    .connection-circle-stage.connecting .m3-power-btn {
-      color: var(--md-sys-color-primary);
-      background: var(--md-sys-color-surface-container-highest);
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
-    }
-
-    .connection-circle-stage.connected .m3-power-btn {
-      background: linear-gradient(135deg, #059669, #10b981);
-      color: #ffffff;
-      box-shadow: 0 0 35px rgba(16, 185, 129, 0.55);
+    @keyframes pulseGlyph {
+      0% { transform: scale(0.96); opacity: 0.85; }
+      100% { transform: scale(1.08); opacity: 1; }
     }
 
     /* Connection Headline & Mode Label */
@@ -1219,26 +1213,29 @@
               <span class="vip-badge" id="conn-mode-tag">СИСТЕМНЫЙ ПРОКСИ</span>
             </div>
 
-            <!-- THE ROTATING WAVY PROGRESS CIRCLE -->
-            <div class="connection-circle-stage" id="circle-stage">
-              <!-- Halo ring -->
-              <div class="wavy-halo"></div>
-
-              <!-- 12-Lobed Scalloped Wavy SVG Ring -->
-              <svg class="wavy-svg-ring" viewBox="0 0 160 160">
-                <defs>
-                  <linearGradient id="wavyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#38bdf8" />
-                    <stop offset="50%" stop-color="#0284c7" />
-                    <stop offset="100%" stop-color="#38bdf8" />
-                  </linearGradient>
-                </defs>
-                <path class="wavy-path" d="M 151 80 C 151 84.92, 136.65 88.83, 135.06 94.75 C 133.47 100.67, 143.95 111.24, 141.49 115.5 C 139.03 119.76, 124.64 115.98, 120.31 120.31 C 115.98 124.64, 119.76 139.03, 115.5 141.49 C 111.24 143.95, 100.67 133.47, 94.75 135.06 C 88.83 136.65, 84.92 151, 80 151 C 75.08 151, 71.17 136.65, 65.25 135.06 C 59.33 133.47, 48.76 143.95, 44.5 141.49 C 40.24 139.03, 44.02 124.64, 39.69 120.31 C 35.36 115.98, 20.97 119.76, 18.51 115.5 C 16.05 111.24, 26.53 100.67, 24.94 94.75 C 23.36 88.83, 9 84.92, 9 80 C 9 75.08, 23.36 71.17, 24.94 65.25 C 26.53 59.33, 16.05 48.76, 18.51 44.5 C 20.97 40.24, 35.36 44.02, 39.69 39.69 C 44.02 35.36, 40.24 20.97, 44.5 18.51 C 48.76 16.05, 59.33 26.53, 65.25 24.94 C 71.17 23.36, 75.08 9, 80 9 C 84.92 9, 88.83 23.36, 94.75 24.94 C 100.67 26.53, 111.24 16.05, 115.5 18.51 C 119.76 20.97, 115.98 35.36, 120.31 39.69 C 124.64 44.02, 139.03 40.24, 141.49 44.5 C 143.95 48.76, 133.47 59.33, 135.06 65.25 C 136.65 71.17, 151 75.08, 151 80 Z" />
-              </svg>
-
-              <!-- M3 Power FAB Button -->
-              <button class="m3-power-btn" id="power-btn" onclick="toggleVpn()">
-                <span class="material-symbols-outlined" id="power-icon">power_settings_new</span>
+            <!-- WAVY SCALLOPED POWER BUTTON (M3 EXPRESSIVE) -->
+            <div class="connection-stage-wrap" id="circle-stage">
+              <button class="m3-wavy-power-btn" id="power-btn" onclick="toggleVpn()" aria-label="Включить / Выключить VPN">
+                <svg class="wavy-btn-svg" viewBox="0 0 160 160">
+                  <defs>
+                    <radialGradient id="btnGradDisconnected" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#243456" />
+                      <stop offset="100%" stop-color="#141c2e" />
+                    </radialGradient>
+                    <linearGradient id="btnGradConnecting" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#0284c7" />
+                      <stop offset="50%" stop-color="#38bdf8" />
+                      <stop offset="100%" stop-color="#0284c7" />
+                    </linearGradient>
+                    <linearGradient id="btnGradConnected" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#059669" />
+                      <stop offset="50%" stop-color="#10b981" />
+                      <stop offset="100%" stop-color="#047857" />
+                    </linearGradient>
+                  </defs>
+                  <path class="wavy-btn-shape" d="M 151 80 C 151 84.57, 132.78 87.8, 131.19 93.72 C 129.6 99.64, 143.78 111.54, 141.49 115.5 C 139.21 119.46, 121.81 113.15, 117.48 117.48 C 113.15 121.81, 119.46 139.21, 115.5 141.49 C 111.54 143.78, 99.64 129.6, 93.72 131.19 C 87.8 132.78, 84.57 151, 80 151 C 75.43 151, 72.2 132.78, 66.28 131.19 C 60.36 129.6, 48.46 143.78, 44.5 141.49 C 40.54 139.21, 46.85 121.81, 42.52 117.48 C 38.19 113.15, 20.8 119.46, 18.51 115.5 C 16.23 111.54, 30.39 99.64, 28.81 93.72 C 27.22 87.8, 9 84.57, 9 80 C 9 75.43, 27.22 72.2, 28.81 66.28 C 30.39 60.36, 16.23 48.46, 18.51 44.5 C 20.8 40.54, 38.19 46.85, 42.52 42.52 C 46.85 38.19, 40.54 20.8, 44.5 18.51 C 48.46 16.23, 60.36 30.39, 66.28 28.81 C 72.2 27.22, 75.43 9, 80 9 C 84.57 9, 87.8 27.22, 93.72 28.81 C 99.64 30.39, 111.54 16.23, 115.5 18.51 C 119.46 20.8, 113.15 38.19, 117.48 42.52 C 121.81 46.85, 139.21 40.54, 141.49 44.5 C 143.78 48.46, 129.6 60.36, 131.19 66.28 C 132.78 72.2, 151 75.43, 151 80 Z" />
+                </svg>
+                <span class="material-symbols-outlined wavy-power-glyph" id="power-icon">power_settings_new</span>
               </button>
             </div>
 
@@ -1638,12 +1635,14 @@
     function setConnectionState(state) {
       appState.status = state;
       const stage = document.getElementById('circle-stage');
+      const powerBtn = document.getElementById('power-btn');
       const headline = document.getElementById('conn-headline');
       const caption = document.getElementById('conn-caption');
       const dot = document.getElementById('geo-dot');
 
-      stage.className = 'connection-circle-stage ' + state;
-      dot.className = 'geo-dot ' + state;
+      if (stage) stage.className = 'connection-stage-wrap ' + state;
+      if (powerBtn) powerBtn.className = 'm3-wavy-power-btn ' + state;
+      if (dot) dot.className = 'geo-dot ' + state;
 
       if (state === 'connecting') {
         headline.textContent = 'Подключение...';
