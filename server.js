@@ -546,6 +546,15 @@ const server = http.createServer((req, res) => {
   }
 });
 
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`[info] Порт ${PORT} уже занят (сервер WouldApp уже активен в фоне).`);
+    process.exit(0);
+  } else {
+    console.error('Ошибка сервера:', err.message);
+  }
+});
+
 server.listen(PORT, '127.0.0.1', () => {
   disableWindowsProxy();
   console.log(`WouldApp Server running at http://localhost:${PORT}/`);
