@@ -1209,6 +1209,7 @@
       background: var(--md-sys-color-on-surface-variant);
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       transform: translateX(0);
+      pointer-events: none;
     }
 
     .m3-switch.checked {
@@ -1240,6 +1241,10 @@
       cursor: pointer;
     }
 
+    .theme-card-option * {
+      pointer-events: none;
+    }
+
     .color-swatch-btn {
       position: relative;
       width: 40px;
@@ -1255,6 +1260,7 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
       background: none;
       padding: 0;
+      pointer-events: none;
     }
 
     .color-swatch-btn:hover {
@@ -1458,9 +1464,9 @@
 
       <div class="rail-spacer"></div>
 
-      <!-- Telegram Franchise Bot -->
-      <a href="https://t.me/Would_tg_bot" target="_blank" class="rail-tg-btn" title="Франшиза Would.tg • 200 ₽/мес">
-        <span class="material-symbols-outlined" style="font-size: 22px;">send</span>
+      <!-- Service Would.tg.live Link -->
+      <a href="https://Would.tg.live" target="_blank" class="rail-tg-btn" title="Сервис Would.tg.live • 200 ₽/мес">
+        <span class="material-symbols-outlined" style="font-size: 22px;">language</span>
       </a>
     </nav>
 
@@ -1565,15 +1571,15 @@
 
           <!-- RIGHT COLUMN: Promo & Server Selector -->
           <div class="right-dashboard-col">
-            <!-- Франшиза Would.tg Promo -->
+            <!-- Сервис Would.tg.live Promo -->
             <div class="would-tg-card">
               <div class="wtg-left">
-                <div class="wtg-badge">ФРАНШИЗА WOULD.TG • 200 ₽/МЕС</div>
-                <div class="wtg-title">Премиум-серверы без замедления</div>
+                <div class="wtg-badge">СЕРВИС WOULD.TG.LIVE • 200 ₽/МЕС</div>
+                <div class="wtg-title">Премиум-узлы без замедления</div>
                 <div class="wtg-desc">Европейские VLESS Reality узлы без ограничений трафика. Чистый IP для доступа к сервисам без капчи.</div>
               </div>
-              <a href="https://t.me/Would_tg_bot" target="_blank" class="btn-wtg-action">
-                <span>Купить в боте</span>
+              <a href="https://Would.tg.live" target="_blank" class="btn-wtg-action">
+                <span>Открыть сервис</span>
                 <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
               </a>
             </div>
@@ -1640,7 +1646,7 @@
           </div>
 
           <div style="font-size: 13px; color: var(--md-sys-color-on-surface-variant); line-height: 1.5;">
-            Вставьте ссылку на подписку от Telegram-бота <b>@Would_tg_bot</b> (например <code>https://would.tg/sub/...</code>) или скопируйте пачку ключей <code>vless://</code>, <code>hysteria2://</code>, <code>trojan://</code>. Приложение автоматически загрузит и добавит все узлы в список!
+            Вставьте ссылку на подписку от сервиса <b>Would.tg.live</b> (например <code>https://would.tg.live/sub/...</code>) или скопируйте пачку ключей <code>vless://</code>, <code>hysteria2://</code>, <code>trojan://</code>. Приложение автоматически загрузит и добавит все узлы в список!
           </div>
 
           <textarea class="m3-textarea" id="full-sub-input" rows="4" placeholder="Вставьте ссылку подписки https://... или vless:// ключи сюда..."></textarea>
@@ -1649,7 +1655,7 @@
             <div class="presets-row">
               <span style="font-size: 11px; color: var(--md-sys-color-on-surface-variant); align-self: center;">Помощь:</span>
               <button class="btn-preset" onclick="pasteFromClipboard('full-sub-input')">📋 Вставить из буфера</button>
-              <a href="https://t.me/Would_tg_bot" target="_blank" class="btn-preset" style="background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #38bdf8; text-decoration: none;">🤖 Получить ключ в @Would_tg_bot (200 ₽)</a>
+              <a href="https://Would.tg.live" target="_blank" class="btn-preset" style="background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #38bdf8; text-decoration: none;">🌐 Получить ключ на Would.tg.live (200 ₽)</a>
             </div>
             <div style="display: flex; gap: 10px;">
               <button class="btn-tonal-m3" style="height: 42px; padding: 0 18px;" onclick="pasteFromClipboard('full-sub-input')">
@@ -1971,7 +1977,7 @@
       </div>
 
       <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); line-height: 1.5;">
-        Вставьте ссылку подписки или VLESS / Hysteria 2 / Trojan ключ от <b>@Would_tg_bot</b>:
+        Вставьте ссылку подписки или VLESS / Hysteria 2 / Trojan ключ от <b>Would.tg.live</b>:
       </div>
 
       <textarea class="m3-textarea" id="dialog-sub-input" placeholder="https://... или vless://..."></textarea>
@@ -1979,7 +1985,7 @@
       <div class="presets-row">
         <span style="font-size: 11px; color: var(--md-sys-color-on-surface-variant); align-self: center;">Помощь:</span>
         <button class="btn-preset" onclick="pasteFromClipboard('dialog-sub-input')">📋 Вставить из буфера</button>
-        <a href="https://t.me/Would_tg_bot" target="_blank" class="btn-preset" style="background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #38bdf8; text-decoration: none;">🤖 Купить ключ в @Would_tg_bot (200 ₽)</a>
+        <a href="https://Would.tg.live" target="_blank" class="btn-preset" style="background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #38bdf8; text-decoration: none;">🌐 Купить ключ на Would.tg.live (200 ₽)</a>
       </div>
 
       <div style="display: flex; gap: 10px; margin-top: 4px;">
@@ -2210,7 +2216,7 @@
             selectServer(realServer.id);
             activeServer = realServer;
           } else {
-            showSnackbar('Для реального подключения вставьте ключ или подписку из @Would_tg_bot', 'info');
+            showSnackbar('Для реального подключения вставьте ключ или подписку из Would.tg.live', 'info');
             openImportModal();
             return;
           }
@@ -2878,11 +2884,13 @@
 
     // Global Click Sound Listener for All Buttons and Inputs
     document.addEventListener('click', (e) => {
-      const target = e.target.closest('button, .rail-item, .btn-action-pill, .btn-tonal-m3, .btn-filled-m3, .m3-switch, .server-card-m3, .color-swatch-item, .theme-card-option, .btn-preset');
-      if (target && !target.hasAttribute('data-no-sound')) {
-        SoundFX.play('click');
-      }
-    }, true);
+      try {
+        const target = e.target.closest('button, .rail-item, .btn-action-pill, .btn-tonal-m3, .btn-filled-m3, .m3-switch, .server-card-m3, .color-swatch-item, .theme-card-option, .btn-preset, .btn-tonal-sm, .btn-danger-sm');
+        if (target && !target.hasAttribute('data-no-sound')) {
+          SoundFX.play('click');
+        }
+      } catch (err) {}
+    });
 
     // Terminal Logs
     async function updateLogs() {
