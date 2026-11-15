@@ -23,23 +23,38 @@ function addLog(msg) {
   console.log(line);
 }
 
-// Windows System Proxy Manager (No Admin Rights Required!)
+const PROXY_HELPER_EXE = path.join(BIN_DIR, 'proxy_helper.exe');
+
+// Windows System Proxy Manager (With WinINet Broadcast Notification)
 function enableWindowsProxy(proxyPort = 2080, cb) {
-  const cmd = `reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f && reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d "127.0.0.1:${proxyPort}" /f`;
-  exec(cmd, (err) => {
-    if (err) addLog(`[proxy] Ошибка включения системного прокси: ${err.message}`);
-    else addLog(`[proxy] Системный прокси Windows активирован на 127.0.0.1:${proxyPort}`);
-    if (cb) cb();
-  });
+  if (fs.existsSync(PROXY_HELPER_EXE)) {
+    exec(`"${PROXY_HELPER_EXE}" enable ${proxyPort}`, (err, stdout) => {
+      if (err) addLog(`[proxy] Ошибка: ${err.message}`);
+      else addLog(`[proxy] Системный прокси Windows активирован на 127.0.0.1:${proxyPort} (WinINet обновлен)`);
+      if (cb) cb();
+    });
+  } else {
+    const cmd = `reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f && reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d "127.0.0.1:${proxyPort}" /f && reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "localhost;127.0.0.1;<local>" /f`;
+    exec(cmd, () => {
+      addLog(`[proxy] Системный прокси Windows активирован на 127.0.0.1:${proxyPort}`);
+      if (cb) cb();
+    });
+  }
 }
 
 function disableWindowsProxy(cb) {
-  const cmd = `reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f`;
-  exec(cmd, (err) => {
-    if (err) addLog(`[proxy] Ошибка отключения системного прокси: ${err.message}`);
-    else addLog(`[proxy] Системный прокси Windows отключен`);
-    if (cb) cb();
-  });
+  if (fs.existsSync(PROXY_HELPER_EXE)) {
+    exec(`"${PROXY_HELPER_EXE}" disable`, () => {
+      addLog(`[proxy] Системный прокси Windows отключен (WinINet сброшен)`);
+      if (cb) cb();
+    });
+  } else {
+    const cmd = `reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f`;
+    exec(cmd, () => {
+      addLog(`[proxy] Системный прокси Windows отключен`);
+      if (cb) cb();
+    });
+  }
 }
 
 // Universal parser for vless://, trojan://, ss://, hysteria2://
@@ -193,7 +208,7 @@ async function parseAnyInput(input) {
   return nodes;
 }
 
-// Build valid sing-box 1.14 configuration
+// Build valid sing-box 1.14 configuration with native DNS & Route
 function buildSingBoxConfig(outbound, withTun = false) {
   const inbounds = [
     {
@@ -221,6 +236,21 @@ function buildSingBoxConfig(outbound, withTun = false) {
       level: 'info',
       timestamp: true
     },
+    dns: {
+      servers: [
+        {
+          type: 'udp',
+          tag: 'remote-dns',
+          server: '8.8.8.8',
+          detour: 'proxy'
+        },
+        {
+          type: 'local',
+          tag: 'local-dns'
+        }
+      ],
+      strategy: 'prefer_ipv4'
+    },
     inbounds: inbounds,
     outbounds: [
       outbound,
@@ -230,9 +260,14 @@ function buildSingBoxConfig(outbound, withTun = false) {
       }
     ],
     route: {
+      default_domain_resolver: 'local-dns',
       rules: [
         {
           action: 'sniff'
+        },
+        {
+          protocol: 'dns',
+          action: 'hijack-dns'
         }
       ],
       auto_detect_interface: true,
@@ -362,6 +397,43 @@ const server = http.createServer((req, res) => {
       uptime: processStartTime ? Math.floor((Date.now() - processStartTime) / 1000) : 0,
       logs: logsBuffer.slice(-20)
     }));
+  }
+
+  // API: Check Public IP & Geolocation
+  if (req.method === 'GET' && urlParsed === '/api/check-ip') {
+    const isRunning = !!singboxProcess;
+    const reqOpts = isRunning
+      ? { host: '127.0.0.1', port: 2080, path: 'http://ip-api.com/json', headers: { Host: 'ip-api.com' }, timeout: 6000 }
+      : { host: 'ip-api.com', path: '/json', timeout: 5000 };
+
+    const ipReq = http.get(reqOpts, (ipRes) => {
+      let data = '';
+      ipRes.on('data', chunk => data += chunk);
+      ipRes.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            success: true,
+            ip: parsed.query || '127.0.0.1',
+            country: parsed.country || 'Неизвестно',
+            countryCode: (parsed.countryCode || 'UN').toLowerCase(),
+            city: parsed.city || '',
+            isp: parsed.isp || '',
+            proxied: isRunning
+          }));
+        } catch (e) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: 'Ошибка парсинга геоданных' }));
+        }
+      });
+    });
+
+    ipReq.on('error', (err) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: err.message, proxied: isRunning }));
+    });
+    return;
   }
 
   // API: Parse single link or subscription URL or multiline keys

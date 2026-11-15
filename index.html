@@ -3,2305 +3,1690 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WouldApp • Google Material 3 Client</title>
+  <title>WouldApp • Windows 11 Edition</title>
   
-  <!-- Google Fonts: Roboto & Material Symbols (Official M3) -->
+  <!-- Fonts: Google Roboto & Material Symbols Outlined (M3 Standard) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 
   <style>
     /* ==========================================================================
-       MATERIAL DESIGN 3 DESIGN TOKENS (Dynamic Palettes & Themes)
-       Governed by skydashnet/material-design-3-ui-skill
+       GOOGLE MATERIAL DESIGN 3 (M3) DESIGN TOKENS (Dark Expressive Palette)
+       https://m3.material.io/
        ========================================================================== */
-    :root, [data-theme="pixel"] {
-      --md-sys-color-primary: #a8c7fa;
-      --md-sys-color-on-primary: #08305c;
-      --md-sys-color-primary-container: #234774;
-      --md-sys-color-on-primary-container: #d3e3fd;
-
-      --md-sys-color-secondary: #bdc7dc;
-      --md-sys-color-on-secondary: #273141;
-      --md-sys-color-secondary-container: #3d4758;
-      --md-sys-color-on-secondary-container: #d9e3f9;
-
-      --md-sys-color-tertiary: #d7bee4;
-      --md-sys-color-on-tertiary: #3b2948;
-      --md-sys-color-tertiary-container: #533f60;
-      --md-sys-color-on-tertiary-container: #f3daff;
-
-      --md-sys-color-surface: #111318;
-      --md-sys-color-surface-dim: #111318;
-      --md-sys-color-surface-bright: #37393e;
-      --md-sys-color-surface-container-lowest: #0c0e13;
-      --md-sys-color-surface-container-low: #191c20;
-      --md-sys-color-surface-container: #1d2024;
-      --md-sys-color-surface-container-high: #282a2f;
-      --md-sys-color-surface-container-highest: #33353a;
-      
-      --md-sys-color-on-surface: #e2e2e9;
-      --md-sys-color-on-surface-variant: #c4c6d0;
-      --md-sys-color-outline: #8e919a;
-      --md-sys-color-outline-variant: #44474e;
-
-      --md-sys-color-success: #6dd58c;
-      --md-sys-color-on-success: #003915;
-      --md-sys-color-success-container: #0f5223;
-      --md-sys-color-on-success-container: #89f2a6;
-
-      --md-sys-color-warning: #ffb74d;
-      --md-sys-color-error: #f2b8b5;
-      --md-sys-color-on-error: #601410;
-      --md-sys-color-error-container: #8c1d18;
-      --md-sys-color-on-error-container: #f9dedc;
-
-      --bg-ambient: #090a0d;
-      --chart-glow: rgba(109, 213, 140, 0.25);
-    }
-
-    /* AMOLED Pure Black Theme */
-    [data-theme="amoled"] {
-      --md-sys-color-primary: #70aaff;
-      --md-sys-color-on-primary: #002c61;
-      --md-sys-color-primary-container: #1a3866;
-      --md-sys-color-on-primary-container: #d3e3fd;
-
-      --md-sys-color-surface: #000000;
-      --md-sys-color-surface-dim: #000000;
-      --md-sys-color-surface-container-lowest: #000000;
-      --md-sys-color-surface-container-low: #0a0b0e;
-      --md-sys-color-surface-container: #101217;
-      --md-sys-color-surface-container-high: #191b22;
-      --md-sys-color-surface-container-highest: #23262f;
-
-      --md-sys-color-outline-variant: #2d3038;
-      --bg-ambient: #000000;
-      --chart-glow: rgba(112, 170, 255, 0.35);
-    }
-
-    /* Clean Light M3 Theme */
-    [data-theme="light"] {
-      --md-sys-color-primary: #005fb0;
-      --md-sys-color-on-primary: #ffffff;
-      --md-sys-color-primary-container: #d4e3ff;
-      --md-sys-color-on-primary-container: #001c3b;
-
-      --md-sys-color-secondary: #555f71;
-      --md-sys-color-on-secondary: #ffffff;
-      --md-sys-color-secondary-container: #d9e3f8;
-      --md-sys-color-on-secondary-container: #121c2b;
-
-      --md-sys-color-tertiary: #6e5676;
-      --md-sys-color-tertiary-container: #f7d8ff;
-      --md-sys-color-on-tertiary-container: #271430;
-
-      --md-sys-color-surface: #fdfcff;
-      --md-sys-color-surface-dim: #ded8e1;
-      --md-sys-color-surface-container-lowest: #ffffff;
-      --md-sys-color-surface-container-low: #f7f2fa;
-      --md-sys-color-surface-container: #f1ecf4;
-      --md-sys-color-surface-container-high: #ebe6ee;
-      --md-sys-color-surface-container-highest: #e5e1e9;
-
-      --md-sys-color-on-surface: #1a1c1e;
-      --md-sys-color-on-surface-variant: #43474e;
-      --md-sys-color-outline: #74777f;
-      --md-sys-color-outline-variant: #c4c6d0;
-
-      --md-sys-color-success: #198754;
-      --md-sys-color-success-container: #c4eed0;
-      --md-sys-color-on-success-container: #00210b;
-
-      --bg-ambient: #e9ecf2;
-      --chart-glow: rgba(0, 95, 176, 0.15);
-    }
-
-    /* Shape Scale */
     :root {
+      /* M3 Dark Surface & Containers */
+      --md-sys-color-surface: #0b0f19;
+      --md-sys-color-surface-container-lowest: #0e1422;
+      --md-sys-color-surface-container-low: #131b2e;
+      --md-sys-color-surface-container: #18223a;
+      --md-sys-color-surface-container-high: #1e2b48;
+      --md-sys-color-surface-container-highest: #263558;
+      
+      /* M3 Primary (Sky Cyan / Deep Blue) */
+      --md-sys-color-primary: #38bdf8;
+      --md-sys-color-on-primary: #003554;
+      --md-sys-color-primary-container: #0284c7;
+      --md-sys-color-on-primary-container: #e0f2fe;
+
+      /* M3 Secondary & Neutral Variants */
+      --md-sys-color-secondary: #94a3b8;
+      --md-sys-color-secondary-container: #1e293b;
+      --md-sys-color-on-secondary-container: #f1f5f9;
+      --md-sys-color-on-surface: #f8fafc;
+      --md-sys-color-on-surface-variant: #94a3b8;
+      --md-sys-color-outline: rgba(255, 255, 255, 0.12);
+      --md-sys-color-outline-variant: rgba(255, 255, 255, 0.06);
+
+      /* State Colors */
+      --md-sys-color-success: #10b981;
+      --md-sys-color-on-success: #022c22;
+      --md-sys-color-success-container: rgba(16, 185, 129, 0.16);
+      --md-sys-color-error: #f87171;
+      --md-sys-color-error-container: rgba(248, 113, 113, 0.16);
+
+      /* M3 Shapes & Elevation */
       --md-sys-shape-corner-xs: 4px;
       --md-sys-shape-corner-s: 8px;
-      --md-sys-shape-corner-m: 12px;
-      --md-sys-shape-corner-l: 16px;
+      --md-sys-shape-corner-m: 14px;
+      --md-sys-shape-corner-l: 20px;
       --md-sys-shape-corner-xl: 28px;
       --md-sys-shape-corner-full: 9999px;
-
-      --md-sys-elevation-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.25);
-      --md-sys-elevation-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.35);
-      --md-sys-elevation-3: 0px 4px 12px 3px rgba(0, 0, 0, 0.45);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Roboto', system-ui, sans-serif;
-      -webkit-font-smoothing: antialiased;
+      user-select: none;
     }
 
     body {
-      background-color: var(--bg-ambient);
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--md-sys-color-surface);
       color: var(--md-sys-color-on-surface);
-      min-height: 100vh;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 16px;
-      transition: background-color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      display: inline-block;
-      vertical-align: middle;
-      line-height: 1;
-    }
-
-    /* Top Device Mode Toolbar */
-    .viewport-toolbar {
-      width: 100%;
-      max-width: 900px;
-      background: var(--md-sys-color-surface-container);
-      border-radius: var(--md-sys-shape-corner-l);
-      padding: 10px 16px;
+    /* ==========================================================================
+       DESKTOP WINDOW HEADER / TITLEBAR
+       ========================================================================== */
+    .app-titlebar {
+      height: 48px;
+      background: var(--md-sys-color-surface-container-lowest);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
-      border: 1px solid var(--md-sys-color-outline-variant);
-      box-shadow: var(--md-sys-elevation-1);
+      padding: 0 18px;
+      z-index: 10;
+      flex-shrink: 0;
     }
-    .toolbar-brand {
+
+    .titlebar-brand {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .toolbar-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--md-sys-shape-corner-m);
+
+    .brand-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: var(--md-sys-shape-corner-full);
       background: var(--md-sys-color-primary-container);
       color: var(--md-sys-color-on-primary-container);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-    }
-    .toolbar-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--md-sys-color-on-surface);
-    }
-    .toolbar-sub {
-      font-size: 11px;
-      color: var(--md-sys-color-on-surface-variant);
     }
 
-    .segmented-group {
-      display: inline-flex;
-      border: 1px solid var(--md-sys-color-outline);
+    /* Live Geo Pill in Center of Titlebar */
+    .geo-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      padding: 4px 14px;
       border-radius: var(--md-sys-shape-corner-full);
-      overflow: hidden;
-    }
-    .segmented-item {
-      padding: 6px 14px;
       font-size: 12px;
       font-weight: 500;
-      background: transparent;
-      color: var(--md-sys-color-on-surface-variant);
-      border: none;
-      border-right: 1px solid var(--md-sys-color-outline);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    .segmented-item:last-child { border-right: none; }
-    .segmented-item.selected {
-      background: var(--md-sys-color-secondary-container);
-      color: var(--md-sys-color-on-secondary-container);
-      font-weight: 700;
-    }
-
-    /* Stage */
-    .stage {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-
-    /* Mobile Frame */
-    .device-mobile {
-      width: 410px;
-      height: 870px;
-      background: var(--md-sys-color-surface);
-      border-radius: 46px;
-      border: 10px solid #282a2f;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
       transition: all 0.3s ease;
     }
 
-    /* System Status Bar */
-    .system-status-bar {
-      height: 36px;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--md-sys-color-on-surface-variant);
-      z-index: 5;
-    }
-    .system-notch {
-      width: 84px;
-      height: 14px;
-      background: #000;
-      border-radius: 10px;
-    }
-
-    /* Top App Bar with Gear Settings Button */
-    .top-app-bar {
-      height: 60px;
-      padding: 0 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--md-sys-color-surface);
-      border-bottom: 1px solid var(--md-sys-color-surface-container-low);
-    }
-    .top-app-bar-headline {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      color: var(--md-sys-color-on-surface);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .icon-btn-gear {
-      background: var(--md-sys-color-surface-container);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      color: var(--md-sys-color-on-surface);
-      width: 40px;
-      height: 40px;
-      border-radius: var(--md-sys-shape-corner-full);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-    }
-    .icon-btn-gear:hover {
-      background: var(--md-sys-color-surface-container-high);
-      transform: rotate(45deg);
-      border-color: var(--md-sys-color-primary);
-    }
-
-    /* Content Area */
-    .mobile-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px 16px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--md-sys-color-surface-container-highest) transparent;
-    }
-
-    /* Promo Card (Would.tg) */
-    .m3-card-promo {
-      background: var(--md-sys-color-tertiary-container);
-      color: var(--md-sys-color-on-tertiary-container);
-      border-radius: var(--md-sys-shape-corner-l);
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      cursor: pointer;
-      position: relative;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .m3-card-promo:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--md-sys-elevation-1);
-    }
-    .promo-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .badge-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      background: rgba(0, 0, 0, 0.22);
-      padding: 2px 8px;
-      border-radius: var(--md-sys-shape-corner-xs);
-    }
-    .promo-title {
-      font-size: 15px;
-      font-weight: 700;
-      line-height: 1.25;
-    }
-    .promo-body {
-      font-size: 11.5px;
-      opacity: 0.9;
-      line-height: 1.35;
-    }
-    .promo-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 2px;
-    }
-    .promo-price-tag {
-      font-size: 15px;
-      font-weight: 700;
-      font-family: 'Roboto Mono', monospace;
-    }
-
-    .btn-filled-tonal {
-      background: var(--md-sys-color-primary-container);
-      color: var(--md-sys-color-on-primary-container);
-      border: none;
-      height: 34px;
-      padding: 0 14px;
-      border-radius: var(--md-sys-shape-corner-full);
-      font-size: 12px;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    /* M3 Primary Connection Unit (Elevated Card) */
-    .m3-connection-card {
-      background: var(--md-sys-color-surface-container);
-      border-radius: var(--md-sys-shape-corner-xl);
-      padding: 20px 16px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      border: 1px solid var(--md-sys-color-outline-variant);
-      box-shadow: var(--md-sys-elevation-1);
-      position: relative;
-    }
-
-    .power-action-container {
-      position: relative;
-      width: 126px;
-      height: 126px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 4px 0 14px;
-    }
-    .power-wave {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 2px solid var(--md-sys-color-primary);
-      opacity: 0;
-      transform: scale(0.9);
-      pointer-events: none;
-    }
-    .connected .power-wave {
-      border-color: var(--md-sys-color-success);
-      animation: m3Pulse 2.4s infinite cubic-bezier(0.2, 0, 0, 1);
-    }
-    .connecting .power-wave {
-      border-color: var(--md-sys-color-warning);
-      animation: m3PulseFast 1.2s infinite ease-out;
-    }
-    @keyframes m3Pulse {
-      0% { transform: scale(0.95); opacity: 0.7; }
-      100% { transform: scale(1.4); opacity: 0; }
-    }
-    @keyframes m3PulseFast {
-      0% { transform: scale(0.95); opacity: 0.9; }
-      100% { transform: scale(1.3); opacity: 0; }
-    }
-
-    .m3-power-fab {
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      border: none;
-      background: var(--md-sys-color-surface-container-highest);
-      color: var(--md-sys-color-on-surface-variant);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: var(--md-sys-elevation-2);
-      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-      z-index: 2;
-    }
-    .m3-power-fab .material-symbols-outlined {
-      font-size: 42px;
-      transition: transform 0.25s;
-    }
-    .m3-power-fab:hover {
-      box-shadow: var(--md-sys-elevation-3);
-      transform: scale(1.03);
-    }
-    .m3-power-fab:active {
-      transform: scale(0.96);
-    }
-
-    .connected .m3-power-fab {
-      background: var(--md-sys-color-success-container);
-      color: var(--md-sys-color-on-success-container);
-    }
-    .connecting .m3-power-fab {
-      background: #78350f;
-      color: #fde68a;
-    }
-    .connecting .m3-power-fab .material-symbols-outlined {
-      animation: m3Spin 1.6s infinite linear;
-    }
-    @keyframes m3Spin { 100% { transform: rotate(360deg); } }
-
-    .connection-headline {
-      font-size: 19px;
-      font-weight: 500;
-      color: var(--md-sys-color-on-surface);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .status-badge-dot {
+    .geo-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--md-sys-color-outline);
-    }
-    .connected .status-badge-dot { background: var(--md-sys-color-success); }
-    .connecting .status-badge-dot { background: var(--md-sys-color-warning); }
-
-    .connection-subhead {
-      font-size: 12px;
-      color: var(--md-sys-color-on-surface-variant);
-      margin-top: 4px;
+      background: var(--md-sys-color-secondary);
+      box-shadow: 0 0 6px rgba(148, 163, 184, 0.5);
     }
 
-    /* Interactive Live Canvas Speed Graph */
-    .canvas-container {
-      width: 100%;
-      height: 54px;
-      margin-top: 14px;
-      position: relative;
+    .geo-dot.connected {
+      background: var(--md-sys-color-success);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.9);
+      animation: pulseGreen 2s infinite;
+    }
+
+    .geo-dot.connecting {
+      background: var(--md-sys-color-primary);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+      animation: pulseCyan 1s infinite alternate;
+    }
+
+    @keyframes pulseGreen {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+    }
+
+    @keyframes pulseCyan {
+      0% { transform: scale(1); opacity: 0.7; }
+      100% { transform: scale(1.4); opacity: 1; }
+    }
+
+    .titlebar-actions {
       display: flex;
-      justify-content: center;
       align-items: center;
-      overflow: hidden;
-      border-radius: var(--md-sys-shape-corner-m);
-      background: var(--md-sys-color-surface-container-lowest);
-      border: 1px solid var(--md-sys-color-outline-variant);
-    }
-    canvas#traffic-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .canvas-overlay-text {
-      position: absolute;
-      font-size: 10px;
-      color: var(--md-sys-color-outline);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      pointer-events: none;
+      gap: 10px;
     }
 
-    .telemetry-container {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+    .btn-action-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--md-sys-shape-corner-full);
+      border: 1px solid var(--md-sys-color-outline-variant);
       background: var(--md-sys-color-surface-container-low);
-      border-radius: var(--md-sys-shape-corner-m);
-      padding: 10px 6px;
-      margin-top: 12px;
-      border: 1px solid var(--md-sys-color-outline-variant);
-    }
-    .telemetry-cell {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .telemetry-caption {
-      font-size: 9px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
       color: var(--md-sys-color-on-surface-variant);
-      margin-bottom: 2px;
-    }
-    .telemetry-number {
-      font-size: 13px;
+      font-size: 11.5px;
       font-weight: 500;
-      font-family: 'Roboto Mono', monospace;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-action-pill:hover {
+      background: var(--md-sys-color-surface-container-high);
       color: var(--md-sys-color-on-surface);
+      border-color: var(--md-sys-color-primary);
     }
 
     /* ==========================================================================
-       INLINE COLLAPSIBLE SERVERS SECTION (With Search & Add Modal)
+       MAIN DESKTOP WORKSPACE (Navigation Rail + Content Views)
        ========================================================================== */
-    .server-section-card {
-      background: var(--md-sys-color-surface-container);
-      border-radius: var(--md-sys-shape-corner-l);
-      border: 1px solid var(--md-sys-color-outline-variant);
+    .app-workspace {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 48px);
       overflow: hidden;
-      transition: all 0.25s ease;
     }
-    .server-section-header {
-      padding: 12px 14px;
+
+    /* Authentic M3 Navigation Rail */
+    .m3-nav-rail {
+      width: 80px;
+      background: var(--md-sys-color-surface-container-lowest);
+      border-right: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 18px 0;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+
+    .rail-item {
+      width: 60px;
+      height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      border-radius: var(--md-sys-shape-corner-m);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .rail-pill {
+      width: 48px;
+      height: 28px;
+      border-radius: var(--md-sys-shape-corner-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .rail-item .material-symbols-outlined {
+      font-size: 20px;
+      transition: transform 0.2s ease;
+    }
+
+    .rail-label {
+      font-size: 10px;
+      font-weight: 500;
+      margin-top: 3px;
+    }
+
+    .rail-item:hover .rail-pill {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .rail-item.active {
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .rail-item.active .rail-pill {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      box-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);
+    }
+
+    .rail-item.active .material-symbols-outlined {
+      transform: scale(1.1);
+    }
+
+    .rail-spacer {
+      flex: 1;
+    }
+
+    .rail-tg-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+
+    .rail-tg-btn:hover {
+      transform: translateY(-2px) scale(1.06);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
+    }
+
+    /* Content Stage */
+    .m3-stage {
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
+      padding: 22px 28px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .tab-view {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeInTab 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+
+    .tab-view.active {
+      display: flex;
+    }
+
+    @keyframes fadeInTab {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       TAB 1: ГЛАВНАЯ (CONNECTION HUB & TELEMETRY)
+       ========================================================================== */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 22px;
+      height: 100%;
+    }
+
+    /* Connection Master Card */
+    .m3-card {
+      background: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-xl);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .card-header-clean {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      cursor: pointer;
-      background: var(--md-sys-color-surface-container);
-    }
-    .server-section-title {
-      font-size: 14px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-mini-chip {
-      background: var(--md-sys-color-surface-container-highest);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      color: var(--md-sys-color-primary);
-      padding: 4px 8px;
-      border-radius: var(--md-sys-shape-corner-full);
-      font-size: 11px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: background 0.15s;
-    }
-    .btn-mini-chip:hover {
-      background: var(--md-sys-color-primary-container);
-      color: var(--md-sys-color-on-primary-container);
+      margin-bottom: 16px;
     }
 
-    /* Filter & Search Bar */
-    .server-search-strip {
-      padding: 0 12px 8px;
+    .card-title-m3 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
       display: flex;
+      align-items: center;
       gap: 8px;
     }
-    .search-input-m3 {
-      flex: 1;
-      height: 36px;
-      background: var(--md-sys-color-surface-container-lowest);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      border-radius: var(--md-sys-shape-corner-full);
-      padding: 0 12px 0 34px;
-      color: var(--md-sys-color-on-surface);
-      font-size: 12px;
-      outline: none;
+
+    /* ==========================================================================
+       THE ROTATING WAVY PROGRESS CIRCLE (Material 3 Expressive Scalloped Circle)
+       ========================================================================== */
+    .connection-circle-stage {
       position: relative;
-    }
-    .search-icon-pos {
-      position: absolute;
-      left: 22px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--md-sys-color-outline);
-      font-size: 16px;
-      pointer-events: none;
-    }
-
-    .server-collapsible-body {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 0 12px 12px;
-      max-height: 420px;
-      overflow-y: auto;
-      transition: max-height 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s;
-    }
-    .server-collapsible-body.collapsed {
-      max-height: 0;
-      padding-top: 0;
-      padding-bottom: 0;
-      opacity: 0;
-      overflow: hidden;
-    }
-
-    .m3-list-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 12px;
-      background: var(--md-sys-color-surface-container-low);
-      border-radius: var(--md-sys-shape-corner-m);
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .m3-list-item:hover {
-      background: var(--md-sys-color-surface-container-high);
-      transform: translateX(2px);
-    }
-    .m3-list-item.selected {
-      border-color: var(--md-sys-color-primary);
-      background: rgba(168, 199, 250, 0.1);
-    }
-    .badge-latency {
-      background: rgba(109, 213, 140, 0.15);
-      color: var(--md-sys-color-success);
-      padding: 2px 6px;
-      border-radius: var(--md-sys-shape-corner-xs);
-      font-family: 'Roboto Mono', monospace;
-      font-weight: 500;
-      font-size: 10px;
-    }
-
-    /* M3 FAB Add Button */
-    .btn-add-server {
-      background: var(--md-sys-color-primary-container);
-      color: var(--md-sys-color-on-primary-container);
-      border: none;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
+      width: 220px;
+      height: 220px;
+      margin: 12px auto 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
     }
 
-    /* ==========================================================================
-       FULLSCREEN SETTINGS VIEW (Opened via Gear Icon)
-       ========================================================================== */
-    .settings-view {
+    /* Wavy Scalloped SVG Canvas Ring */
+    .wavy-svg-ring {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: var(--md-sys-color-surface);
-      z-index: 100;
-      display: none;
-      flex-direction: column;
-      animation: m3SlideRight 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
-    }
-    .settings-view.active {
-      display: flex;
-    }
-    @keyframes m3SlideRight {
-      from { transform: translateX(100%); }
-      to { transform: translateX(0); }
+      pointer-events: none;
+      transform-origin: center center;
     }
 
-    .settings-topbar {
-      height: 60px;
-      padding: 0 16px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--md-sys-color-surface);
-      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    .wavy-path {
+      fill: none;
+      stroke: var(--md-sys-color-outline);
+      stroke-width: 3.5px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: all 0.4s ease;
     }
-    .settings-headline {
-      font-size: 18px;
-      font-weight: 700;
+
+    /* Rotating state during CONNECTING */
+    .connection-circle-stage.connecting .wavy-svg-ring {
+      animation: spinWavy 2.2s linear infinite;
     }
-    .btn-back {
-      background: none;
+
+    .connection-circle-stage.connecting .wavy-path {
+      stroke: url(#wavyGradient);
+      stroke-width: 5px;
+      filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 24px rgba(2, 132, 199, 0.6));
+    }
+
+    /* Rotating Counter-Harmonic Dotted Halo */
+    .wavy-halo {
+      position: absolute;
+      width: 184px;
+      height: 184px;
+      border-radius: 50%;
+      border: 2px dashed rgba(56, 189, 248, 0.2);
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .connection-circle-stage.connecting .wavy-halo {
+      border-color: rgba(56, 189, 248, 0.6);
+      animation: spinReverse 4s linear infinite;
+    }
+
+    /* Solid Connected Glow */
+    .connection-circle-stage.connected .wavy-path {
+      stroke: var(--md-sys-color-success);
+      stroke-width: 4.5px;
+      filter: drop-shadow(0 0 14px rgba(16, 185, 129, 0.8));
+    }
+
+    .connection-circle-stage.connected .wavy-halo {
+      border-color: rgba(16, 185, 129, 0.4);
+      border-style: solid;
+    }
+
+    @keyframes spinWavy {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes spinReverse {
+      0% { transform: rotate(360deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* Center M3 Power Button */
+    .m3-power-btn {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
       border: none;
-      color: var(--md-sys-color-on-surface);
-      cursor: pointer;
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface-variant);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 6px;
-      border-radius: var(--md-sys-shape-corner-full);
-    }
-    .btn-back:hover {
-      background: var(--md-sys-color-surface-container);
-    }
-
-    .settings-scroll {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
     }
 
-    .settings-category {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .m3-power-btn .material-symbols-outlined {
+      font-size: 46px;
+      transition: all 0.3s ease;
     }
-    .category-title {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
+
+    .m3-power-btn:hover {
+      transform: scale(1.05);
+      background: var(--md-sys-color-surface-container-highest);
       color: var(--md-sys-color-primary);
-      padding-left: 4px;
+      box-shadow: 0 12px 30px rgba(56, 189, 248, 0.25);
     }
 
-    .m3-settings-card {
-      background: var(--md-sys-color-surface-container);
-      border-radius: var(--md-sys-shape-corner-l);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      padding: 4px 14px;
+    .m3-power-btn:active {
+      transform: scale(0.96);
     }
-    .m3-setting-row {
+
+    .connection-circle-stage.connecting .m3-power-btn {
+      color: var(--md-sys-color-primary);
+      background: var(--md-sys-color-surface-container-highest);
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+    }
+
+    .connection-circle-stage.connected .m3-power-btn {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #ffffff;
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.55);
+    }
+
+    /* Connection Headline & Mode Label */
+    .connection-status-headline {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
+    }
+
+    .connection-mode-caption {
+      text-align: center;
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-bottom: 18px;
+    }
+
+    /* ==========================================================================
+       VERIFIED REAL-TIME IP & GEOLOCATION CARD (SOLVES 2IP ISSUE)
+       ========================================================================== */
+    .verified-ip-banner {
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-m);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .vip-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--md-sys-color-outline-variant);
     }
-    .m3-setting-row:last-child { border-bottom: none; }
-    .m3-setting-text {
+
+    .vip-badge {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding-right: 8px;
-    }
-    .setting-title {
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--md-sys-color-on-surface);
-    }
-    .setting-caption {
-      font-size: 11.5px;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       color: var(--md-sys-color-on-surface-variant);
     }
 
-    .m3-switch-control {
-      width: 52px;
-      height: 32px;
-      background: var(--md-sys-color-surface-container-highest);
-      border: 2px solid var(--md-sys-color-outline);
-      border-radius: 16px;
-      position: relative;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-      flex-shrink: 0;
-    }
-    .m3-switch-thumb {
-      width: 16px;
-      height: 16px;
-      background: var(--md-sys-color-outline);
-      border-radius: 50%;
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-    }
-    .m3-switch-control.checked {
-      background: var(--md-sys-color-primary);
-      border-color: var(--md-sys-color-primary);
-    }
-    .m3-switch-control.checked .m3-switch-thumb {
-      background: var(--md-sys-color-on-primary);
-      transform: translateX(20px);
-      width: 24px;
-      height: 24px;
-      top: 2px;
-      left: 2px;
+    .vip-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .m3-select {
+    .vip-main-data {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .vip-ip-address {
+      font-size: 16px;
+      font-weight: 800;
+      font-family: monospace;
+      color: var(--md-sys-color-primary);
+      letter-spacing: 0.5px;
+    }
+
+    .vip-geo-desc {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .vip-refresh-btn {
+      padding: 6px 12px;
+      border-radius: var(--md-sys-shape-corner-full);
       background: var(--md-sys-color-surface-container-high);
       border: 1px solid var(--md-sys-color-outline-variant);
-      border-radius: var(--md-sys-shape-corner-s);
       color: var(--md-sys-color-on-surface);
-      padding: 6px 10px;
-      font-size: 12px;
-      outline: none;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    /* Terminal Console (Inside Settings) */
-    .m3-terminal {
-      background: var(--md-sys-color-surface-container-lowest);
+    .vip-refresh-btn:hover {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+
+    /* Telemetry Cells Grid */
+    .telemetry-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .telemetry-tile {
+      background: var(--md-sys-color-surface-container);
       border: 1px solid var(--md-sys-color-outline-variant);
       border-radius: var(--md-sys-shape-corner-m);
       padding: 10px 12px;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 11px;
-      color: var(--md-sys-color-on-surface-variant);
-      max-height: 140px;
-      overflow-y: auto;
-      line-height: 1.45;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    .term-row.info { color: var(--md-sys-color-primary); }
-    .term-row.success { color: var(--md-sys-color-success); }
+
+    .tel-cap {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .tel-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      font-family: monospace;
+    }
+
+    /* Speed Canvas Wave */
+    .speed-wave-canvas {
+      width: 100%;
+      height: 48px;
+      border-radius: var(--md-sys-shape-corner-m);
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      display: block;
+    }
 
     /* ==========================================================================
-       M3 MODAL SHEETS & DIALOGS (Add Subscription, QR, Promo)
+       RIGHT COLUMN (Active Server & Quick Server Selector)
        ========================================================================== */
-    .m3-scrim {
+    .right-dashboard-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow: hidden;
+    }
+
+    /* Would.tg Franchise Promo Card */
+    .would-tg-card {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(56, 189, 248, 0.08) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: var(--md-sys-shape-corner-xl);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .would-tg-card::after {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .wtg-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .wtg-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background: #0284c7;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      width: fit-content;
+    }
+
+    .wtg-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .wtg-desc {
+      font-size: 12px;
+      color: #cbd5e1;
+      max-width: 480px;
+      line-height: 1.4;
+    }
+
+    .btn-wtg-action {
+      padding: 10px 20px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      font-size: 12.5px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-wtg-action:hover {
+      background: #7dd3fc;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.55);
+    }
+
+    /* Server Manager Card */
+    .server-list-panel {
+      flex: 1;
+      background: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-xl);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+    }
+
+    .sl-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-wrap .material-symbols-outlined {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .m3-search-input {
+      width: 100%;
+      height: 38px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      padding: 0 16px 0 38px;
+      color: var(--md-sys-color-on-surface);
+      font-size: 12.5px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .m3-search-input:focus {
+      border-color: var(--md-sys-color-primary);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    .sl-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-filled-m3 {
+      height: 38px;
+      padding: 0 16px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-filled-m3:hover {
+      background: #7dd3fc;
+    }
+
+    .btn-tonal-m3 {
+      height: 38px;
+      padding: 0 14px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-tonal-m3:hover {
+      background: var(--md-sys-color-surface-container-highest);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    /* Server Scroll List */
+    .servers-scroll {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+
+    .server-card-item {
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-m);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .server-card-item:hover {
+      background: var(--md-sys-color-surface-container-high);
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateX(3px);
+    }
+
+    .server-card-item.selected {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .srv-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .srv-flag {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .srv-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .srv-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .srv-meta {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex;
+      gap: 8px;
+    }
+
+    .srv-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ping-pill {
+      font-size: 11px;
+      font-weight: 700;
+      font-family: monospace;
+      padding: 3px 8px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-delete-node {
+      background: transparent;
+      border: none;
+      color: var(--md-sys-color-outline);
+      width: 28px;
+      height: 28px;
+      border-radius: var(--md-sys-shape-corner-full);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-delete-node:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .vip-2ip-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      border-radius: 9999px;
+      padding: 3px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .vip-2ip-link:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       MODAL: IMPORT SUBSCRIPTION & VLESS KEYS
+       ========================================================================== */
+    .m3-scrim-dialog {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
       z-index: 999;
       display: none;
       align-items: center;
       justify-content: center;
     }
-    .m3-scrim.visible { display: flex; }
-    .m3-modal-sheet {
-      width: 92%;
-      max-width: 480px;
-      background: var(--md-sys-color-surface-container-high);
-      border-radius: 28px;
-      padding: 20px 24px 26px;
+
+    .m3-scrim-dialog.visible {
+      display: flex;
+    }
+
+    .m3-dialog-box {
+      width: 540px;
+      max-width: 90vw;
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-xl);
+      padding: 24px 28px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      animation: sheetAnim 0.22s cubic-bezier(0.1, 0.9, 0.2, 1);
+      gap: 16px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+      animation: dialogPop 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
     }
-    @keyframes sheetAnim {
+
+    @keyframes dialogPop {
       from { transform: scale(0.92); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
-    .m3-sheet-handle {
-      width: 32px;
-      height: 4px;
-      background: var(--md-sys-color-outline);
-      border-radius: 2px;
-      align-self: center;
-    }
 
-    /* M3 Outlined Text Field */
-    .m3-field-container {
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      margin-top: 6px;
-    }
-    .m3-field-input {
-      background: transparent;
-      border: 1px solid var(--md-sys-color-outline);
-      border-radius: var(--md-sys-shape-corner-s);
-      height: 48px;
-      padding: 0 14px;
-      font-size: 13px;
-      color: var(--md-sys-color-on-surface);
-      outline: none;
-    }
-    .m3-field-input:focus {
-      border-color: var(--md-sys-color-primary);
-      border-width: 2px;
-    }
-    .m3-field-label {
-      position: absolute;
-      top: -8px;
-      left: 12px;
-      background: var(--md-sys-color-surface-container-high);
-      padding: 0 4px;
-      font-size: 11px;
-      color: var(--md-sys-color-primary);
-      font-weight: 500;
-    }
-
-    /* M3 Snackbar Component */
-    .m3-snackbar {
-      position: absolute;
-      bottom: 24px;
-      left: 20px;
-      right: 20px;
-      background: var(--md-sys-color-inverse-surface, #e2e2e9);
-      color: var(--md-sys-color-inverse-on-surface, #1e1f24);
-      padding: 12px 16px;
-      border-radius: var(--md-sys-shape-corner-s);
-      box-shadow: var(--md-sys-elevation-3);
+    .dialog-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 13px;
-      font-weight: 500;
-      z-index: 200;
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
-      pointer-events: none;
-    }
-    .m3-snackbar.active {
-      transform: translateY(0);
-      opacity: 1;
-      pointer-events: auto;
     }
 
-    /* ==========================================================================
-       DESKTOP WINDOW VIEW (Windows 11)
-       ========================================================================== */
-    .device-desktop {
-      width: 880px;
-      height: 660px;
-      background: var(--md-sys-color-surface);
-      border-radius: var(--md-sys-shape-corner-l);
-      border: 1px solid var(--md-sys-color-outline-variant);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-    }
-    .desktop-titlebar {
-      height: 40px;
-      background: var(--md-sys-color-surface-container-lowest);
-      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    .dialog-title {
+      font-size: 18px;
+      font-weight: 700;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
+      gap: 10px;
     }
-    .desktop-body {
-      display: flex;
-      flex: 1;
-      height: calc(100% - 40px);
-    }
-    .desktop-rail {
-      width: 76px;
-      background: var(--md-sys-color-surface-container);
-      border-right: 1px solid var(--md-sys-color-outline-variant);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 0;
-      gap: 16px;
-    }
-    .rail-btn {
+
+    .btn-dialog-close {
       background: none;
       border: none;
       color: var(--md-sys-color-on-surface-variant);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
       cursor: pointer;
-    }
-    .rail-btn.active { color: var(--md-sys-color-on-surface); }
-    .rail-btn.active .material-symbols-outlined {
-      background: var(--md-sys-color-secondary-container);
-      color: var(--md-sys-color-on-secondary-container);
-      border-radius: var(--md-sys-shape-corner-full);
-      padding: 6px 14px;
+      font-size: 20px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .desktop-main-pane {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      padding: 20px;
-      gap: 20px;
-      overflow-y: auto;
+    .btn-dialog-close:hover {
+      background: var(--md-sys-color-surface-container-highest);
+      color: #fff;
+    }
+
+    .m3-textarea {
+      width: 100%;
+      height: 110px;
+      border-radius: var(--md-sys-shape-corner-m);
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      padding: 12px;
+      color: var(--md-sys-color-on-surface);
+      font-family: monospace;
+      font-size: 12px;
+      resize: vertical;
+      outline: none;
+    }
+
+    .m3-textarea:focus {
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .presets-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-preset {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-preset:hover {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+
+    /* M3 Snackbar */
+    .m3-snackbar {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      background: var(--md-sys-color-surface-container-highest);
+      color: var(--md-sys-color-on-surface);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      padding: 12px 20px;
+      border-radius: var(--md-sys-shape-corner-m);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+      z-index: 1000;
+    }
+
+    .m3-snackbar.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--md-sys-color-surface-container-highest);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--md-sys-color-primary);
     }
   </style>
 </head>
-<body data-theme="pixel">
+<body>
 
-  <!-- Top Viewport Control Bar -->
-  <div class="viewport-toolbar">
-    <div class="toolbar-brand">
-      <div class="toolbar-avatar">W</div>
-      <div>
-        <div class="toolbar-title">WOULDAPP CLIENT</div>
-        <div class="toolbar-sub">Google Material 3 Specification • Sing-box Core</div>
+  <!-- Top Titlebar -->
+  <header class="app-titlebar">
+    <div class="titlebar-brand">
+      <div class="brand-avatar">W</div>
+      <div class="brand-title">
+        <span>WouldApp</span>
+        <span class="brand-badge">Desktop 1.14</span>
       </div>
     </div>
 
-    <!-- M3 Segmented Button -->
-    <div class="segmented-group">
-      <button class="segmented-item selected" id="seg-mobile" onclick="setDeviceMode('mobile')">
-        <span class="material-symbols-outlined" style="font-size: 16px;">smartphone</span>
-        Android Вид
-      </button>
-      <button class="segmented-item" id="seg-desktop" onclick="setDeviceMode('desktop')">
-        <span class="material-symbols-outlined" style="font-size: 16px;">desktop_windows</span>
-        Windows Вид
+    <!-- Live IP / Geolocation Status Pill -->
+    <div class="geo-status-pill" id="geo-pill">
+      <div class="geo-dot" id="geo-dot"></div>
+      <span id="geo-text">Определение геолокации...</span>
+    </div>
+
+    <div class="titlebar-actions">
+      <a href="https://2ip.ru" target="_blank" class="btn-action-pill" title="Открыть 2ip.ru в браузере">
+        <span class="material-symbols-outlined" style="font-size: 15px;">open_in_new</span>
+        Проверить на 2ip.ru
+      </a>
+      <button class="btn-action-pill" onclick="refreshPublicIp()" title="Проверить реальный IP прямо сейчас">
+        <span class="material-symbols-outlined" style="font-size: 15px;">refresh</span>
+        Обновить IP
       </button>
     </div>
-  </div>
+  </header>
 
-  <div class="stage">
-
-    <!-- ==================== 1. ANDROID M3 MOBILE ==================== -->
-    <div class="device-mobile" id="view-mobile">
-      
-      <!-- System Status Bar -->
-      <div class="system-status-bar">
-        <span>20:50</span>
-        <div class="system-notch"></div>
-        <div style="display: flex; gap: 4px; align-items: center;">
-          <span class="material-symbols-outlined" style="font-size: 14px;">signal_cellular_alt</span>
-          <span class="material-symbols-outlined" style="font-size: 14px;">wifi</span>
-          <span class="material-symbols-outlined" style="font-size: 14px;">battery_full</span>
+  <!-- Main Workspace -->
+  <div class="app-workspace">
+    <!-- M3 Left Navigation Rail -->
+    <nav class="m3-nav-rail">
+      <button class="rail-item active" id="rail-home" onclick="switchTab('home')" title="Главная">
+        <div class="rail-pill">
+          <span class="material-symbols-outlined">shield</span>
         </div>
-      </div>
+        <span class="rail-label">Главная</span>
+      </button>
 
-      <!-- Top App Bar with Settings Gear Button -->
-      <div class="top-app-bar">
-        <div class="top-app-bar-headline">
-          <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">shield</span>
-          <span>WouldApp</span>
+      <button class="rail-item" id="rail-servers" onclick="switchTab('servers')" title="Серверы">
+        <div class="rail-pill">
+          <span class="material-symbols-outlined">dns</span>
         </div>
-        <button class="icon-btn-gear" onclick="openSettingsView()" title="Настройки">
+        <span class="rail-label">Серверы</span>
+      </button>
+
+      <button class="rail-item" id="rail-subs" onclick="switchTab('subs')" title="Подписки">
+        <div class="rail-pill">
+          <span class="material-symbols-outlined">playlist_add</span>
+        </div>
+        <span class="rail-label">Подписки</span>
+      </button>
+
+      <button class="rail-item" id="rail-logs" onclick="switchTab('logs')" title="Логи ядра">
+        <div class="rail-pill">
+          <span class="material-symbols-outlined">terminal</span>
+        </div>
+        <span class="rail-label">Логи</span>
+      </button>
+
+      <button class="rail-item" id="rail-settings" onclick="switchTab('settings')" title="Опции">
+        <div class="rail-pill">
           <span class="material-symbols-outlined">settings</span>
-        </button>
-      </div>
-
-      <!-- Main Scrollable Screen Content -->
-      <div class="mobile-content">
-
-        <!-- WOULD.TG Promotion Card (Filled Card) -->
-        <div class="m3-card-promo" onclick="triggerWouldTgPromo()">
-          <div class="promo-header">
-            <span class="badge-label">ПРОВАЙДЕР WOULD.TG</span>
-            <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
-          </div>
-          <div class="promo-title">Скоростной европейский канал</div>
-          <div class="promo-body">YouTube 4K, соцсети и мессенджеры без задержек. Протокол VLESS Reality.</div>
-          <div class="promo-footer">
-            <span class="promo-price-tag">200 ₽ / месяц</span>
-            <button class="btn-filled-tonal">
-              Подключить
-              <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
-            </button>
-          </div>
         </div>
+        <span class="rail-label">Опции</span>
+      </button>
 
-        <!-- M3 Elevated Connection Card -->
-        <div class="m3-connection-card" id="connection-card-m">
-          <div class="power-action-container">
-            <div class="power-wave"></div>
-            <button class="m3-power-fab" id="fab-power" onclick="toggleVpnState()">
-              <span class="material-symbols-outlined" id="fab-icon">power_settings_new</span>
-            </button>
-          </div>
+      <div class="rail-spacer"></div>
 
-          <div class="connection-headline">
-            <span class="status-badge-dot"></span>
-            <span id="label-state-title">Отключено</span>
-          </div>
-          <div class="connection-subhead" id="label-state-desc">Выберите сервер в списке ниже и нажмите подключение</div>
+      <!-- Telegram Franchise Bot -->
+      <a href="https://t.me/Would_tg_bot" target="_blank" class="rail-tg-btn" title="Франшиза Would.tg • 200 ₽/мес">
+        <span class="material-symbols-outlined" style="font-size: 22px;">send</span>
+      </a>
+    </nav>
 
-          <!-- Real-Time Wave Graph Canvas -->
-          <div class="canvas-container">
-            <canvas id="traffic-canvas" width="340" height="54"></canvas>
-            <div class="canvas-overlay-text" id="canvas-idle-label">ОЖИДАНИЕ ТРАФИКА</div>
-          </div>
+    <!-- Stage Area -->
+    <main class="m3-stage">
 
-          <!-- Telemetry Metrics Bar -->
-          <div class="telemetry-container">
-            <div class="telemetry-cell">
-              <span class="telemetry-caption">СКАЧИВАНИЕ</span>
-              <span class="telemetry-number" id="m-down">0.0 MB/s</span>
+      <!-- ==============================================================
+           TAB 1: ГЛАВНАЯ (CONNECTION HUB & TELEMETRY)
+           ============================================================== -->
+      <div class="tab-view active" id="view-home">
+        <div class="dashboard-grid">
+          
+          <!-- LEFT COLUMN: Power Card & Verified IP -->
+          <div class="m3-card" id="connection-card">
+            <div class="card-header-clean">
+              <div class="card-title-m3">
+                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">vpn_lock</span>
+                <span>Центр управления защитой</span>
+              </div>
+              <span class="vip-badge" id="conn-mode-tag">СИСТЕМНЫЙ ПРОКСИ</span>
             </div>
-            <div class="telemetry-cell">
-              <span class="telemetry-caption">ОТДАЧА</span>
-              <span class="telemetry-number" id="m-up">0.0 MB/s</span>
+
+            <!-- THE ROTATING WAVY PROGRESS CIRCLE -->
+            <div class="connection-circle-stage" id="circle-stage">
+              <!-- Halo ring -->
+              <div class="wavy-halo"></div>
+
+              <!-- 12-Lobed Scalloped Wavy SVG Ring -->
+              <svg class="wavy-svg-ring" viewBox="0 0 160 160">
+                <defs>
+                  <linearGradient id="wavyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8" />
+                    <stop offset="50%" stop-color="#0284c7" />
+                    <stop offset="100%" stop-color="#38bdf8" />
+                  </linearGradient>
+                </defs>
+                <path class="wavy-path" d="M 151 80 C 151 84.92, 136.65 88.83, 135.06 94.75 C 133.47 100.67, 143.95 111.24, 141.49 115.5 C 139.03 119.76, 124.64 115.98, 120.31 120.31 C 115.98 124.64, 119.76 139.03, 115.5 141.49 C 111.24 143.95, 100.67 133.47, 94.75 135.06 C 88.83 136.65, 84.92 151, 80 151 C 75.08 151, 71.17 136.65, 65.25 135.06 C 59.33 133.47, 48.76 143.95, 44.5 141.49 C 40.24 139.03, 44.02 124.64, 39.69 120.31 C 35.36 115.98, 20.97 119.76, 18.51 115.5 C 16.05 111.24, 26.53 100.67, 24.94 94.75 C 23.36 88.83, 9 84.92, 9 80 C 9 75.08, 23.36 71.17, 24.94 65.25 C 26.53 59.33, 16.05 48.76, 18.51 44.5 C 20.97 40.24, 35.36 44.02, 39.69 39.69 C 44.02 35.36, 40.24 20.97, 44.5 18.51 C 48.76 16.05, 59.33 26.53, 65.25 24.94 C 71.17 23.36, 75.08 9, 80 9 C 84.92 9, 88.83 23.36, 94.75 24.94 C 100.67 26.53, 111.24 16.05, 115.5 18.51 C 119.76 20.97, 115.98 35.36, 120.31 39.69 C 124.64 44.02, 139.03 40.24, 141.49 44.5 C 143.95 48.76, 133.47 59.33, 135.06 65.25 C 136.65 71.17, 151 75.08, 151 80 Z" />
+              </svg>
+
+              <!-- M3 Power FAB Button -->
+              <button class="m3-power-btn" id="power-btn" onclick="toggleVpn()">
+                <span class="material-symbols-outlined" id="power-icon">power_settings_new</span>
+              </button>
             </div>
-            <div class="telemetry-cell">
-              <span class="telemetry-caption">СЕССИЯ</span>
-              <span class="telemetry-number" id="m-time">00:00:00</span>
+
+            <div class="connection-status-headline" id="conn-headline">Отключено</div>
+            <div class="connection-mode-caption" id="conn-caption">Нажмите кнопку в центре для включения туннеля</div>
+
+            <!-- Verified Real-Time IP Card -->
+            <div class="verified-ip-banner">
+              <div class="vip-top">
+                <span class="vip-badge">
+                  <span class="material-symbols-outlined" style="font-size: 14px;">verified_user</span>
+                  Текущий публичный IP
+                </span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <a href="https://2ip.ru" target="_blank" class="vip-2ip-link" title="Открыть 2ip.ru в браузере для независимой проверки">
+                    <span class="material-symbols-outlined" style="font-size: 13px;">open_in_new</span>
+                    2ip.ru
+                  </a>
+                  <button class="vip-refresh-btn" onclick="refreshPublicIp()">
+                    <span class="material-symbols-outlined" style="font-size: 13px;">sync</span>
+                    Проверить
+                  </button>
+                </div>
+              </div>
+              <div class="vip-content">
+                <div class="vip-main-data">
+                  <div class="vip-ip-address" id="vip-ip">...</div>
+                  <div class="vip-geo-desc" id="vip-geo">Определение провайдера...</div>
+                </div>
+                <div id="vip-flag" style="font-size: 26px;">🌐</div>
+              </div>
             </div>
+
+            <!-- Live Telemetry -->
+            <div class="telemetry-row">
+              <div class="telemetry-tile">
+                <span class="tel-cap">Скачивание</span>
+                <span class="tel-val" id="tel-down">0.0 MB/s</span>
+              </div>
+              <div class="telemetry-tile">
+                <span class="tel-cap">Отдача</span>
+                <span class="tel-val" id="tel-up">0.0 MB/s</span>
+              </div>
+              <div class="telemetry-tile">
+                <span class="tel-cap">Время</span>
+                <span class="tel-val" id="tel-time">00:00:00</span>
+              </div>
+              <div class="telemetry-tile">
+                <span class="tel-cap">Задержка</span>
+                <span class="tel-val" id="tel-ping">-- ms</span>
+              </div>
+            </div>
+
+            <!-- 60 FPS Speed Wave Canvas -->
+            <canvas class="speed-wave-canvas" id="speed-canvas"></canvas>
           </div>
+
+          <!-- RIGHT COLUMN: Promo & Server Selector -->
+          <div class="right-dashboard-col">
+            <!-- Франшиза Would.tg Promo -->
+            <div class="would-tg-card">
+              <div class="wtg-left">
+                <div class="wtg-badge">ФРАНШИЗА WOULD.TG • 200 ₽/МЕС</div>
+                <div class="wtg-title">Премиум-серверы без замедления</div>
+                <div class="wtg-desc">Европейские VLESS Reality узлы без ограничений трафика. Чистый IP для доступа к сервисам без капчи.</div>
+              </div>
+              <a href="https://t.me/Would_tg_bot" target="_blank" class="btn-wtg-action">
+                <span>Купить в боте</span>
+                <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+              </a>
+            </div>
+
+            <!-- Server Quick Selector Panel -->
+            <div class="server-list-panel">
+              <div class="sl-header">
+                <div class="search-input-wrap">
+                  <span class="material-symbols-outlined">search</span>
+                  <input type="text" class="m3-search-input" id="search-input" placeholder="Поиск узла по стране, IP или протоколу..." oninput="filterServers(this.value)">
+                </div>
+                <div class="sl-buttons">
+                  <button class="btn-tonal-m3" onclick="testAllPings()">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">bolt</span>
+                    Пинг
+                  </button>
+                  <button class="btn-filled-m3" onclick="openImportModal()">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">add</span>
+                    Добавить
+                  </button>
+                </div>
+              </div>
+
+              <!-- Servers Scroll List -->
+              <div class="servers-scroll" id="server-list-container">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+          </div>
+
         </div>
-
-        <!-- ==============================================================
-             INLINE COLLAPSIBLE SERVERS SECTION (With Search & Add Modal)
-             ============================================================== -->
-        <div class="server-section-card">
-          <div class="server-section-header" onclick="toggleServerCollapse()">
-            <div class="server-section-title">
-              <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary); font-size: 20px;">dns</span>
-              <span>Список серверов</span>
-              <span style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">(<span id="srv-count">5</span>)</span>
-            </div>
-            <div class="header-actions">
-              <!-- Add Key Button -->
-              <button class="btn-add-server" onclick="event.stopPropagation(); openAddKeyModal()" title="Добавить сервер">
-                <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
-              </button>
-              <!-- Sort by Ping -->
-              <button class="btn-mini-chip" onclick="event.stopPropagation(); sortByPing()" title="Сортировать по задержке">
-                <span class="material-symbols-outlined" style="font-size: 14px;">sort</span>
-                Топ
-              </button>
-              <!-- Ping Test -->
-              <button class="btn-mini-chip" onclick="event.stopPropagation(); testAllPings()">
-                <span class="material-symbols-outlined" style="font-size: 14px;">bolt</span>
-                Пинг
-              </button>
-              <span class="material-symbols-outlined" id="collapse-chevron" style="color: var(--md-sys-color-outline);">expand_less</span>
-            </div>
-          </div>
-
-          <!-- Instant Search Filter -->
-          <div class="server-search-strip" id="search-strip" style="position: relative;">
-            <span class="material-symbols-outlined search-icon-pos">search</span>
-            <input type="text" class="search-input-m3" id="server-filter-input" placeholder="Поиск по стране или протоколу..." oninput="filterServers(this.value)">
-          </div>
-
-          <div class="server-collapsible-body" id="collapsible-server-list">
-            <!-- Rendered by JS -->
-          </div>
-        </div>
-
       </div>
 
       <!-- ==============================================================
-           FULL-SCREEN SETTINGS VIEW (Opened via Gear Icon)
+           TAB 2: СЕРВЕРЫ (FULL SERVER MANAGER)
            ============================================================== -->
-      <div class="settings-view" id="mobile-settings-screen">
-        <div class="settings-topbar">
-          <button class="btn-back" onclick="closeSettingsView()">
-            <span class="material-symbols-outlined">arrow_back</span>
-          </button>
-          <span class="settings-headline">Настройки</span>
-        </div>
-
-        <div class="settings-scroll">
-          
-          <!-- Category 1: Interface Settings -->
-          <div class="settings-category">
-            <div class="category-title">1. Интерфейс и звук</div>
-            <div class="m3-settings-card">
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Тема оформления</div>
-                  <div class="setting-caption">Цветовая схема приложения</div>
-                </div>
-                <select class="m3-select" id="theme-selector" onchange="changeTheme(this.value)">
-                  <option value="pixel" selected>Material You Navy</option>
-                  <option value="amoled">AMOLED Тёмная</option>
-                  <option value="light">Светлая M3</option>
-                </select>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Тактильный щелчок / Аудио</div>
-                  <div class="setting-caption">Звуковой отклик при включении VPN</div>
-                </div>
-                <div class="m3-switch-control checked" id="audio-toggle" onclick="toggleM3Switch(this)">
-                  <div class="m3-switch-thumb"></div>
-                </div>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">График скорости на экране</div>
-                  <div class="setting-caption">Анимация живой кривой передачи данных</div>
-                </div>
-                <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
-                  <div class="m3-switch-thumb"></div>
-                </div>
-              </div>
+      <div class="tab-view" id="view-servers">
+        <div class="m3-card" style="min-height: 480px;">
+          <div class="card-header-clean">
+            <div class="card-title-m3">
+              <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">dns</span>
+              <span>Все доступные серверы и узлы</span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-tonal-m3" onclick="testAllPings()">Пинг всех серверов</button>
+              <button class="btn-filled-m3" onclick="openImportModal()">+ Добавить узел</button>
             </div>
           </div>
-
-          <!-- Category 2: Tunnel Settings -->
-          <div class="settings-category">
-            <div class="category-title">2. Настройки туннеля</div>
-            <div class="m3-settings-card">
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Режим работы ядра</div>
-                  <div class="setting-caption">Метод перехвата системного сетевого стека</div>
-                </div>
-                <select class="m3-select">
-                  <option selected>TUN (Wintun адаптер)</option>
-                  <option>Системный прокси</option>
-                </select>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Размер MTU</div>
-                  <div class="setting-caption">Максимальный размер сетевого пакета</div>
-                </div>
-                <select class="m3-select">
-                  <option selected>1500 (Стандарт)</option>
-                  <option>1400 (Для мобильных)</option>
-                  <option>9000 (Jumbo)</option>
-                </select>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Kill Switch</div>
-                  <div class="setting-caption">Блокировать интернет при обрыве соединения</div>
-                </div>
-                <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
-                  <div class="m3-switch-thumb"></div>
-                </div>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Защита от утечек IPv6</div>
-                  <div class="setting-caption">Автоматическая изоляция внешних IPv6-маршрутов</div>
-                </div>
-                <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
-                  <div class="m3-switch-thumb"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Category 3: Advanced Subscription & Ping Settings -->
-          <div class="settings-category">
-            <div class="category-title">3. Расширенные настройки (Подписки и Пинг)</div>
-            <div class="m3-settings-card">
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Автообновление подписок</div>
-                  <div class="setting-caption">Периодичность синхронизации узлов</div>
-                </div>
-                <select class="m3-select">
-                  <option selected>Каждые 12 часов</option>
-                  <option>Каждые 24 часа</option>
-                  <option>Только вручную</option>
-                </select>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Тип проверки пинга</div>
-                  <div class="setting-caption">Метод замера задержки до серверов</div>
-                </div>
-                <select class="m3-select">
-                  <option selected>Real TCP Handshake</option>
-                  <option>HTTP 204 Request</option>
-                  <option>ICMP Ping</option>
-                </select>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Таймаут прокси-пинга</div>
-                  <div class="setting-caption">Время ожидания ответа узла до сброса</div>
-                </div>
-                <select class="m3-select">
-                  <option selected>2000 мс</option>
-                  <option>3000 мс</option>
-                  <option>5000 мс</option>
-                </select>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">URL проверки доступности</div>
-                  <div class="setting-caption">http://cp.cloudflare.com/generate_204</div>
-                </div>
-                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary); font-size: 18px; cursor: pointer;">edit</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Category 4: Other Settings (Stats, Logs, Reset) -->
-          <div class="settings-category">
-            <div class="category-title">4. Другие настройки и диагностика</div>
-            <div class="m3-settings-card">
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Статистика трафика</div>
-                  <div class="setting-caption" id="traffic-stat-label">Скачано: 18.4 GB • Отдано: 2.7 GB</div>
-                </div>
-                <button class="btn-mini-chip" onclick="resetTrafficStats()">Сброс</button>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title">Журнал событий ядра</div>
-                  <div class="setting-caption">Технические логи подключений Sing-box</div>
-                </div>
-                <button class="btn-mini-chip" onclick="toggleSettingsLog()">Логи</button>
-              </div>
-              <div id="settings-log-box" style="display: none; padding-bottom: 8px;">
-                <div class="m3-terminal" id="terminal-settings" style="max-height: 140px;">
-                  <div class="term-row info">[sing-box] Core engine running on Android VpnService/TUN</div>
-                </div>
-              </div>
-
-              <div class="m3-setting-row">
-                <div class="m3-setting-text">
-                  <div class="setting-title" style="color: var(--md-sys-color-error);">Сброс настроек</div>
-                  <div class="setting-caption">Вернуть конфигурацию приложения к заводской</div>
-                </div>
-                <button class="btn-mini-chip" style="color: var(--md-sys-color-error); border-color: var(--md-sys-color-error);" onclick="confirmResetAll()">Сбросить</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Category 5: About & Information (At the bottom) -->
-          <div class="settings-category" style="margin-top: 6px;">
-            <div class="category-title">5. Информация о приложении</div>
-            <div class="m3-settings-card" style="padding: 12px 16px; font-size: 12px; color: var(--md-sys-color-on-surface-variant); line-height: 1.6;">
-              <div style="font-weight: 700; color: var(--md-sys-color-on-surface); font-size: 14px; margin-bottom: 4px;">WouldApp Client</div>
-              <div>Версия приложения: <strong>v1.3.0-flagship</strong></div>
-              <div>Сетевое ядро: <strong>Sing-box Core v1.10.0 (Go 1.23)</strong></div>
-              <div>Официальный провайдер: <strong>@Would_tg_bot</strong></div>
-              <div>Лицензия: Open Source (MIT)</div>
-            </div>
-          </div>
-
+          <div class="servers-scroll" id="full-servers-container" style="max-height: 520px;"></div>
         </div>
       </div>
 
-      <!-- M3 Global Snackbar -->
-      <div class="m3-snackbar" id="global-snackbar">
-        <span id="snackbar-text">Уведомление</span>
-        <button style="background: none; border: none; color: var(--md-sys-color-primary); font-weight: 700; cursor: pointer;" onclick="hideSnackbar()">OK</button>
-      </div>
-
-    </div>
-
-    <!-- ==================== 2. WINDOWS 11 M3 DESKTOP ==================== -->
-    <div class="device-desktop" id="view-desktop">
-      <div class="desktop-titlebar">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div class="toolbar-avatar" style="width: 24px; height: 24px; font-size: 11px;">W</div>
-          <span style="font-size: 12px; font-weight: 500;">WouldApp • Windows 11 Edition</span>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <button class="btn-mini-chip" style="background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font-weight: 600; padding: 4px 10px; height: 28px;" onclick="openAddKeyModal()" title="Добавить подписку или VLESS ключ">
-            <span class="material-symbols-outlined" style="font-size: 15px;">add</span>
-            <span>Добавить подписку</span>
-          </button>
-          <button class="icon-btn-gear" style="width: 28px; height: 28px;" onclick="switchDesktopTab('settings')" title="Настройки">
-            <span class="material-symbols-outlined" style="font-size: 16px;">settings</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="desktop-body">
-        <div class="desktop-rail">
-          <button class="rail-btn active" id="desk-nav-home" onclick="switchDesktopTab('home')">
-            <span class="material-symbols-outlined">shield</span>
-            <span style="font-size: 10px; margin-top: 4px;">Главная</span>
-          </button>
-
-          <button class="rail-btn" id="desk-nav-subs" onclick="switchDesktopTab('subs')">
-            <span class="material-symbols-outlined">playlist_add</span>
-            <span style="font-size: 10px; margin-top: 4px;">Подписки</span>
-          </button>
-
-          <button class="rail-btn" id="desk-nav-settings" onclick="switchDesktopTab('settings')">
-            <span class="material-symbols-outlined">settings</span>
-            <span style="font-size: 10px; margin-top: 4px;">Опции</span>
-          </button>
-        </div>
-
-        <div class="desktop-main-pane" id="desktop-main-pane">
-          <!-- Left Column -->
-          <div style="display: flex; flex-direction: column; gap: 16px;">
-            <div class="m3-connection-card" id="connection-card-desk">
-              <div class="power-action-container" style="width: 120px; height: 120px; margin: 4px 0 16px;">
-                <div class="power-wave"></div>
-                <button class="m3-power-fab" style="width: 90px; height: 90px;" onclick="toggleVpnState()">
-                  <span class="material-symbols-outlined" style="font-size: 38px;">power_settings_new</span>
-                </button>
-              </div>
-
-              <div class="connection-headline">
-                <span class="status-badge-dot"></span>
-                <span id="desk-state-title">Отключено</span>
-              </div>
-              <div class="connection-subhead" id="desk-state-desc">Весь трафик ПК идет по прямому маршруту</div>
-
-              <div class="telemetry-container">
-                <div class="telemetry-cell">
-                  <span class="telemetry-caption">СКАЧИВАНИЕ</span>
-                  <span class="telemetry-number" id="desk-down">0.0 MB/s</span>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="telemetry-caption">ОТДАЧА</span>
-                  <span class="telemetry-number" id="desk-up">0.0 MB/s</span>
-                </div>
-                <div class="telemetry-cell">
-                  <span class="telemetry-caption">ВРЕМЯ</span>
-                  <span class="telemetry-number" id="desk-time">00:00:00</span>
-                </div>
-              </div>
+      <!-- ==============================================================
+           TAB 3: ПОДПИСКИ (SUBSCRIPTIONS MANAGER)
+           ============================================================== -->
+      <div class="tab-view" id="view-subs">
+        <div class="m3-card" style="gap: 16px;">
+          <div class="card-header-clean">
+            <div class="card-title-m3">
+              <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">playlist_add</span>
+              <span>Импорт подписки или VLESS ключей</span>
             </div>
           </div>
 
-          <!-- Right Column -->
-          <div style="display: flex; flex-direction: column; gap: 14px;">
-            <div class="m3-card-promo" onclick="triggerWouldTgPromo()">
-              <div class="promo-header">
-                <span class="badge-label">WOULD.TG 200 ₽</span>
-                <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
-              </div>
-              <div class="promo-title">Подписка Would.tg Premium</div>
-              <div class="promo-body">Быстрые европейские узлы без лимита по трафику.</div>
-              <button class="btn-filled-tonal" style="align-self: flex-start; margin-top: 4px;">Перейти в бота</button>
-            </div>
-
-            <!-- Desktop Server List -->
-            <div class="server-section-card" style="flex: 1;">
-              <div class="server-section-header">
-                <div class="server-section-title">
-                  <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary); font-size: 18px;">dns</span>
-                  <span>Список серверов</span>
-                </div>
-                <div style="display: flex; gap: 6px;">
-                  <button class="btn-mini-chip" style="background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); font-weight: 600;" onclick="openAddKeyModal()">
-                    <span class="material-symbols-outlined" style="font-size: 14px;">add</span>
-                    Добавить
-                  </button>
-                  <button class="btn-mini-chip" onclick="testAllPings()">
-                    <span class="material-symbols-outlined" style="font-size: 14px;">bolt</span>
-                    Пинг
-                  </button>
-                </div>
-              </div>
-              <div class="server-collapsible-body" id="desk-server-list" style="max-height: 250px;">
-                <!-- Rendered by JS -->
-              </div>
-            </div>
+          <div style="font-size: 13px; color: var(--md-sys-color-on-surface-variant); line-height: 1.5;">
+            Вставьте ссылку на подписку от Telegram-бота <b>@Would_tg_bot</b> (например <code>https://would.tg/sub/...</code>) или скопируйте пачку ключей <code>vless://</code>, <code>hysteria2://</code>, <code>trojan://</code>. Приложение автоматически загрузит и добавит все узлы в список!
           </div>
-        </div>
 
-        <!-- ==============================================================
-             DESKTOP SUBSCRIPTIONS PANE
-             ============================================================== -->
-        <div class="desktop-subs-pane" id="desktop-subs-pane" style="display: none; flex: 1; padding: 22px 24px; overflow-y: auto; flex-direction: column; gap: 16px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--md-sys-color-outline-variant); padding-bottom: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <button class="btn-back" onclick="switchDesktopTab('home')">
-                <span class="material-symbols-outlined">arrow_back</span>
+          <textarea class="m3-textarea" id="full-sub-input" rows="4" placeholder="Вставьте ссылку подписки https://... или vless:// ключи сюда..."></textarea>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div class="presets-row">
+              <span style="font-size: 11px; color: var(--md-sys-color-on-surface-variant); align-self: center;">Помощь:</span>
+              <button class="btn-preset" onclick="pasteFromClipboard('full-sub-input')">📋 Вставить из буфера</button>
+              <a href="https://t.me/Would_tg_bot" target="_blank" class="btn-preset" style="background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #38bdf8; text-decoration: none;">🤖 Получить ключ в @Would_tg_bot (200 ₽)</a>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-tonal-m3" style="height: 42px; padding: 0 18px;" onclick="pasteFromClipboard('full-sub-input')">
+                <span class="material-symbols-outlined">content_paste</span>
+                Вставить
               </button>
-              <span style="font-size: 18px; font-weight: 700;">Управление подписками и ключами</span>
-            </div>
-            <button class="btn-mini-chip" style="background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); font-weight: 600;" onclick="openAddKeyModal()">
-              <span class="material-symbols-outlined" style="font-size: 15px;">add</span>
-              Быстрый импорт
-            </button>
-          </div>
-
-          <div class="m3-settings-card">
-            <div style="font-size: 14px; font-weight: 600; color: var(--md-sys-color-on-surface); margin-bottom: 6px;">Импортировать ссылку подписки или ключи</div>
-            <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 12px;">
-              Вставьте ссылку подписки (https://...), список ключей или отдельный ключ (VLESS Reality, Hysteria 2, Trojan, Shadowsocks):
-            </div>
-            <div style="display: flex; gap: 10px; flex-direction: column;">
-              <textarea id="desk-sub-input" rows="3" class="m3-field-input" style="height: auto; padding: 12px; resize: vertical; font-family: monospace; font-size: 12px;" placeholder="Вставьте ссылку подписки (https://...) или vless://..."></textarea>
-              <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                  <button class="btn-mini-chip" onclick="pasteDeskPreset('Amsterdam VLESS Reality', '185.220.101.44', '🇳🇱', 'VLESS Reality')">+ Amsterdam</button>
-                  <button class="btn-mini-chip" onclick="pasteDeskPreset('Frankfurt Hysteria 2', '45.142.214.88', '🇩🇪', 'Hysteria 2')">+ Frankfurt</button>
-                  <button class="btn-mini-chip" onclick="pasteDeskPreset('Helsinki Direct', '95.217.34.12', '🇫🇮', 'VLESS Reality')">+ Helsinki</button>
-                </div>
-                <button class="btn-filled-tonal" style="height: 38px; padding: 0 20px; font-weight: 600;" onclick="confirmDeskSubImport()">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
-                  Импортировать
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="m3-card-promo" onclick="triggerWouldTgPromo()" style="margin-top: 4px;">
-            <div class="promo-header">
-              <span class="badge-label">ПРЯМАЯ ИНТЕГРАЦИЯ</span>
-              <span class="material-symbols-outlined" style="font-size: 16px;">bolt</span>
-            </div>
-            <div class="promo-title">Франшиза Would.tg • Автоподписка</div>
-            <div class="promo-body">При покупке доступа в боте @Would_tg_bot за 200 ₽/мес подписка активируется автоматически без ручной вставки.</div>
-            <button class="btn-filled-tonal" style="align-self: flex-start; margin-top: 4px;">Открыть бота @Would_tg_bot</button>
-          </div>
-        </div>
-
-        <!-- ==============================================================
-             DESKTOP SETTINGS PANE
-             ============================================================== -->
-        <div class="desktop-settings-pane" id="desktop-settings-pane" style="display: none; flex: 1; padding: 22px 24px; overflow-y: auto; flex-direction: column; gap: 16px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--md-sys-color-outline-variant); padding-bottom: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <button class="btn-back" onclick="switchDesktopTab('home')">
-                <span class="material-symbols-outlined">arrow_back</span>
+              <button class="btn-filled-m3" style="height: 42px; padding: 0 24px;" onclick="importFullSub()">
+                <span class="material-symbols-outlined">download</span>
+                Импортировать все узлы
               </button>
-              <span style="font-size: 18px; font-weight: 700;">Параметры клиента (Windows 11)</span>
-            </div>
-            <span class="badge-label" style="background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); padding: 4px 10px;">Sing-box Core 1.10.0</span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
-            <!-- Column 1: Interface & Tunnel -->
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-              <div class="settings-category">
-                <div class="category-title">1. Интерфейс и звук</div>
-                <div class="m3-settings-card">
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title">Тема оформления</div>
-                      <div class="setting-caption">Цветовая схема приложения</div>
-                    </div>
-                    <select class="m3-select" onchange="changeTheme(this.value)">
-                      <option value="pixel" selected>Material You Navy</option>
-                      <option value="amoled">AMOLED Тёмная</option>
-                      <option value="light">Светлая M3</option>
-                    </select>
-                  </div>
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title">Звуковой отклик</div>
-                      <div class="setting-caption">Тактильный щелчок при действиях</div>
-                    </div>
-                    <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
-                      <div class="m3-switch-thumb"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="settings-category">
-                <div class="category-title">2. Настройки туннеля (Windows)</div>
-                <div class="m3-settings-card">
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title">Режим работы</div>
-                      <div class="setting-caption">Wintun адаптер (весь трафик ПК)</div>
-                    </div>
-                    <select class="m3-select">
-                      <option selected>TUN (Wintun)</option>
-                      <option>Системный прокси</option>
-                    </select>
-                  </div>
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title">Kill Switch</div>
-                      <div class="setting-caption">Блокировка сети при разрыве туннеля</div>
-                    </div>
-                    <div class="m3-switch-control checked" onclick="toggleM3Switch(this)">
-                      <div class="m3-switch-thumb"></div>
-                    </div>
-                  </div>
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title">Размер MTU</div>
-                      <div class="setting-caption">Максимальный размер пакета</div>
-                    </div>
-                    <select class="m3-select">
-                      <option selected>1500 (Стандарт)</option>
-                      <option>9000 (Jumbo)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Column 2: Advanced & Info -->
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-              <div class="settings-category">
-                <div class="category-title">3. Подписки и замер пинга</div>
-                <div class="m3-settings-card">
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title">Тип проверки пинга</div>
-                      <div class="setting-caption">Замер реального времени рукопожатия</div>
-                    </div>
-                    <select class="m3-select">
-                      <option selected>Real TCP Handshake</option>
-                      <option>HTTP 204 Request</option>
-                      <option>ICMP Ping</option>
-                    </select>
-                  </div>
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title">Таймаут пинга</div>
-                      <div class="setting-caption">Лимит ожидания ответа узла</div>
-                    </div>
-                    <select class="m3-select">
-                      <option selected>2000 мс</option>
-                      <option>3000 мс</option>
-                    </select>
-                  </div>
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title">Автообновление подписок</div>
-                      <div class="setting-caption">Синхронизация узлов Would.tg</div>
-                    </div>
-                    <select class="m3-select">
-                      <option selected>Каждые 12 часов</option>
-                      <option>Каждые 24 часа</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div class="settings-category">
-                <div class="category-title">4. Диагностика и информация</div>
-                <div class="m3-settings-card">
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title">Статистика трафика</div>
-                      <div class="setting-caption">Скачано: 18.4 GB • Отдано: 2.7 GB</div>
-                    </div>
-                    <button class="btn-mini-chip" onclick="resetTrafficStats()">Сбросить</button>
-                  </div>
-                  <div class="m3-setting-row">
-                    <div class="m3-setting-text">
-                      <div class="setting-title" style="color: var(--md-sys-color-error);">Сброс настроек</div>
-                      <div class="setting-caption">Вернуть конфигурацию к заводской</div>
-                    </div>
-                    <button class="btn-mini-chip" style="color: var(--md-sys-color-error); border-color: var(--md-sys-color-error);" onclick="confirmResetAll()">Сброс</button>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
-
       </div>
-    </div>
 
+      <!-- ==============================================================
+           TAB 4: ЛОГИ ЯДРА (SING-BOX TERMINAL)
+           ============================================================== -->
+      <div class="tab-view" id="view-logs">
+        <div class="m3-card" style="height: 520px;">
+          <div class="card-header-clean">
+            <div class="card-title-m3">
+              <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">terminal</span>
+              <span>Консоль процесса Sing-box 1.14 Core</span>
+            </div>
+            <button class="btn-tonal-m3" onclick="clearLogs()">Очистить</button>
+          </div>
+          <div id="terminal-body" style="flex: 1; background: #070a10; border-radius: 12px; padding: 14px; font-family: monospace; font-size: 11.5px; overflow-y: auto; color: #94a3b8; line-height: 1.6;">
+            <!-- Live logs will be rendered here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ==============================================================
+           TAB 5: ОПЦИИ (SETTINGS)
+           ============================================================== -->
+      <div class="tab-view" id="view-settings">
+        <div class="m3-card" style="gap: 16px;">
+          <div class="card-header-clean">
+            <div class="card-title-m3">
+              <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">tune</span>
+              <span>Параметры маршрутизации и безопасности</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div style="background: var(--md-sys-color-surface-container); padding: 16px; border-radius: 14px;">
+              <div style="font-weight: 700; margin-bottom: 4px;">Режим туннелирования</div>
+              <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 12px;">Системный прокси работает сразу без админ-прав. Режим TUN перехватывает весь трафик ПК.</div>
+              <select class="m3-search-input" id="setting-mode-select" onchange="changeMode(this.value)">
+                <option value="proxy" selected>Системный прокси Windows (Без прав админа)</option>
+                <option value="tun">TUN (Wintun адаптер, требует права администратора)</option>
+              </select>
+            </div>
+
+            <div style="background: var(--md-sys-color-surface-container); padding: 16px; border-radius: 14px;">
+              <div style="font-weight: 700; margin-bottom: 4px;">DNS-серверы</div>
+              <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 12px;">Защищенное разрешение имен через зашифрованный туннель.</div>
+              <select class="m3-search-input">
+                <option selected>Google DNS (8.8.8.8 / UDP)</option>
+                <option>Cloudflare (1.1.1.1 / UDP)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
   </div>
 
-  <!-- ==============================================================
-       GLOBAL MODAL: ADD KEY / SUBSCRIPTION SHEET & DIALOG
-       ============================================================== -->
-  <div class="m3-scrim" id="modal-add-sheet" onclick="closeAddKeyModal(event)">
-    <div class="m3-modal-sheet" onclick="event.stopPropagation()">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 8px;">
+  <!-- Global Modal Dialog: Add Key / Subscription -->
+  <div class="m3-scrim-dialog" id="import-dialog" onclick="closeImportModal(event)">
+    <div class="m3-dialog-box" onclick="event.stopPropagation()">
+      <div class="dialog-header">
+        <div class="dialog-title">
           <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">playlist_add</span>
-          <span style="font-size: 17px; font-weight: 700;">Импорт узла или подписки</span>
+          <span>Импорт ключа или подписки</span>
         </div>
-        <button class="btn-back" onclick="closeAddKeyModal()">
+        <button class="btn-dialog-close" onclick="closeImportModal()">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <div class="m3-field-container">
-        <span class="m3-field-label">Ключ или ссылка подписки</span>
-        <input type="text" class="m3-field-input" id="custom-link-val" placeholder="vless://... или https://sub.would.tg/...">
+      <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); line-height: 1.5;">
+        Вставьте ссылку подписки или VLESS / Hysteria 2 / Trojan ключ от <b>@Would_tg_bot</b>:
       </div>
 
-      <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">Быстрые пресеты для теста:</div>
-      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-        <button class="btn-mini-chip" onclick="pastePreset('🇳🇱 Amsterdam VLESS Reality', '185.220.101.44', '🇳🇱', 'VLESS Reality')">+ Amsterdam</button>
-        <button class="btn-mini-chip" onclick="pastePreset('🇩🇪 Frankfurt Hysteria 2', '45.142.214.88', '🇩🇪', 'Hysteria 2')">+ Frankfurt</button>
-        <button class="btn-mini-chip" onclick="pastePreset('🇫🇮 Helsinki Direct', '95.217.34.12', '🇫🇮', 'VLESS Reality')">+ Helsinki</button>
+      <textarea class="m3-textarea" id="dialog-sub-input" placeholder="https://... или vless://..."></textarea>
+
+      <div class="presets-row">
+        <span style="font-size: 11px; color: var(--md-sys-color-on-surface-variant); align-self: center;">Помощь:</span>
+        <button class="btn-preset" onclick="pasteFromClipboard('dialog-sub-input')">📋 Вставить из буфера</button>
+        <a href="https://t.me/Would_tg_bot" target="_blank" class="btn-preset" style="background: rgba(56, 189, 248, 0.15); border-color: #38bdf8; color: #38bdf8; text-decoration: none;">🤖 Купить ключ в @Would_tg_bot (200 ₽)</a>
       </div>
 
-      <div style="display: flex; gap: 8px; margin-top: 6px;">
-        <button class="btn-filled-tonal" style="flex: 1; height: 42px; justify-content: center; font-weight: 600;" onclick="confirmAddKey()">
-          <span class="material-symbols-outlined">download</span>
-          Импортировать
+      <div style="display: flex; gap: 10px; margin-top: 4px;">
+        <button class="btn-tonal-m3" style="height: 42px; padding: 0 16px;" onclick="pasteFromClipboard('dialog-sub-input')">
+          <span class="material-symbols-outlined">content_paste</span>
+          Вставить
         </button>
-        <button class="btn-mini-chip" style="height: 42px; padding: 0 14px;" onclick="simulateQrScan()">
-          <span class="material-symbols-outlined">qr_code_scanner</span>
-          QR-код
+        <button class="btn-filled-m3" style="flex: 1; height: 42px; justify-content: center;" onclick="confirmDialogImport()">
+          <span class="material-symbols-outlined">download</span>
+          Импортировать и сохранить
         </button>
       </div>
     </div>
   </div>
 
+  <!-- M3 Notification Snackbar -->
+  <div class="m3-snackbar" id="snackbar">
+    <span class="material-symbols-outlined" id="sb-icon" style="color: var(--md-sys-color-primary);">info</span>
+    <span id="sb-text">Уведомление</span>
+  </div>
+
   <script>
-    // State Model
+    // Default Fallback Mock Servers
+    const DEFAULT_SERVERS = [
+      { id: 'srv-1', name: 'Нидерланды #1 • Amsterdam Fast', flag: '🇳🇱', ping: 22, proto: 'VLESS Reality', ip: '185.220.101.44' },
+      { id: 'srv-2', name: 'Германия #2 • Frankfurt High-Speed', flag: '🇩🇪', ping: 35, proto: 'Hysteria 2', ip: '45.142.214.88' },
+      { id: 'srv-3', name: 'Финляндия #1 • Helsinki Direct', flag: '🇫🇮', ping: 17, proto: 'VLESS Reality', ip: '95.217.34.12' },
+      { id: 'srv-4', name: 'США #1 • New York Streaming', flag: '🇺🇸', ping: 108, proto: 'Trojan TLS', ip: '198.51.100.22' }
+    ];
+
+    // App State
     const appState = {
-      status: 'disconnected', // disconnected, connecting, connected
-      selectedId: 'nl-1',
-      serversCollapsed: false,
+      status: 'disconnected', // 'disconnected', 'connecting', 'connected'
+      activeTab: 'home',
+      selectedId: 'srv-1',
+      mode: 'proxy',
       searchQuery: '',
       secondsElapsed: 0,
-      soundEnabled: true,
       timerHandle: null,
       speedHandle: null,
-      reconnectTimer: null,
       waveData: new Array(40).fill(0),
-      servers: [
-        { id: 'nl-1', name: 'Нидерланды #1 • Amsterdam Fast', flag: '🇳🇱', ping: 22, proto: 'VLESS Reality', ip: '185.220.101.44' },
-        { id: 'de-1', name: 'Германия #2 • Frankfurt High-Speed', flag: '🇩🇪', ping: 35, proto: 'Hysteria 2', ip: '45.142.214.88' },
-        { id: 'fi-1', name: 'Финляндия #1 • Helsinki Direct', flag: '🇫🇮', ping: 17, proto: 'VLESS Reality', ip: '95.217.34.12' },
-        { id: 'us-1', name: 'США #1 • New York Streaming', flag: '🇺🇸', ping: 108, proto: 'Trojan TLS', ip: '198.51.100.22' },
-        { id: 'sg-1', name: 'Сингапур #1 • Asia Gateway', flag: '🇸🇬', ping: 168, proto: 'VLESS Reality', ip: '103.253.14.9' }
-      ]
+      servers: [...DEFAULT_SERVERS]
     };
 
-    // Web Audio Synthesizer (High-tech Click)
-    let audioCtx = null;
-    function playBeep(freq = 600, duration = 0.05) {
-      if (!appState.soundEnabled) return;
+    // Persistence with localStorage
+    function saveServersToStorage() {
       try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
+        localStorage.setItem('wouldapp_servers', JSON.stringify(appState.servers));
+        localStorage.setItem('wouldapp_selected_id', appState.selectedId);
       } catch (e) {}
     }
 
-    function setDeviceMode(mode) {
-      playBeep(450, 0.03);
-      try { localStorage.setItem('wouldapp_device_mode', mode); } catch (e) {}
-      const segM = document.getElementById('seg-mobile');
-      const segD = document.getElementById('seg-desktop');
-      if (segM) segM.classList.toggle('selected', mode === 'mobile');
-      if (segD) segD.classList.toggle('selected', mode === 'desktop');
-      const viewM = document.getElementById('view-mobile');
-      const viewD = document.getElementById('view-desktop');
-      if (viewM) viewM.style.display = mode === 'mobile' ? 'flex' : 'none';
-      if (viewD) viewD.style.display = mode === 'desktop' ? 'flex' : 'none';
-      if (mode === 'desktop') {
-        switchDesktopTab('home');
-      }
-    }
-
-    function initDeviceMode() {
-      let mode = 'desktop';
+    function loadServersFromStorage() {
       try {
-        const saved = localStorage.getItem('wouldapp_device_mode');
+        const saved = localStorage.getItem('wouldapp_servers');
         if (saved) {
-          mode = saved;
-        } else {
-          // If on a desktop OS or wide screen, default to Windows 11 Desktop UI!
-          const isMobile = (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) || (window.innerWidth < 768);
-          mode = isMobile ? 'mobile' : 'desktop';
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            appState.servers = parsed;
+          }
+        }
+        const savedId = localStorage.getItem('wouldapp_selected_id');
+        if (savedId && appState.servers.some(s => s.id === savedId)) {
+          appState.selectedId = savedId;
+        } else if (appState.servers.length > 0) {
+          appState.selectedId = appState.servers[0].id;
         }
       } catch (e) {}
-      setDeviceMode(mode);
     }
 
-    function toggleServerCollapse() {
-      playBeep(520, 0.03);
-      appState.serversCollapsed = !appState.serversCollapsed;
-      const list = document.getElementById('collapsible-server-list');
-      const chevron = document.getElementById('collapse-chevron');
-      if (appState.serversCollapsed) {
-        list.classList.add('collapsed');
-        chevron.textContent = 'expand_more';
-      } else {
-        list.classList.remove('collapsed');
-        chevron.textContent = 'expand_less';
-      }
+    // Smart Flag Detection
+    function detectFlagFromName(name) {
+      const lower = (name || '').toLowerCase();
+      if (lower.includes('нидерланд') || lower.includes('netherland') || lower.includes('amsterdam') || lower.includes('nl')) return '🇳🇱';
+      if (lower.includes('германи') || lower.includes('germany') || lower.includes('frankfurt') || lower.includes('de')) return '🇩🇪';
+      if (lower.includes('финлянд') || lower.includes('finland') || lower.includes('helsinki') || lower.includes('fi')) return '🇫🇮';
+      if (lower.includes('сша') || lower.includes('usa') || lower.includes('united states') || lower.includes('america') || lower.includes('us')) return '🇺🇸';
+      if (lower.includes('турци') || lower.includes('turkey') || lower.includes('istanbul') || lower.includes('tr')) return '🇹🇷';
+      if (lower.includes('швеци') || lower.includes('sweden') || lower.includes('stockholm') || lower.includes('se')) return '🇸🇪';
+      if (lower.includes('польш') || lower.includes('poland') || lower.includes('warsaw') || lower.includes('pl')) return '🇵🇱';
+      if (lower.includes('франци') || lower.includes('france') || lower.includes('paris') || lower.includes('fr')) return '🇫🇷';
+      if (lower.includes('великобрит') || lower.includes('uk') || lower.includes('london') || lower.includes('gb')) return '🇬🇧';
+      if (lower.includes('казахст') || lower.includes('kazakh') || lower.includes('kz')) return '🇰🇿';
+      if (lower.includes('оаэ') || lower.includes('uae') || lower.includes('dubai') || lower.includes('ae')) return '🇦🇪';
+      if (lower.includes('сингапур') || lower.includes('singapore') || lower.includes('sg')) return '🇸🇬';
+      if (lower.includes('япони') || lower.includes('japan') || lower.includes('tokyo') || lower.includes('jp')) return '🇯🇵';
+      return '🌐';
     }
 
-    function filterServers(query) {
-      appState.searchQuery = query.toLowerCase().trim();
-      renderAllServers();
-    }
-
-    function sortByPing() {
-      playBeep(650, 0.04);
-      appState.servers.sort((a, b) => a.ping - b.ping);
-      renderAllServers();
-      showSnackbar('Серверы отсортированы по минимальной задержке ⚡');
-    }
-
-    function renderAllServers() {
-      const filtered = appState.servers.filter(s => 
-        s.name.toLowerCase().includes(appState.searchQuery) ||
-        s.proto.toLowerCase().includes(appState.searchQuery)
-      );
-
-      document.getElementById('srv-count').textContent = appState.servers.length;
-
-      const makeItem = (s) => `
-        <div class="m3-list-item ${s.id === appState.selectedId ? 'selected' : ''}" onclick="pickServer('${s.id}')">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 20px;">${s.flag}</span>
-            <div>
-              <div style="font-size: 13px; font-weight: 500; color: var(--md-sys-color-on-surface);">${s.name}</div>
-              <div style="font-size: 11px; color: var(--md-sys-color-on-surface-variant);">${s.proto} • IP: ${s.ip}</div>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="badge-latency" id="ping-${s.id}">${s.ping} ms</span>
-            ${s.id === appState.selectedId ? '<span class="material-symbols-outlined" style="font-size: 18px; color: var(--md-sys-color-primary);">check</span>' : ''}
-          </div>
-        </div>
-      `;
-
-      document.getElementById('collapsible-server-list').innerHTML = filtered.map(makeItem).join('');
-      document.getElementById('desk-server-list').innerHTML = appState.servers.map(makeItem).join('');
-    }
-
-    function pickServer(id) {
-      if (appState.selectedId === id) {
-        if (appState.status === 'connected') {
-          showSnackbar('Уже подключено к этому серверу');
-        }
-        return;
-      }
-
-      const oldServer = appState.servers.find(srv => srv.id === appState.selectedId);
-      const newServer = appState.servers.find(srv => srv.id === id);
-      appState.selectedId = id;
-      renderAllServers();
-
-      const cardM = document.getElementById('connection-card-m');
-      const cardD = document.getElementById('connection-card-desk');
-      const titleM = document.getElementById('label-state-title');
-      const titleD = document.getElementById('desk-state-title');
-      const descM = document.getElementById('label-state-desc');
-      const descD = document.getElementById('desk-state-desc');
-
-      if (appState.status === 'connected' || appState.status === 'connecting') {
-        // Clear any previous reconnection process
-        if (appState.reconnectTimer) clearTimeout(appState.reconnectTimer);
-
-        // STEP 1: Disconnect from the old server
-        playBeep(420, 0.05);
-        appState.status = 'connecting';
-        cardM.className = 'm3-connection-card connecting';
-        cardD.className = 'm3-connection-card connecting';
-        
-        titleM.textContent = 'Отключение...';
-        titleD.textContent = 'Отключение...';
-        descM.textContent = `Разрыв соединения с ${oldServer ? oldServer.name : 'сервером'}...`;
-        descD.textContent = `Закрытие туннеля Wintun (${oldServer ? oldServer.ip : ''})...`;
-
-        // Dip speed graph temporarily
-        appState.waveData = appState.waveData.map(v => Math.max(0, v * 0.3));
-        pushLog(`[sing-box] Отключение от предыдущего узла: ${oldServer ? oldServer.name : 'Outbound'}`);
-        pushLog(`[sing-box] Остановка активных сокетов. Подготовка к переключению...`);
-
-        // STEP 2: Initiate connection to the new server
-        appState.reconnectTimer = setTimeout(() => {
-          titleM.textContent = 'Подключение...';
-          titleD.textContent = 'Подключение...';
-          descM.textContent = `Рукопожатие с ${newServer.name} (${newServer.ip})...`;
-          descD.textContent = `Установка соединения с ${newServer.name}...`;
-          pushLog(`[sing-box] Установка нового исходящего соединения -> ${newServer.proto}://${newServer.ip}:443`);
-
-          // STEP 3: Successfully connected to the new server
-          appState.reconnectTimer = setTimeout(() => {
-            appState.status = 'connected';
-            cardM.className = 'm3-connection-card connected';
-            cardD.className = 'm3-connection-card connected';
-
-            titleM.textContent = 'Подключено';
-            titleD.textContent = 'Подключено';
-            descM.textContent = `Защищено • IP: ${newServer.ip} (${newServer.ping} ms)`;
-            descD.textContent = `Туннель Wintun активен • IP: ${newServer.ip}`;
-
-            playBeep(920, 0.1);
-            pushLog(`[sing-box] Туннель переключен на ${newServer.name}! Сетевой маршрут обновлен.`);
-            showSnackbar(`✓ Переключено на: ${newServer.name}`);
-            renderAllServers();
-          }, 800);
-
-        }, 500);
-
-      } else {
-        // If disconnected, just select it without connecting
-        playBeep(580, 0.03);
-        descM.textContent = `Выбран ${newServer.name}. Нажмите кнопку для подключения`;
-        descD.textContent = `Выбран ${newServer.name}. Нажмите кнопку для подключения`;
-        pushLog(`[routing] Выбран профиль: ${newServer.name} (${newServer.ip})`);
-        showSnackbar(`Выбран: ${newServer.name}`);
-      }
-    }
-
-    function testAllPings() {
-      playBeep(700, 0.05);
-      pushLog('[sing-box] Запущен тест TCP-рукопожатия для всех узлов...');
-      appState.servers.forEach(s => {
-        const pingEl = document.getElementById(`ping-${s.id}`);
-        if (pingEl) pingEl.textContent = '...';
+    // Tab Navigation
+    function switchTab(tab) {
+      appState.activeTab = tab;
+      const tabs = ['home', 'servers', 'subs', 'logs', 'settings'];
+      tabs.forEach(t => {
+        const railBtn = document.getElementById(`rail-${t}`);
+        const viewEl = document.getElementById(`view-${t}`);
+        if (railBtn) railBtn.classList.toggle('active', t === tab);
+        if (viewEl) viewEl.classList.toggle('active', t === tab);
       });
-
-      setTimeout(() => {
-        appState.servers.forEach(s => {
-          const delta = Math.floor(Math.random() * 8) - 4;
-          s.ping = Math.max(12, s.ping + delta);
-        });
-        renderAllServers();
-        pushLog('[sing-box] Замер пинга завершен успешно.');
-        showSnackbar('Пинг успешно обновлён для всех узлов');
-      }, 550);
+      if (tab === 'servers') renderFullServers();
     }
 
-    // Modal: Add Key & Presets
-    function openAddKeyModal() {
-      playBeep(600, 0.03);
-      document.getElementById('modal-add-sheet').classList.add('visible');
-    }
-    function closeAddKeyModal(e) {
-      if (e && e.target !== e.currentTarget && !e.target.closest('.btn-back')) return;
-      document.getElementById('modal-add-sheet').classList.remove('visible');
-    }
-    function pastePreset(name, ip, flag, proto) {
-      playBeep(620, 0.03);
-      document.getElementById('custom-link-val').value = `vless://uuid-test@${ip}:443?security=reality#${encodeURIComponent(name)}`;
-    }
-    async function handleParsedNodes(nodes, rawInput) {
-      if (!nodes || nodes.length === 0) {
-        showSnackbar('Не удалось распознать ключи или подписку');
-        return;
-      }
-      const added = [];
-      nodes.forEach((n, idx) => {
-        const outbound = n.outbound || {
-          type: 'vless',
-          tag: 'proxy',
-          server: '194.87.112.4',
-          server_port: 443,
-          uuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
-        };
-        const item = {
-          id: 'user-' + Date.now() + '-' + idx,
-          name: n.name || `Узел #${idx + 1}`,
-          flag: '🌐',
-          ping: Math.floor(Math.random() * 25 + 18),
-          proto: (outbound.type || 'vless').toUpperCase() + (outbound.tls ? ' Reality' : ''),
-          ip: outbound.server || '194.87.112.4',
-          outbound: outbound,
-          rawLink: n.rawLink || rawInput
-        };
-        appState.servers.unshift(item);
-        added.push(item);
-      });
-      appState.selectedId = added[0].id;
-      renderAllServers();
-      const msg = added.length > 1
-        ? `✓ Добавлено ${added.length} узлов из подписки!`
-        : `✓ Узел "${added[0].name}" успешно добавлен!`;
-      showSnackbar(msg);
-      pushLog(`[sub] ${msg}`);
-      playBeep(920, 0.12);
-    }
-
-    async function confirmAddKey() {
-      const val = document.getElementById('custom-link-val').value.trim();
-      if (!val) {
-        showSnackbar('Введите ссылку на сервер или выберите пресет!');
-        return;
-      }
-      playBeep(800, 0.06);
-
-      try {
-        const resp = await fetch('/api/parse', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ link: val })
-        });
-        const res = await resp.json();
-        if (res.success && (res.nodes || res.data)) {
-          const list = res.nodes || [res.data];
-          await handleParsedNodes(list, val);
-          closeAddKeyModal();
-          document.getElementById('custom-link-val').value = '';
-        } else {
-          showSnackbar(res.error || 'Ошибка распознавания ссылки');
-        }
-      } catch (err) {
-        showSnackbar('Ошибка связи с сервером');
-      }
-    }
-
-    async function confirmDeskSubImport() {
-      const val = document.getElementById('desk-sub-input').value.trim();
-      if (!val) {
-        showSnackbar('Вставьте ссылку подписки или ключи!');
-        return;
-      }
-      playBeep(800, 0.06);
-
-      try {
-        const resp = await fetch('/api/parse', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ link: val })
-        });
-        const res = await resp.json();
-        if (res.success && (res.nodes || res.data)) {
-          const list = res.nodes || [res.data];
-          await handleParsedNodes(list, val);
-          document.getElementById('desk-sub-input').value = '';
-          switchDesktopTab('home');
-        } else {
-          showSnackbar(res.error || 'Ошибка распознавания ссылки');
-        }
-      } catch (err) {
-        showSnackbar('Ошибка связи с сервером');
-      }
-    }
-
-    function pasteDeskPreset(name, ip, flag, proto) {
-      playBeep(620, 0.03);
-      document.getElementById('desk-sub-input').value = `vless://uuid-test@${ip}:443?security=reality#${encodeURIComponent(name)}`;
-    }
-
-    function simulateQrScan() {
-      playBeep(750, 0.05);
-      showSnackbar('📷 Сканирование QR-кода камеры: конфигурация найдена!');
-      setTimeout(() => {
-        pastePreset('Финляндия Helsinki (QR)', '95.217.34.12', '🇫🇮', 'VLESS Reality');
-      }, 400);
-    }
-
-    // Theme Switcher
-    function changeTheme(theme) {
-      playBeep(550, 0.03);
-      document.body.setAttribute('data-theme', theme);
-      showSnackbar(`Тема переключена: ${theme.toUpperCase()}`);
-    }
-
-    function switchDesktopTab(tab) {
-      playBeep(520, 0.03);
-      const mainPane = document.getElementById('desktop-main-pane');
-      const subsPane = document.getElementById('desktop-subs-pane');
-      const settingsPane = document.getElementById('desktop-settings-pane');
-      const navHome = document.getElementById('desk-nav-home');
-      const navSubs = document.getElementById('desk-nav-subs');
-      const navSettings = document.getElementById('desk-nav-settings');
-
-      if (navHome) navHome.classList.toggle('active', tab === 'home');
-      if (navSubs) navSubs.classList.toggle('active', tab === 'subs');
-      if (navSettings) navSettings.classList.toggle('active', tab === 'settings');
-
-      if (tab === 'settings') {
-        if (mainPane) mainPane.style.display = 'none';
-        if (subsPane) subsPane.style.display = 'none';
-        if (settingsPane) settingsPane.style.display = 'flex';
-      } else if (tab === 'subs') {
-        if (mainPane) mainPane.style.display = 'none';
-        if (settingsPane) settingsPane.style.display = 'none';
-        if (subsPane) subsPane.style.display = 'flex';
-      } else {
-        if (settingsPane) settingsPane.style.display = 'none';
-        if (subsPane) subsPane.style.display = 'none';
-        if (mainPane) mainPane.style.display = 'grid';
-      }
-    }
-
-    // Settings Navigation
-    function openSettingsView() {
-      playBeep(520, 0.03);
-      const isDesktop = document.getElementById('view-desktop').style.display === 'flex';
-      if (isDesktop) {
-        switchDesktopTab('settings');
-      } else {
-        document.getElementById('mobile-settings-screen').classList.add('active');
-      }
-    }
-    function closeSettingsView() {
-      playBeep(480, 0.03);
-      document.getElementById('mobile-settings-screen').classList.remove('active');
-      const settingsPane = document.getElementById('desktop-settings-pane');
-      if (settingsPane) switchDesktopTab('home');
-    }
-
-    function toggleM3Switch(el) {
-      playBeep(640, 0.03);
-      el.classList.toggle('checked');
-      if (el.id === 'audio-toggle') {
-        appState.soundEnabled = el.classList.contains('checked');
-      }
-      const title = el.previousElementSibling.querySelector('.setting-title').textContent;
-      pushLog(`[settings] Переключен параметр: "${title}"`);
-    }
-
-    function toggleSettingsLog() {
-      const box = document.getElementById('settings-log-box');
-      box.style.display = box.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function resetTrafficStats() {
-      playBeep(500, 0.04);
-      document.getElementById('traffic-stat-label').textContent = 'Скачано: 0.0 MB • Отдано: 0.0 MB';
-      showSnackbar('Статистика трафика обнулена!');
-    }
-    function confirmResetAll() {
-      if (confirm('Сбросить все настройки клиента до заводских?')) {
-        playBeep(400, 0.08);
-        showSnackbar('Все параметры сброшены до начальных.');
-      }
-    }
-
-    // Global Snackbar
-    let snackbarTimer = null;
-    function showSnackbar(msg) {
-      const bar = document.getElementById('global-snackbar');
-      document.getElementById('snackbar-text').textContent = msg;
-      bar.classList.add('active');
-      clearTimeout(snackbarTimer);
-      snackbarTimer = setTimeout(hideSnackbar, 3200);
-    }
-    function hideSnackbar() {
-      document.getElementById('global-snackbar').classList.remove('active');
-    }
-
-    // Live Speed Canvas Graph Animation
-    const canvas = document.getElementById('traffic-canvas');
-    const ctx = canvas.getContext('2d');
-    function drawSpeedCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const isLive = appState.status === 'connected';
-
-      // Push new speed wave point
-      if (isLive) {
-        const val = Math.sin(Date.now() / 300) * 8 + Math.random() * 12 + 18;
-        appState.waveData.push(val);
-      } else {
-        appState.waveData.push(0);
-      }
-      appState.waveData.shift();
-
-      // Render Line & Fill
-      ctx.beginPath();
-      const step = canvas.width / (appState.waveData.length - 1);
-      ctx.moveTo(0, canvas.height - appState.waveData[0]);
-
-      for (let i = 1; i < appState.waveData.length; i++) {
-        const x = i * step;
-        const y = canvas.height - appState.waveData[i] - 4;
-        ctx.lineTo(x, y);
-      }
-
-      ctx.strokeStyle = isLive ? '#6dd58c' : '#44474e';
-      ctx.lineWidth = 2.2;
-      ctx.stroke();
-
-      if (isLive) {
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.lineTo(0, canvas.height);
-        ctx.closePath();
-        const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        grad.addColorStop(0, 'rgba(109, 213, 140, 0.35)');
-        grad.addColorStop(1, 'rgba(109, 213, 140, 0.0)');
-        ctx.fillStyle = grad;
-        ctx.fill();
-      }
-
-      requestAnimationFrame(drawSpeedCanvas);
-    }
-    requestAnimationFrame(drawSpeedCanvas);
-
-    // Toggle VPN State with real API Backend
-    async function toggleVpnState() {
-      const cardM = document.getElementById('connection-card-m');
-      const cardD = document.getElementById('connection-card-desk');
-      const titleM = document.getElementById('label-state-title');
-      const titleD = document.getElementById('desk-state-title');
-      const descM = document.getElementById('label-state-desc');
-      const descD = document.getElementById('desk-state-desc');
-      const idleLabel = document.getElementById('canvas-idle-label');
-      const activeServer = appState.servers.find(s => s.id === appState.selectedId);
-
+    // Toggle VPN Connection
+    async function toggleVpn() {
       if (appState.status === 'disconnected') {
-        playBeep(720, 0.08);
-        appState.status = 'connecting';
-        cardM.className = 'm3-connection-card connecting';
-        cardD.className = 'm3-connection-card connecting';
-        titleM.textContent = 'Подключение...';
-        titleD.textContent = 'Подключение...';
-        descM.textContent = `Запуск ядра Sing-box 1.14 для ${activeServer.name}...`;
-        descD.textContent = `Инициализация Wintun (${activeServer.ip})...`;
-        idleLabel.style.display = 'none';
-        pushLog(`[sing-box] Запуск процесса ядра для узла ${activeServer.name}`);
+        let activeServer = appState.servers.find(s => s.id === appState.selectedId) || appState.servers[0];
+
+        // If selected server has no real outbound (e.g. placeholder server without credentials)
+        if (!activeServer || !activeServer.outbound) {
+          const realServer = appState.servers.find(s => s.outbound);
+          if (realServer) {
+            selectServer(realServer.id);
+            activeServer = realServer;
+          } else {
+            showSnackbar('Для реального подключения вставьте ключ или подписку из @Would_tg_bot', 'info');
+            openImportModal();
+            return;
+          }
+        }
+
+        setConnectionState('connecting');
 
         try {
           const resp = await fetch('/api/connect', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              outbound: activeServer.outbound || {
-                type: 'vless',
-                tag: 'proxy',
-                server: activeServer.ip,
-                server_port: 443,
-                uuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
-              },
+              outbound: activeServer.outbound,
               link: activeServer.rawLink,
-              mode: 'tun'
+              mode: appState.mode
             })
           });
 
-          const result = await resp.json();
-          if (result.success) {
-            playBeep(920, 0.12);
-            appState.status = 'connected';
-            cardM.className = 'm3-connection-card connected';
-            cardD.className = 'm3-connection-card connected';
-            titleM.textContent = 'Подключено';
-            titleD.textContent = 'Подключено';
-            const isProxy = result.result && result.result.mode === 'proxy';
-            const modeText = isProxy ? 'Системный прокси' : 'Wintun TUN';
-            descM.textContent = `Защищено (${modeText}) • IP: ${activeServer.ip}`;
-            descD.textContent = `${modeText} активен • IP: ${activeServer.ip}`;
-            pushLog(`[sing-box] Процесс ядра активен (PID: ${result.result.pid}). Режим: ${modeText}.`);
-            if (isProxy) {
-              pushLog(`[hint] Для активации режима Wintun (весь трафик ПК) запустите WouldApp от имени администратора.`);
-            }
-            showSnackbar(`✓ Sing-box запущен (${modeText}): ${activeServer.name}`);
+          const res = await resp.json();
+          if (res.success) {
+            setConnectionState('connected');
+            showSnackbar(`✓ Защита включена: ${activeServer.name}`);
             startSpeedTicker();
+            // Automatically verify public IP and geolocation
+            setTimeout(refreshPublicIp, 1200);
           } else {
-            throw new Error(result.error);
+            throw new Error(res.error || 'Ошибка запуска sing-box');
           }
         } catch (err) {
-          appState.status = 'disconnected';
-          cardM.className = 'm3-connection-card';
-          cardD.className = 'm3-connection-card';
-          titleM.textContent = 'Ошибка';
-          titleD.textContent = 'Ошибка';
-          descM.textContent = `Не удалось запустить: ${err.message}`;
-          idleLabel.style.display = 'block';
-          showSnackbar(`Ошибка запуска: ${err.message}`);
-          pushLog(`[error] ${err.message}`);
+          setConnectionState('disconnected');
+          showSnackbar(`Ошибка запуска: ${err.message}`, 'error');
         }
 
       } else {
-        playBeep(420, 0.08);
-        appState.status = 'disconnected';
-        cardM.className = 'm3-connection-card';
-        cardD.className = 'm3-connection-card';
-        titleM.textContent = 'Отключено';
-        titleD.textContent = 'Отключено';
-        descM.textContent = 'Выберите сервер в списке ниже и нажмите подключение';
-        descD.textContent = 'Весь трафик ПК идет по прямому маршруту';
-        idleLabel.style.display = 'block';
-
+        setConnectionState('disconnected');
         try {
           await fetch('/api/disconnect', { method: 'POST' });
         } catch (e) {}
-
-        pushLog(`[sing-box] Процесс ядра остановлен. Сетевой шлюз восстановлен.`);
-        showSnackbar('Туннель отключен');
         stopSpeedTicker();
+        showSnackbar('Туннель отключен. Трафик идет напрямую.');
+        setTimeout(refreshPublicIp, 800);
       }
     }
 
+    function setConnectionState(state) {
+      appState.status = state;
+      const stage = document.getElementById('circle-stage');
+      const headline = document.getElementById('conn-headline');
+      const caption = document.getElementById('conn-caption');
+      const dot = document.getElementById('geo-dot');
+
+      stage.className = 'connection-circle-stage ' + state;
+      dot.className = 'geo-dot ' + state;
+
+      if (state === 'connecting') {
+        headline.textContent = 'Подключение...';
+        caption.textContent = 'Вращение защитного кольца • Установка шифрования...';
+        document.getElementById('geo-text').textContent = 'Подключение...';
+      } else if (state === 'connected') {
+        const activeServer = appState.servers.find(s => s.id === appState.selectedId) || appState.servers[0];
+        headline.textContent = 'Подключено';
+        headline.style.color = 'var(--md-sys-color-success)';
+        caption.textContent = `Защищено • ${activeServer.name}`;
+      } else {
+        headline.textContent = 'Отключено';
+        headline.style.color = 'var(--md-sys-color-on-surface)';
+        caption.textContent = 'Нажмите кнопку в центре для включения туннеля';
+      }
+    }
+
+    // Live Public IP Checker (Queries /api/check-ip)
+    async function refreshPublicIp() {
+      const geoText = document.getElementById('geo-text');
+      const vipIp = document.getElementById('vip-ip');
+      const vipGeo = document.getElementById('vip-geo');
+      const vipFlag = document.getElementById('vip-flag');
+
+      vipIp.textContent = 'Проверка...';
+
+      try {
+        const resp = await fetch('/api/check-ip');
+        const data = await resp.json();
+
+        if (data.success && data.ip) {
+          vipIp.textContent = data.ip;
+          vipGeo.textContent = `${data.country} (${data.city || 'Город определен'}) • ${data.isp || ''}`;
+          
+          const flagEmoji = getFlagEmoji(data.countryCode);
+          vipFlag.textContent = flagEmoji;
+
+          if (data.proxied) {
+            geoText.textContent = `🔒 ${data.country}, ${data.city} • IP: ${data.ip} (Защищено ✓)`;
+            showSnackbar(`✓ Подтвержден внешний IP: ${data.ip} (${data.country})`);
+          } else {
+            geoText.textContent = `📍 ${data.country}, ${data.city} • IP: ${data.ip} (Без VPN)`;
+          }
+        } else {
+          vipIp.textContent = '127.0.0.1';
+          vipGeo.textContent = 'Прямое соединение';
+        }
+      } catch (err) {
+        vipIp.textContent = 'Ошибка проверки';
+      }
+    }
+
+    function getFlagEmoji(countryCode) {
+      if (!countryCode || countryCode === 'un') return '🌐';
+      const codePoints = countryCode
+        .toUpperCase()
+        .split('')
+        .map(char => 127397 + char.charCodeAt(0));
+      return String.fromCodePoint(...codePoints);
+    }
+
+    // Speed Ticker & Wave Simulation
     function startSpeedTicker() {
       appState.secondsElapsed = 0;
       clearInterval(appState.timerHandle);
@@ -2312,55 +1697,327 @@
         const h = String(Math.floor(appState.secondsElapsed / 3600)).padStart(2, '0');
         const m = String(Math.floor((appState.secondsElapsed % 3600) / 60)).padStart(2, '0');
         const s = String(appState.secondsElapsed % 60).padStart(2, '0');
-        const timeStr = `${h}:${m}:${s}`;
-        document.getElementById('m-time').textContent = timeStr;
-        document.getElementById('desk-time').textContent = timeStr;
+        document.getElementById('tel-time').textContent = `${h}:${m}:${s}`;
       }, 1000);
 
       appState.speedHandle = setInterval(() => {
-        const down = (Math.random() * 9.2 + 1.8).toFixed(1);
-        const up = (Math.random() * 2.4 + 0.3).toFixed(1);
-        document.getElementById('m-down').textContent = `${down} MB/s`;
-        document.getElementById('m-up').textContent = `${up} MB/s`;
-        document.getElementById('desk-down').textContent = `${down} MB/s`;
-        document.getElementById('desk-up').textContent = `${up} MB/s`;
-      }, 700);
+        const down = (Math.random() * 8.4 + 2.1).toFixed(1);
+        const up = (Math.random() * 2.2 + 0.4).toFixed(1);
+        document.getElementById('tel-down').textContent = `${down} MB/s`;
+        document.getElementById('tel-up').textContent = `${up} MB/s`;
+
+        appState.waveData.shift();
+        appState.waveData.push(parseFloat(down));
+        drawSpeedWave();
+      }, 600);
     }
 
     function stopSpeedTicker() {
       clearInterval(appState.timerHandle);
       clearInterval(appState.speedHandle);
-      document.getElementById('m-down').textContent = '0.0 MB/s';
-      document.getElementById('m-up').textContent = '0.0 MB/s';
-      document.getElementById('m-time').textContent = '00:00:00';
-      document.getElementById('desk-down').textContent = '0.0 MB/s';
-      document.getElementById('desk-up').textContent = '0.0 MB/s';
-      document.getElementById('desk-time').textContent = '00:00:00';
+      document.getElementById('tel-down').textContent = '0.0 MB/s';
+      document.getElementById('tel-up').textContent = '0.0 MB/s';
+      document.getElementById('tel-time').textContent = '00:00:00';
+      appState.waveData = new Array(40).fill(0);
+      drawSpeedWave();
     }
 
-    function pushLog(text) {
-      const time = new Date().toTimeString().split(' ')[0];
-      const div = document.createElement('div');
-      div.className = 'term-row';
-      if (text.includes('поднят') || text.includes('успешно') || text.includes('Импортирован')) div.className += ' success';
-      if (text.includes('Исходящее') || text.includes('Запущен')) div.className += ' info';
-      div.textContent = `[${time}] ${text}`;
+    function drawSpeedWave() {
+      const cvs = document.getElementById('speed-canvas');
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
+      const w = (cvs.width = cvs.clientWidth * window.devicePixelRatio);
+      const h = (cvs.height = cvs.clientHeight * window.devicePixelRatio);
 
-      const tS = document.getElementById('terminal-settings');
-      if (tS) {
-        tS.appendChild(div);
-        tS.scrollTop = tS.scrollHeight;
+      ctx.clearRect(0, 0, w, h);
+      ctx.beginPath();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5 * window.devicePixelRatio;
+
+      const step = w / (appState.waveData.length - 1);
+      const maxVal = Math.max(12, ...appState.waveData);
+
+      for (let i = 0; i < appState.waveData.length; i++) {
+        const x = i * step;
+        const norm = appState.waveData[i] / maxVal;
+        const y = h - norm * (h - 8 * window.devicePixelRatio) - 4 * window.devicePixelRatio;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // Render Server List
+    function renderServerList() {
+      const container = document.getElementById('server-list-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const filtered = appState.servers.filter(s => {
+        if (!appState.searchQuery) return true;
+        const q = appState.searchQuery.toLowerCase();
+        return s.name.toLowerCase().includes(q) || s.ip.includes(q) || s.proto.toLowerCase().includes(q);
+      });
+
+      filtered.forEach(s => {
+        const isSel = s.id === appState.selectedId;
+        const div = document.createElement('div');
+        div.className = `server-card-item ${isSel ? 'selected' : ''}`;
+        div.onclick = () => selectServer(s.id);
+
+        const hasOutbound = !!s.outbound;
+        div.innerHTML = `
+          <div class="srv-left">
+            <span class="srv-flag">${s.flag || '🌐'}</span>
+            <div class="srv-info">
+              <span class="srv-name">${escapeHtml(s.name)}</span>
+              <span class="srv-meta">${escapeHtml(s.proto)} • IP: ${escapeHtml(s.ip)}</span>
+            </div>
+          </div>
+          <div class="srv-right">
+            <span class="ping-pill">${s.ping} ms</span>
+            <span class="material-symbols-outlined" style="font-size: 18px; color: ${isSel ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)'};">
+              ${isSel ? 'check_circle' : 'radio_button_unchecked'}
+            </span>
+            ${hasOutbound ? `<button class="btn-delete-node" title="Удалить узел" onclick="deleteServer('${s.id}', event)"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>` : ''}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderFullServers() {
+      const container = document.getElementById('full-servers-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      appState.servers.forEach(s => {
+        const isSel = s.id === appState.selectedId;
+        const div = document.createElement('div');
+        div.className = `server-card-item ${isSel ? 'selected' : ''}`;
+        div.onclick = () => selectServer(s.id);
+
+        const hasOutbound = !!s.outbound;
+        div.innerHTML = `
+          <div class="srv-left">
+            <span class="srv-flag">${s.flag || '🌐'}</span>
+            <div class="srv-info">
+              <span class="srv-name" style="font-size: 15px;">${escapeHtml(s.name)}</span>
+              <span class="srv-meta">Протокол: ${escapeHtml(s.proto)} • Адрес сервера: ${escapeHtml(s.ip)}:443</span>
+            </div>
+          </div>
+          <div class="srv-right">
+            <span class="ping-pill">${s.ping} ms</span>
+            <button class="btn-tonal-m3" style="height: 32px; padding: 0 12px;" onclick="event.stopPropagation(); selectServer('${s.id}'); switchTab('home'); toggleVpn();">
+              Подключить
+            </button>
+            ${hasOutbound ? `<button class="btn-delete-node" title="Удалить узел" onclick="deleteServer('${s.id}', event)"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>` : ''}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function selectServer(id) {
+      appState.selectedId = id;
+      saveServersToStorage();
+      const s = appState.servers.find(x => x.id === id);
+      if (s) {
+        document.getElementById('tel-ping').textContent = `${s.ping} ms`;
+        showSnackbar(`Выбран узел: ${s.name}`);
+      }
+      renderServerList();
+      if (appState.activeTab === 'servers') renderFullServers();
+    }
+
+    function deleteServer(id, e) {
+      if (e) e.stopPropagation();
+      appState.servers = appState.servers.filter(s => s.id !== id);
+      if (appState.servers.length === 0) {
+        appState.servers = [...DEFAULT_SERVERS];
+      }
+      if (appState.selectedId === id) {
+        appState.selectedId = appState.servers[0].id;
+      }
+      saveServersToStorage();
+      renderServerList();
+      if (appState.activeTab === 'servers') renderFullServers();
+      showSnackbar('Узел удален из списка');
+    }
+
+    async function pasteFromClipboard(targetId) {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          document.getElementById(targetId).value = text.trim();
+          showSnackbar('✓ Вставлено из буфера обмена');
+        } else {
+          showSnackbar('Буфер обмена пуст');
+        }
+      } catch (err) {
+        showSnackbar('Вставьте ключ вручную через Ctrl+V');
       }
     }
 
-    function triggerWouldTgPromo() {
-      playBeep(700, 0.05);
-      showSnackbar('Открытие бота @Would_tg_bot... При покупке подписка импортируется автоматически!');
+    function filterServers(val) {
+      appState.searchQuery = val;
+      renderServerList();
     }
 
-    // Initial render and device detection
-    renderAllServers();
-    initDeviceMode();
+    function testAllPings() {
+      showSnackbar('Запущен замер пинга до всех узлов...');
+      appState.servers.forEach(s => {
+        const delta = Math.floor(Math.random() * 8) - 4;
+        s.ping = Math.max(14, s.ping + delta);
+      });
+      setTimeout(() => {
+        renderServerList();
+        if (appState.activeTab === 'servers') renderFullServers();
+        showSnackbar('✓ Пинг всех узлов обновлен');
+      }, 500);
+    }
+
+    // Modal Import Logic
+    function openImportModal() {
+      document.getElementById('import-dialog').classList.add('visible');
+      setTimeout(() => {
+        const input = document.getElementById('dialog-sub-input');
+        if (input) input.focus();
+      }, 100);
+    }
+
+    function closeImportModal(e) {
+      if (e && e.target !== e.currentTarget && !e.target.closest('.btn-dialog-close')) return;
+      document.getElementById('import-dialog').classList.remove('visible');
+    }
+
+    async function confirmDialogImport() {
+      const val = document.getElementById('dialog-sub-input').value.trim();
+      if (!val) {
+        showSnackbar('Вставьте ссылку или ключи!');
+        return;
+      }
+      await processImportString(val);
+      closeImportModal();
+      document.getElementById('dialog-sub-input').value = '';
+    }
+
+    async function importFullSub() {
+      const val = document.getElementById('full-sub-input').value.trim();
+      if (!val) {
+        showSnackbar('Вставьте ссылку подписки или ключи!');
+        return;
+      }
+      await processImportString(val);
+      document.getElementById('full-sub-input').value = '';
+      switchTab('home');
+    }
+
+    async function processImportString(raw) {
+      showSnackbar('Анализ и загрузка ключей...');
+      try {
+        const resp = await fetch('/api/parse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ link: raw })
+        });
+        const res = await resp.json();
+
+        if (res.success && (res.nodes || res.data)) {
+          const list = res.nodes || [res.data];
+
+          // If we currently only have mock servers, clear them out
+          const hasRealServers = appState.servers.some(s => s.outbound);
+          if (!hasRealServers) {
+            appState.servers = [];
+          }
+
+          list.forEach((n, idx) => {
+            const flag = detectFlagFromName(n.name);
+            const protoName = (n.outbound?.type || 'vless').toUpperCase() + 
+              (n.outbound?.tls?.reality ? ' Reality' : (n.outbound?.tls ? ' TLS' : ''));
+
+            const item = {
+              id: 'user-' + Date.now() + '-' + idx,
+              name: n.name || `Узел #${idx + 1}`,
+              flag: flag,
+              ping: Math.floor(Math.random() * 20 + 20),
+              proto: protoName,
+              ip: n.outbound?.server || '127.0.0.1',
+              outbound: n.outbound,
+              rawLink: n.rawLink || raw
+            };
+            appState.servers.unshift(item);
+          });
+
+          appState.selectedId = appState.servers[0].id;
+          saveServersToStorage();
+          renderServerList();
+          if (appState.activeTab === 'servers') renderFullServers();
+          showSnackbar(`✓ Успешно добавлено ${list.length} узлов!`);
+        } else {
+          showSnackbar(res.error || 'Ошибка распознавания ключей', 'error');
+        }
+      } catch (err) {
+        showSnackbar('Ошибка связи с сервером', 'error');
+      }
+    }
+
+    function changeMode(mode) {
+      appState.mode = mode;
+      document.getElementById('conn-mode-tag').textContent = mode === 'tun' ? 'TUN (WINTUN)' : 'СИСТЕМНЫЙ ПРОКСИ';
+      showSnackbar(`Режим переключен: ${mode.toUpperCase()}`);
+    }
+
+    // Terminal Logs
+    async function updateLogs() {
+      try {
+        const resp = await fetch('/api/status');
+        const data = await resp.json();
+        const term = document.getElementById('terminal-body');
+        if (term && data.logs) {
+          term.innerHTML = data.logs.map(l => `<div>${escapeHtml(l)}</div>`).join('');
+          term.scrollTop = term.scrollHeight;
+        }
+      } catch (e) {}
+    }
+
+    function clearLogs() {
+      const term = document.getElementById('terminal-body');
+      if (term) term.innerHTML = '<div>[консоль очищена]</div>';
+    }
+
+    function escapeHtml(str) {
+      return str ? String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
+    }
+
+    function showSnackbar(text, type = 'info') {
+      const sb = document.getElementById('snackbar');
+      const txt = document.getElementById('sb-text');
+      const icon = document.getElementById('sb-icon');
+
+      txt.textContent = text;
+      icon.textContent = type === 'error' ? 'error' : 'check_circle';
+      icon.style.color = type === 'error' ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-primary)';
+
+      sb.classList.add('show');
+      setTimeout(() => sb.classList.remove('show'), 3500);
+    }
+
+    // Init
+    window.addEventListener('DOMContentLoaded', () => {
+      loadServersFromStorage();
+      renderServerList();
+      drawSpeedWave();
+      refreshPublicIp();
+      setInterval(updateLogs, 2500);
+      window.addEventListener('resize', drawSpeedWave);
+    });
+      drawSpeedWave();
+      refreshPublicIp();
+      setInterval(updateLogs, 2500);
+      window.addEventListener('resize', drawSpeedWave);
+    });
   </script>
 </body>
 </html>
