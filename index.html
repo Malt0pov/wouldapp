@@ -1117,6 +1117,271 @@
       background: var(--md-sys-color-surface-container-highest);
       border-radius: 4px;
     }
+
+    /* ==========================================================================
+       SETTINGS & CUSTOMIZATION STYLES (M3 Customization & Ambient Lights)
+       ========================================================================== */
+    .settings-grid-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-bottom: 24px;
+    }
+
+    .settings-section-card {
+      background: var(--md-sys-color-surface-container);
+      border-radius: 16px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .settings-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      padding-bottom: 12px;
+    }
+
+    .settings-section-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 6px 0;
+    }
+
+    .settings-label-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .settings-item-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .settings-item-desc {
+      font-size: 11.5px;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.4;
+    }
+
+    /* Authentic Material 3 Switch */
+    .m3-switch {
+      position: relative;
+      width: 48px;
+      height: 28px;
+      background: var(--md-sys-color-surface-container-highest);
+      border: 2px solid var(--md-sys-color-outline);
+      border-radius: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0 3px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .m3-switch-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--md-sys-color-on-surface-variant);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(0);
+    }
+
+    .m3-switch.checked {
+      background: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .m3-switch.checked .m3-switch-thumb {
+      background: var(--md-sys-color-on-primary);
+      transform: translateX(18px);
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Accent Color Palette Swatches */
+    .color-swatches-grid {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .color-swatch-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .color-swatch-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      background: none;
+      padding: 0;
+    }
+
+    .color-swatch-btn:hover {
+      transform: scale(1.15);
+    }
+
+    .color-swatch-btn.active {
+      transform: scale(1.12);
+      border-color: #ffffff;
+      box-shadow: 0 0 16px currentColor;
+    }
+
+    .color-swatch-btn .swatch-check {
+      font-size: 19px;
+      color: #ffffff;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      font-weight: 700;
+    }
+
+    .color-swatch-btn.active .swatch-check {
+      opacity: 1;
+    }
+
+    .color-swatch-label {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .color-swatch-item.active .color-swatch-label {
+      color: var(--md-sys-color-on-surface);
+      font-weight: 700;
+    }
+
+    /* Theme Surface Cards */
+    .theme-cards-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .theme-card-option {
+      background: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .theme-card-option:hover {
+      background: var(--md-sys-color-surface-container-high);
+      border-color: var(--md-sys-color-outline);
+    }
+
+    .theme-card-option.active {
+      border-color: var(--md-sys-color-primary);
+      background: rgba(56, 189, 248, 0.08);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+    }
+
+    .theme-preview-pill {
+      height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .theme-card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-tonal-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-full);
+      padding: 6px 14px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-tonal-sm:hover {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .btn-danger-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(248, 113, 113, 0.12);
+      color: var(--md-sys-color-error);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      border-radius: var(--md-sys-shape-corner-full);
+      padding: 6px 14px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-danger-sm:hover {
+      background: var(--md-sys-color-error);
+      color: #fff;
+    }
     ::-webkit-scrollbar-thumb:hover {
       background: var(--md-sys-color-primary);
     }
@@ -1419,36 +1684,273 @@
       </div>
 
       <!-- ==============================================================
-           TAB 5: ОПЦИИ (SETTINGS)
+           TAB 5: ОПЦИИ И КАСТОМИЗАЦИЯ (SETTINGS & M3 PERSONALIZATION)
            ============================================================== -->
       <div class="tab-view" id="view-settings">
-        <div class="m3-card" style="gap: 16px;">
-          <div class="card-header-clean">
-            <div class="card-title-m3">
-              <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">tune</span>
-              <span>Параметры маршрутизации и безопасности</span>
+        <div class="settings-grid-layout">
+
+          <!-- 1. Customization & Ambient Glow -->
+          <div class="settings-section-card">
+            <div class="settings-section-header">
+              <div class="settings-section-title">
+                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">palette</span>
+                <span>Персонализация и акцентный свет</span>
+              </div>
+              <span class="brand-badge" id="current-accent-label">Циан Кибер</span>
+            </div>
+
+            <!-- Accent Color Swatches -->
+            <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+              <div class="settings-label-group">
+                <div class="settings-item-title">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">brush</span>
+                  Акцентный свет (Material You)
+                </div>
+                <div class="settings-item-desc">Выберите цветовую подсветку кнопки подключения, карточек, индикаторов и эффектов свечения</div>
+              </div>
+
+              <div class="color-swatches-grid" id="color-swatches">
+                <div class="color-swatch-item active" onclick="applyAccent('cyan')" id="swatch-item-cyan">
+                  <button class="color-swatch-btn active" style="background: #38bdf8;" id="swatch-cyan">
+                    <span class="material-symbols-outlined swatch-check">check</span>
+                  </button>
+                  <span class="color-swatch-label">Циан</span>
+                </div>
+
+                <div class="color-swatch-item" onclick="applyAccent('mint')" id="swatch-item-mint">
+                  <button class="color-swatch-btn" style="background: #10b981;" id="swatch-mint">
+                    <span class="material-symbols-outlined swatch-check">check</span>
+                  </button>
+                  <span class="color-swatch-label">Мята</span>
+                </div>
+
+                <div class="color-swatch-item" onclick="applyAccent('purple')" id="swatch-item-purple">
+                  <button class="color-swatch-btn" style="background: #c084fc;" id="swatch-purple">
+                    <span class="material-symbols-outlined swatch-check">check</span>
+                  </button>
+                  <span class="color-swatch-label">Неон</span>
+                </div>
+
+                <div class="color-swatch-item" onclick="applyAccent('amber')" id="swatch-item-amber">
+                  <button class="color-swatch-btn" style="background: #fbbf24;" id="swatch-amber">
+                    <span class="material-symbols-outlined swatch-check">check</span>
+                  </button>
+                  <span class="color-swatch-label">Янтарь</span>
+                </div>
+
+                <div class="color-swatch-item" onclick="applyAccent('rose')" id="swatch-item-rose">
+                  <button class="color-swatch-btn" style="background: #fb7185;" id="swatch-rose">
+                    <span class="material-symbols-outlined swatch-check">check</span>
+                  </button>
+                  <span class="color-swatch-label">Рубин</span>
+                </div>
+
+                <div class="color-swatch-item" onclick="applyAccent('cobalt')" id="swatch-item-cobalt">
+                  <button class="color-swatch-btn" style="background: #60a5fa;" id="swatch-cobalt">
+                    <span class="material-symbols-outlined swatch-check">check</span>
+                  </button>
+                  <span class="color-swatch-label">Сапфир</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Background Theme -->
+            <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+              <div class="settings-label-group">
+                <div class="settings-item-title">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">contrast</span>
+                  Тема подложки
+                </div>
+                <div class="settings-item-desc">Глубина тёмной темы интерфейса для вашего экрана</div>
+              </div>
+
+              <div class="theme-cards-row" style="width: 100%;">
+                <div class="theme-card-option active" id="theme-card-navy" onclick="applySurfaceTheme('navy')">
+                  <div class="theme-card-title">
+                    <span>Material Navy</span>
+                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--md-sys-color-primary);">dark_mode</span>
+                  </div>
+                  <div class="theme-preview-pill" style="background: #18223a; color: #38bdf8;">Синий космос</div>
+                </div>
+
+                <div class="theme-card-option" id="theme-card-amoled" onclick="applySurfaceTheme('amoled')">
+                  <div class="theme-card-title">
+                    <span>AMOLED Black</span>
+                    <span class="material-symbols-outlined" style="font-size: 14px; color: #aaa;">brightness_1</span>
+                  </div>
+                  <div class="theme-preview-pill" style="background: #121212; color: #ffffff;">Чистый #000000</div>
+                </div>
+
+                <div class="theme-card-option" id="theme-card-slate" onclick="applySurfaceTheme('slate')">
+                  <div class="theme-card-title">
+                    <span>Slate Graphite</span>
+                    <span class="material-symbols-outlined" style="font-size: 14px; color: #94a3b8;">shield_moon</span>
+                  </div>
+                  <div class="theme-preview-pill" style="background: #334155; color: #cbd5e1;">Тёмный графит</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            <div style="background: var(--md-sys-color-surface-container); padding: 16px; border-radius: 14px;">
-              <div style="font-weight: 700; margin-bottom: 4px;">Режим туннелирования</div>
-              <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 12px;">Системный прокси работает сразу без админ-прав. Режим TUN перехватывает весь трафик ПК.</div>
-              <select class="m3-search-input" id="setting-mode-select" onchange="changeMode(this.value)">
-                <option value="proxy" selected>Системный прокси Windows (Без прав админа)</option>
-                <option value="tun">TUN (Wintun адаптер, требует права администратора)</option>
+          <!-- 2. Audio & Haptic Feedback -->
+          <div class="settings-section-card">
+            <div class="settings-section-header">
+              <div class="settings-section-title">
+                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">volume_up</span>
+                <span>Звуковой отклик и взаимодействие</span>
+              </div>
+              <button class="btn-tonal-sm" onclick="SoundFX.play('connect')" title="Проверить звук">
+                <span class="material-symbols-outlined" style="font-size: 14px;">play_arrow</span>
+                Тест звука
+              </button>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">graphic_eq</span>
+                  Звуковые эффекты интерфейса
+                </div>
+                <div class="settings-item-desc">Мягкие звуковые микро-клики при нажатии кнопок, переключении вкладок и футуристичный аккорд при подключении к сети</div>
+              </div>
+              <div class="m3-switch checked" id="switch-sound" onclick="toggleSettingSwitch('switch-sound', 'soundEnabled')">
+                <div class="m3-switch-thumb"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Network & Security Engine -->
+          <div class="settings-section-card">
+            <div class="settings-section-header">
+              <div class="settings-section-title">
+                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">shield</span>
+                <span>Сетевое ядро и безопасность (Sing-box 1.14)</span>
+              </div>
+              <span class="brand-badge">WinINet Sync</span>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Режим туннелирования</div>
+                <div class="settings-item-desc">Системный прокси работает сразу без UAC и прав админа. Режим TUN перехватывает весь трафик ПК через Wintun.</div>
+              </div>
+              <select class="m3-search-input" id="setting-mode-select" style="max-width: 280px;" onchange="changeMode(this.value)">
+                <option value="proxy" selected>Системный прокси (Рекомендуется)</option>
+                <option value="tun">TUN (Wintun адаптер, весь трафик)</option>
               </select>
             </div>
 
-            <div style="background: var(--md-sys-color-surface-container); padding: 16px; border-radius: 14px;">
-              <div style="font-weight: 700; margin-bottom: 4px;">DNS-серверы</div>
-              <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 12px;">Защищенное разрешение имен через зашифрованный туннель.</div>
-              <select class="m3-search-input">
-                <option selected>Google DNS (8.8.8.8 / UDP)</option>
-                <option>Cloudflare (1.1.1.1 / UDP)</option>
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Защищенный DNS-сервер</div>
+                <div class="settings-item-desc">Шифрованное разрешение доменных имен без перехвата провайдером</div>
+              </div>
+              <select class="m3-search-input" id="setting-dns-select" style="max-width: 280px;" onchange="changeDns(this.value)">
+                <option value="google" selected>Google DNS (8.8.8.8 / 8.8.4.4)</option>
+                <option value="cloudflare">Cloudflare DNS (1.1.1.1 / 1.0.0.1)</option>
+                <option value="quad9">Quad9 Security (9.9.9.9)</option>
               </select>
             </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">lock</span>
+                  Kill Switch (Аварийная блокировка)
+                </div>
+                <div class="settings-item-desc">Автоматически блокировать незащищенный трафик ПК, если соединение с VLESS-сервером прервано</div>
+              </div>
+              <div class="m3-switch" id="switch-killswitch" onclick="toggleSettingSwitch('switch-killswitch', 'killSwitch')">
+                <div class="m3-switch-thumb"></div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">autorenew</span>
+                  Автоматическое подключение
+                </div>
+                <div class="settings-item-desc">Подключаться к последнему выбранному серверу сразу при открытии WouldApp</div>
+              </div>
+              <div class="m3-switch" id="switch-autoconnect" onclick="toggleSettingSwitch('switch-autoconnect', 'autoConnect')">
+                <div class="m3-switch-thumb"></div>
+              </div>
+            </div>
           </div>
+
+          <!-- 4. Windows Integration & Traffic -->
+          <div class="settings-section-card">
+            <div class="settings-section-header">
+              <div class="settings-section-title">
+                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">desktop_windows</span>
+                <span>Интеграция с Windows и трафик</span>
+              </div>
+              <button class="btn-tonal-sm" onclick="resetTrafficStats()">
+                <span class="material-symbols-outlined" style="font-size: 14px;">restart_alt</span>
+                Сбросить счётчик
+              </button>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Автозапуск с Windows</div>
+                <div class="settings-item-desc">Запускать фоновую защиту WouldApp автоматически при включении ПК</div>
+              </div>
+              <div class="m3-switch" id="switch-autostart" onclick="toggleSettingSwitch('switch-autostart', 'autoStart')">
+                <div class="m3-switch-thumb"></div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Сворачивать при закрытии</div>
+                <div class="settings-item-desc">Не закрывать клиент при нажатии на крестик, а сворачивать в панель задач</div>
+              </div>
+              <div class="m3-switch checked" id="switch-tray" onclick="toggleSettingSwitch('switch-tray', 'minimizeToTray')">
+                <div class="m3-switch-thumb"></div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Статистика сессии</div>
+                <div class="settings-item-desc" id="traffic-stat-text">Загружено: 0.0 MB • Отправлено: 0.0 MB</div>
+              </div>
+              <div class="brand-badge" style="background: var(--md-sys-color-surface-container-high);">Сессия активна</div>
+            </div>
+          </div>
+
+          <!-- 5. Maintenance & Reset -->
+          <div class="settings-section-card">
+            <div class="settings-section-header">
+              <div class="settings-section-title">
+                <span class="material-symbols-outlined" style="color: var(--md-sys-color-error);">build</span>
+                <span>Обслуживание и сброс</span>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Сброс параметров оформления и звука</div>
+                <div class="settings-item-desc">Вернуть акцентный свет, темы и настройки интерфейса к исходным заводским значениям</div>
+              </div>
+              <button class="btn-tonal-sm" onclick="resetInterfaceSettings()">
+                Сбросить тему
+              </button>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title" style="color: var(--md-sys-color-error);">Очистить все серверы и кэш</div>
+                <div class="settings-item-desc">Удалит все импортированные VLESS-ключи из памяти и восстановит исходные серверы</div>
+              </div>
+              <button class="btn-danger-sm" onclick="confirmResetAll()">
+                Очистить данные
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -1500,6 +2002,110 @@
   </div>
 
   <script>
+    // ==============================================================
+    // Web Audio Synthesizer (Zero-Latency Micro-Haptics & Chimes)
+    // ==============================================================
+    const SoundFX = {
+      ctx: null,
+      enabled: true,
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      play(type = 'click') {
+        if (!this.enabled || !appState.soundEnabled) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+
+          if (type === 'click') {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(750, now);
+            osc.frequency.exponentialRampToValueAtTime(260, now + 0.032);
+            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.032);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.032);
+          } else if (type === 'toggle') {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(620, now);
+            osc.frequency.exponentialRampToValueAtTime(960, now + 0.045);
+            gain.gain.setValueAtTime(0.045, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.045);
+          } else if (type === 'tab') {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(520, now);
+            gain.gain.setValueAtTime(0.03, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.045);
+          } else if (type === 'connect') {
+            // Ascending futuristic connection chords
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+              const osc = this.ctx.createOscillator();
+              const gain = this.ctx.createGain();
+              const noteTime = now + (idx * 0.05);
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, noteTime);
+              gain.gain.setValueAtTime(0.05, noteTime);
+              gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 0.14);
+              osc.connect(gain);
+              gain.connect(this.ctx.destination);
+              osc.start(noteTime);
+              osc.stop(noteTime + 0.14);
+            });
+          } else if (type === 'disconnect') {
+            // Descending disconnect chime
+            [783.99, 587.33, 440.00].forEach((freq, idx) => {
+              const osc = this.ctx.createOscillator();
+              const gain = this.ctx.createGain();
+              const noteTime = now + (idx * 0.055);
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, noteTime);
+              gain.gain.setValueAtTime(0.04, noteTime);
+              gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 0.12);
+              osc.connect(gain);
+              gain.connect(this.ctx.destination);
+              osc.start(noteTime);
+              osc.stop(noteTime + 0.12);
+            });
+          } else if (type === 'color') {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(680, now);
+            osc.frequency.exponentialRampToValueAtTime(1050, now + 0.06);
+            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.07);
+          }
+        } catch (e) {}
+      }
+    };
+
     // Default Fallback Mock Servers
     const DEFAULT_SERVERS = [
       { id: 'srv-1', name: 'Нидерланды #1 • Amsterdam Fast', flag: '🇳🇱', ping: 22, proto: 'VLESS Reality', ip: '185.220.101.44' },
@@ -1519,7 +2125,18 @@
       timerHandle: null,
       speedHandle: null,
       waveData: new Array(40).fill(0),
-      servers: [...DEFAULT_SERVERS]
+      servers: [...DEFAULT_SERVERS],
+      // Settings State
+      soundEnabled: true,
+      accentTheme: 'cyan',
+      surfaceTheme: 'navy',
+      killSwitch: false,
+      autoConnect: false,
+      autoStart: false,
+      minimizeToTray: true,
+      dns: 'google',
+      totalDownloaded: 0,
+      totalUploaded: 0
     };
 
     // Persistence with localStorage
@@ -1569,6 +2186,7 @@
 
     // Tab Navigation
     function switchTab(tab) {
+      SoundFX.play('tab');
       appState.activeTab = tab;
       const tabs = ['home', 'servers', 'subs', 'logs', 'settings'];
       tabs.forEach(t => {
@@ -1650,15 +2268,18 @@
       if (dot) dot.className = 'geo-dot ' + state;
 
       if (state === 'connecting') {
+        SoundFX.play('click');
         headline.textContent = 'Подключение...';
         caption.textContent = 'Вращение защитного кольца • Установка шифрования...';
         document.getElementById('geo-text').textContent = 'Подключение...';
       } else if (state === 'connected') {
+        SoundFX.play('connect');
         const activeServer = appState.servers.find(s => s.id === appState.selectedId) || appState.servers[0];
         headline.textContent = 'Подключено';
         headline.style.color = 'var(--md-sys-color-success)';
         caption.textContent = `Защищено • ${activeServer.name}`;
       } else {
+        SoundFX.play('disconnect');
         headline.textContent = 'Отключено';
         headline.style.color = 'var(--md-sys-color-on-surface)';
         caption.textContent = 'Нажмите кнопку в центре для включения туннеля';
@@ -1992,6 +2613,277 @@
       showSnackbar(`Режим переключен: ${mode.toUpperCase()}`);
     }
 
+    // ==============================================================
+    // Customization & Ambient Themes Logic (Material You Expressive)
+    // ==============================================================
+    const ACCENT_THEMES = {
+      cyan: {
+        name: 'Неоновый Циан',
+        primary: '#38bdf8',
+        onPrimary: '#003554',
+        primaryContainer: '#0284c7',
+        onPrimaryContainer: '#e0f2fe',
+        btnGrad: ['#0284c7', '#38bdf8', '#0284c7']
+      },
+      mint: {
+        name: 'Изумрудная Мята (Happ)',
+        primary: '#10b981',
+        onPrimary: '#022c22',
+        primaryContainer: '#059669',
+        onPrimaryContainer: '#d1fae5',
+        btnGrad: ['#059669', '#10b981', '#047857']
+      },
+      purple: {
+        name: 'Электрик Неон (v2rayTun)',
+        primary: '#c084fc',
+        onPrimary: '#3b0764',
+        primaryContainer: '#9333ea',
+        onPrimaryContainer: '#faf5ff',
+        btnGrad: ['#7e22ce', '#c084fc', '#6b21a8']
+      },
+      amber: {
+        name: 'Кибер-Янтарь',
+        primary: '#fbbf24',
+        onPrimary: '#451a03',
+        primaryContainer: '#d97706',
+        onPrimaryContainer: '#fffbeb',
+        btnGrad: ['#b45309', '#fbbf24', '#92400e']
+      },
+      rose: {
+        name: 'Неоновый Рубин',
+        primary: '#fb7185',
+        onPrimary: '#4c0519',
+        primaryContainer: '#e11d48',
+        onPrimaryContainer: '#fff1f2',
+        btnGrad: ['#be123c', '#fb7185', '#9f1239']
+      },
+      cobalt: {
+        name: 'Кобальт Сапфир',
+        primary: '#60a5fa',
+        onPrimary: '#172554',
+        primaryContainer: '#2563eb',
+        onPrimaryContainer: '#eff6ff',
+        btnGrad: ['#1d4ed8', '#60a5fa', '#1e40af']
+      }
+    };
+
+    const SURFACE_THEMES = {
+      navy: {
+        name: 'Material Navy',
+        surface: '#0b0f19',
+        surfaceLowest: '#0e1422',
+        surfaceLow: '#131b2e',
+        surfaceCont: '#18223a',
+        surfaceHigh: '#1e2b48',
+        surfaceHighest: '#263558'
+      },
+      amoled: {
+        name: 'AMOLED Black',
+        surface: '#000000',
+        surfaceLowest: '#050505',
+        surfaceLow: '#0c0c0c',
+        surfaceCont: '#121212',
+        surfaceHigh: '#1a1a1a',
+        surfaceHighest: '#242424'
+      },
+      slate: {
+        name: 'Slate Graphite',
+        surface: '#0f172a',
+        surfaceLowest: '#090d16',
+        surfaceLow: '#1e293b',
+        surfaceCont: '#1e2b42',
+        surfaceHigh: '#2d3b55',
+        surfaceHighest: '#3b4c6d'
+      }
+    };
+
+    function applyAccent(themeKey, playSnd = true) {
+      const theme = ACCENT_THEMES[themeKey] || ACCENT_THEMES.cyan;
+      appState.accentTheme = themeKey;
+      
+      const r = document.documentElement;
+      r.style.setProperty('--md-sys-color-primary', theme.primary);
+      r.style.setProperty('--md-sys-color-on-primary', theme.onPrimary);
+      r.style.setProperty('--md-sys-color-primary-container', theme.primaryContainer);
+      r.style.setProperty('--md-sys-color-on-primary-container', theme.onPrimaryContainer);
+
+      // Update connecting gradient stops in the SVG power button
+      const gradConn = document.getElementById('btnGradConnecting');
+      if (gradConn) {
+        const stops = gradConn.querySelectorAll('stop');
+        if (stops.length >= 3) {
+          stops[0].setAttribute('stop-color', theme.btnGrad[0]);
+          stops[1].setAttribute('stop-color', theme.btnGrad[1]);
+          stops[2].setAttribute('stop-color', theme.btnGrad[2]);
+        }
+      }
+
+      // Update UI active swatch
+      Object.keys(ACCENT_THEMES).forEach(k => {
+        const item = document.getElementById(`swatch-item-${k}`);
+        const btn = document.getElementById(`swatch-${k}`);
+        if (item) item.classList.toggle('active', k === themeKey);
+        if (btn) btn.classList.toggle('active', k === themeKey);
+      });
+
+      const lbl = document.getElementById('current-accent-label');
+      if (lbl) lbl.textContent = theme.name;
+
+      try {
+        localStorage.setItem('wouldapp_accent_theme', themeKey);
+      } catch (e) {}
+
+      if (playSnd) {
+        SoundFX.play('color');
+        showSnackbar(`Акцентный свет: ${theme.name}`);
+      }
+    }
+
+    function applySurfaceTheme(themeKey, playSnd = true) {
+      const s = SURFACE_THEMES[themeKey] || SURFACE_THEMES.navy;
+      appState.surfaceTheme = themeKey;
+
+      const r = document.documentElement;
+      r.style.setProperty('--md-sys-color-surface', s.surface);
+      r.style.setProperty('--md-sys-color-surface-container-lowest', s.surfaceLowest);
+      r.style.setProperty('--md-sys-color-surface-container-low', s.surfaceLow);
+      r.style.setProperty('--md-sys-color-surface-container', s.surfaceCont);
+      r.style.setProperty('--md-sys-color-surface-container-high', s.surfaceHigh);
+      r.style.setProperty('--md-sys-color-surface-container-highest', s.surfaceHighest);
+
+      Object.keys(SURFACE_THEMES).forEach(k => {
+        const card = document.getElementById(`theme-card-${k}`);
+        if (card) card.classList.toggle('active', k === themeKey);
+      });
+
+      try {
+        localStorage.setItem('wouldapp_surface_theme', themeKey);
+      } catch (e) {}
+
+      if (playSnd) {
+        SoundFX.play('tab');
+        showSnackbar(`Тема подложки: ${s.name}`);
+      }
+    }
+
+    function toggleSettingSwitch(switchId, stateKey, callback) {
+      const el = document.getElementById(switchId);
+      if (!el) return;
+      const isChecked = el.classList.toggle('checked');
+      appState[stateKey] = isChecked;
+      try {
+        localStorage.setItem('wouldapp_setting_' + stateKey, isChecked ? '1' : '0');
+      } catch (e) {}
+      SoundFX.play('toggle');
+      if (stateKey === 'soundEnabled') {
+        showSnackbar(isChecked ? 'Звуковые эффекты включены' : 'Звуковые эффекты выключены');
+      } else if (stateKey === 'killSwitch') {
+        showSnackbar(isChecked ? 'Kill Switch активен (сеть защищена)' : 'Kill Switch выключен');
+      } else if (stateKey === 'autoStart') {
+        showSnackbar(isChecked ? 'Автозапуск при старте Windows включен' : 'Автозапуск выключен');
+      } else if (stateKey === 'autoConnect') {
+        showSnackbar(isChecked ? 'Автоподключение при старте включено' : 'Автоподключение выключено');
+      } else if (stateKey === 'minimizeToTray') {
+        showSnackbar(isChecked ? 'Сворачивание в трей включено' : 'Сворачивание в трей выключено');
+      }
+      if (callback) callback(isChecked);
+    }
+
+    function changeDns(dns) {
+      appState.dns = dns;
+      try {
+        localStorage.setItem('wouldapp_dns', dns);
+      } catch (e) {}
+      SoundFX.play('click');
+      showSnackbar(`DNS сервер изменен на: ${dns.toUpperCase()}`);
+    }
+
+    function resetTrafficStats() {
+      appState.totalDownloaded = 0;
+      appState.totalUploaded = 0;
+      const txt = document.getElementById('traffic-stat-text');
+      if (txt) txt.textContent = 'Загружено: 0.0 MB • Отправлено: 0.0 MB';
+      SoundFX.play('tab');
+      showSnackbar('Счетчик трафика обнулен');
+    }
+
+    function resetInterfaceSettings() {
+      applyAccent('cyan');
+      applySurfaceTheme('navy');
+      appState.soundEnabled = true;
+      const sw = document.getElementById('switch-sound');
+      if (sw) sw.classList.add('checked');
+      try {
+        localStorage.setItem('wouldapp_sound_enabled', '1');
+      } catch (e) {}
+      SoundFX.play('connect');
+      showSnackbar('Параметры оформления сброшены к исходным');
+    }
+
+    function confirmResetAll() {
+      if (confirm('Сбросить все сохраненные серверы, ключи и настройки к начальным?')) {
+        try {
+          localStorage.clear();
+        } catch (e) {}
+        SoundFX.play('disconnect');
+        showSnackbar('Все данные сброшены. Перезагрузка...');
+        setTimeout(() => window.location.reload(), 1000);
+      }
+    }
+
+    function loadSettingsFromStorage() {
+      try {
+        const sound = localStorage.getItem('wouldapp_sound_enabled');
+        if (sound !== null) {
+          appState.soundEnabled = sound === '1';
+          const sw = document.getElementById('switch-sound');
+          if (sw) sw.classList.toggle('checked', appState.soundEnabled);
+        }
+
+        const accent = localStorage.getItem('wouldapp_accent_theme') || 'cyan';
+        applyAccent(accent, false);
+
+        const surface = localStorage.getItem('wouldapp_surface_theme') || 'navy';
+        applySurfaceTheme(surface, false);
+
+        const ks = localStorage.getItem('wouldapp_setting_killSwitch');
+        if (ks !== null) {
+          appState.killSwitch = ks === '1';
+          const sw = document.getElementById('switch-killswitch');
+          if (sw) sw.classList.toggle('checked', appState.killSwitch);
+        }
+
+        const ac = localStorage.getItem('wouldapp_setting_autoConnect');
+        if (ac !== null) {
+          appState.autoConnect = ac === '1';
+          const sw = document.getElementById('switch-autoconnect');
+          if (sw) sw.classList.toggle('checked', appState.autoConnect);
+        }
+
+        const as = localStorage.getItem('wouldapp_setting_autoStart');
+        if (as !== null) {
+          appState.autoStart = as === '1';
+          const sw = document.getElementById('switch-autostart');
+          if (sw) sw.classList.toggle('checked', appState.autoStart);
+        }
+
+        const dns = localStorage.getItem('wouldapp_dns');
+        if (dns) {
+          appState.dns = dns;
+          const sel = document.getElementById('setting-dns-select');
+          if (sel) sel.value = dns;
+        }
+      } catch (e) {}
+    }
+
+    // Global Click Sound Listener for All Buttons and Inputs
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('button, .rail-item, .btn-action-pill, .btn-tonal-m3, .btn-filled-m3, .m3-switch, .server-card-m3, .color-swatch-item, .theme-card-option, .btn-preset');
+      if (target && !target.hasAttribute('data-no-sound')) {
+        SoundFX.play('click');
+      }
+    }, true);
+
     // Terminal Logs
     async function updateLogs() {
       try {
@@ -2030,6 +2922,7 @@
     // Init
     window.addEventListener('DOMContentLoaded', () => {
       loadServersFromStorage();
+      loadSettingsFromStorage();
       renderServerList();
       drawSpeedWave();
       refreshPublicIp();
