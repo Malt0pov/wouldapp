@@ -334,27 +334,50 @@ function startSingBox(outbound, requestedMode, cb) {
         const fallbackConfig = buildSingBoxConfig(outbound, false);
         fs.writeFileSync(CONFIG_PATH, JSON.stringify(fallbackConfig, null, 2), 'utf8');
 
+        let fallbackHasExited = false;
+        let fallbackError = null;
+
         let fallbackProc = spawn(SINGBOX_EXE, ['run', '-c', CONFIG_PATH], {
           cwd: BIN_DIR,
           windowsHide: true
         });
 
         fallbackProc.stdout.on('data', d => addLog(`[stdout] ${d.toString().trim()}`));
-        fallbackProc.stderr.on('data', d => addLog(`[stderr] ${d.toString().trim()}`));
+        fallbackProc.stderr.on('data', (d) => {
+          const msg = d.toString().trim();
+          addLog(`[stderr] ${msg}`);
+          if (msg.includes('FATAL') || msg.includes('ERROR')) {
+            fallbackError = msg;
+          }
+        });
+
         fallbackProc.on('exit', () => {
-          singboxProcess = null;
-          processStartTime = null;
-          disableWindowsProxy();
+          fallbackHasExited = true;
+          if (singboxProcess === fallbackProc) {
+            singboxProcess = null;
+            processStartTime = null;
+            disableWindowsProxy();
+          }
         });
 
         setTimeout(() => {
-          singboxProcess = fallbackProc;
-          processStartTime = Date.now();
-          activeMode = 'proxy';
-          enableWindowsProxy(2080);
-          return cb(null, { running: true, pid: fallbackProc.pid, mode: 'proxy', note: 'Запущен в режиме системного прокси' });
-        }, 500);
+          if (!fallbackHasExited && !fallbackError) {
+            singboxProcess = fallbackProc;
+            processStartTime = Date.now();
+            activeMode = 'proxy';
+            enableWindowsProxy(2080);
+            return cb(null, { running: true, pid: fallbackProc.pid, mode: 'proxy', note: 'Запущен в режиме системного прокси' });
+          } else {
+            singboxProcess = null;
+            processStartTime = null;
+            disableWindowsProxy();
+            return cb(new Error(fallbackError || exitError || 'Не удалось запустить sing-box'));
+          }
+        }, 600);
       } else {
+        singboxProcess = null;
+        processStartTime = null;
+        disableWindowsProxy();
         cb(new Error(exitError || 'Не удалось запустить sing-box'));
       }
     }, 600);
@@ -483,7 +506,7 @@ const server = http.createServer((req, res) => {
           return res.end(JSON.stringify({ success: false, error: 'Нет данных узла' }));
         }
 
-        startSingBox(outbound, payload.mode || 'tun', (err, result) => {
+        startSingBox(outbound, payload.mode || 'proxy', (err, result) => {
           if (err) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ success: false, error: err.message }));
