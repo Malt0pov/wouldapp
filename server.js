@@ -2,7 +2,9 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { spawn, exec } = require('child_process');
+const crypto = require('crypto');
+const os = require('os');
+const { spawn, exec, execSync } = require('child_process');
 const { URL } = require('url');
 
 const PORT = 3005;
@@ -221,18 +223,112 @@ function parseVlessUrl(link) {
   }
 }
 
-// Fetch subscription from URL (supports HTTP/HTTPS, self-signed/expired certs, redirects)
+// Persistent Machine HWID for device-bound subscriptions (Remnawave, KavkazVPN, Happ)
+let machineHwid = null;
+function getMachineHwid() {
+  if (machineHwid) return machineHwid;
+  try {
+    const stdout = execSync('reg query "HKLM\\SOFTWARE\\Microsoft\\Cryptography" /v MachineGuid', { encoding: 'utf8' });
+    const match = stdout.match(/MachineGuid\s+REG_SZ\s+([a-f0-9-]+)/i);
+    if (match && match[1]) {
+      machineHwid = crypto.createHash('md5').update(match[1].trim()).digest('hex');
+      return machineHwid;
+    }
+  } catch (e) {}
+  machineHwid = 'wouldapp-' + crypto.createHash('md5').update(os.hostname() + '-' + os.userInfo().username).digest('hex');
+  return machineHwid;
+}
+
+function mapJsonOutboundToSingbox(ob, name) {
+  try {
+    if (!ob) return null;
+    const proto = (ob.protocol || ob.type || '').toLowerCase();
+
+    if (proto === 'vless') {
+      const vnext = ob.settings?.vnext?.[0];
+      const server = vnext?.address || ob.server;
+      const port = parseInt(vnext?.port || ob.server_port || 443, 10);
+      const user = vnext?.users?.[0];
+      const uuid = user?.id || ob.uuid;
+      const flow = user?.flow || ob.flow || '';
+
+      // Skip dummy 0.0.0.0 placeholder nodes
+      if (!server || server === '0.0.0.0' || server === '127.0.0.1') return null;
+
+      const stream = ob.streamSettings || {};
+      const sec = (stream.security || (ob.tls?.enabled ? (ob.tls.reality ? 'reality' : 'tls') : 'none')).toLowerCase();
+      const reality = stream.realitySettings || ob.tls?.reality;
+
+      const outbound = {
+        type: 'vless',
+        tag: 'proxy',
+        server: server,
+        server_port: port,
+        uuid: uuid
+      };
+      if (flow) outbound.flow = flow;
+
+      if (sec === 'reality' || reality) {
+        outbound.tls = {
+          enabled: true,
+          server_name: reality.serverName || reality.server_name || server,
+          utls: {
+            enabled: true,
+            fingerprint: reality.fingerprint || 'chrome'
+          },
+          reality: {
+            enabled: true,
+            public_key: reality.publicKey || reality.public_key || '',
+            short_id: reality.shortId || reality.short_id || ''
+          }
+        };
+      } else if (sec === 'tls' || ob.tls?.enabled) {
+        const tlsSettings = stream.tlsSettings || ob.tls || {};
+        outbound.tls = {
+          enabled: true,
+          server_name: tlsSettings.serverName || tlsSettings.server_name || server,
+          utls: {
+            enabled: true,
+            fingerprint: tlsSettings.fingerprint || 'chrome'
+          }
+        };
+      }
+
+      if (stream.network === 'ws') {
+        const ws = stream.wsSettings || {};
+        outbound.transport = {
+          type: 'ws',
+          path: ws.path || '/',
+          headers: ws.headers || (ws.host ? { Host: ws.host } : undefined)
+        };
+      }
+
+      return {
+        name: name || ob.tag || `VLESS Reality (${server})`,
+        outbound: outbound,
+        rawLink: `vless://${uuid}@${server}:${port}?security=${sec}#${encodeURIComponent(name || ob.tag || 'Узел')}`
+      };
+    }
+  } catch(e) {
+    return null;
+  }
+}
+
+// Fetch subscription from URL (supports HTTP/HTTPS, self-signed/expired certs, redirects, HWID)
 function fetchSubscription(urlStr, redirects = 0) {
   return new Promise((resolve, reject) => {
     if (redirects > 5) {
       return reject(new Error('Слишком много перенаправлений (redirect loop)'));
     }
     try {
+      const hwid = getMachineHwid();
       const isHttps = urlStr.startsWith('https:');
       const client = isHttps ? https : http;
       const options = {
         headers: {
-          'User-Agent': 'v2rayNG/1.8.12 (Android; sing-box 1.14)',
+          'User-Agent': 'Happ/3.6.5 (Windows NT 10.0; Win64; x64)',
+          'x-hwid': hwid,
+          'x-device-id': hwid,
           'Accept': '*/*'
         },
         timeout: 12000
@@ -273,14 +369,14 @@ function tryDecodeBase64(str) {
   while (s.length % 4) s += '=';
   try {
     const decoded = Buffer.from(s, 'base64').toString('utf8');
-    if (decoded.includes('://') || decoded.includes('proxies:') || decoded.includes('"outbounds"')) {
+    if (decoded.includes('://') || decoded.includes('proxies:') || decoded.includes('"outbounds"') || decoded.includes('{"')) {
       return decoded;
     }
   } catch (e) {}
   return null;
 }
 
-// Universal parser for: single link, multiline links, base64 data, or subscription URL
+// Universal parser for: single link, multiline links, base64 data, JSON configs (Happ/Sing-box), or subscription URL
 async function parseAnyInput(input) {
   if (!input) return [];
   let raw = input.trim();
@@ -292,30 +388,63 @@ async function parseAnyInput(input) {
   }
 
   // Check if content is Base64 encoded
-  if (!raw.includes('vless://') && !raw.includes('trojan://') && !raw.includes('ss://') && !raw.includes('hysteria2://')) {
+  if (!raw.includes('vless://') && !raw.includes('trojan://') && !raw.includes('ss://') && !raw.includes('hysteria2://') && !raw.startsWith('[') && !raw.startsWith('{')) {
     const decoded = tryDecodeBase64(raw);
     if (decoded) raw = decoded;
   }
 
+  // Check if provider returned device limit message (handle URL-encoded and plain text)
+  let readableText = raw;
+  try { readableText = decodeURIComponent(raw); } catch(e) {}
+
+  if (readableText.includes('Подписка не рассчитана') || 
+      readableText.includes('количества устройств') || 
+      readableText.includes('Лимит устройств') || 
+      readableText.includes('лишние устройства') ||
+      readableText.includes('Приложение не поддерживается')) {
+    throw new Error('Подписка KavkazVPN: исчерпан лимит устройств. Перейдите в Telegram-бот KavkazVPN и нажмите «Удалить лишние устройства» (или сбросьте устройства).');
+  }
+
   const nodes = [];
 
-  // 1. First attempt: global regex search for all valid proxy URLs
+  // 1. Check if response is a JSON config (Happ / Sing-box / Xray array)
+  if (raw.startsWith('[') || raw.startsWith('{')) {
+    try {
+      const parsedJson = JSON.parse(raw);
+      const items = Array.isArray(parsedJson) ? parsedJson : [parsedJson];
+      for (const item of items) {
+        const remarks = item.remarks || item.tag || '';
+        if (item.outbounds && Array.isArray(item.outbounds)) {
+          for (const ob of item.outbounds) {
+            const mapped = mapJsonOutboundToSingbox(ob, remarks);
+            if (mapped) nodes.push(mapped);
+          }
+        }
+      }
+      if (nodes.length > 0) {
+        addLog(`[sub] Распознано ${nodes.length} узлов из JSON-конфигурации`);
+        return nodes;
+      }
+    } catch(e) {}
+  }
+
+  // 2. Global regex search for all valid proxy URLs
   const linkRegex = /(?:vless|trojan|ss|hysteria2|hy2):\/\/[^\s"'<>]+/gi;
   const matches = raw.match(linkRegex);
 
   if (matches && matches.length > 0) {
     for (const link of matches) {
       const item = parseVlessUrl(link);
-      if (item) nodes.push(item);
+      if (item && item.outbound?.server !== '0.0.0.0') nodes.push(item);
     }
   }
 
-  // 2. Second attempt: line by line fallback if regex didn't catch everything
+  // 3. Fallback: line by line
   if (nodes.length === 0) {
     const lines = raw.split(/[\r\n]+/).map(l => l.trim()).filter(Boolean);
     for (const line of lines) {
       const item = parseVlessUrl(line);
-      if (item) nodes.push(item);
+      if (item && item.outbound?.server !== '0.0.0.0') nodes.push(item);
     }
   }
 
