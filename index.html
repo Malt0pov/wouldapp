@@ -2927,6 +2927,19 @@
       setTimeout(() => sb.classList.remove('show'), 3500);
     }
 
+    // Native Desktop App behavior: prevent browser context menu & reload hotkeys
+    document.addEventListener('contextmenu', (e) => {
+      if (!e.target.closest('input, textarea, [contenteditable="true"]')) {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F5' || (e.ctrlKey && ['r', 'u', 'p', 's', 'j', 'h'].includes(e.key.toLowerCase()))) {
+        e.preventDefault();
+      }
+    });
+
     // Init
     window.addEventListener('DOMContentLoaded', () => {
       loadServersFromStorage();

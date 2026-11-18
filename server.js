@@ -60,19 +60,66 @@ function disableWindowsProxy(cb) {
 // Universal parser for vless://, trojan://, ss://, hysteria2://
 function parseVlessUrl(link) {
   try {
-    const raw = link.trim();
-    if (!raw.startsWith('vless://') && !raw.startsWith('trojan://') && !raw.startsWith('ss://') && !raw.startsWith('hysteria2://') && !raw.startsWith('hy2://')) {
-      return null;
-    }
+    let raw = link.trim();
+    const match = raw.match(/(vless|trojan|ss|hysteria2|hy2):\/\/[^\s"'<>]+/i);
+    if (!match) return null;
+    raw = match[0];
 
     const hashParts = raw.split('#');
     const name = hashParts[1] ? decodeURIComponent(hashParts[1]) : 'Пользовательский узел';
     const mainUri = hashParts[0];
 
+    // Handle legacy Shadowsocks: ss://BASE64#name or ss://BASE64@host:port#name
+    if (raw.toLowerCase().startsWith('ss://')) {
+      try {
+        const withoutProto = mainUri.substring(5);
+        if (withoutProto.includes('@')) {
+          const atParts = withoutProto.split('@');
+          let creds = atParts[0];
+          try {
+            creds = Buffer.from(creds.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+          } catch(e) {}
+          const [method, password] = creds.split(':');
+          const [host, portStr] = atParts[1].split(':');
+          return {
+            name,
+            outbound: {
+              type: 'shadowsocks',
+              tag: 'proxy',
+              server: host,
+              server_port: parseInt(portStr, 10) || 8388,
+              method: method || 'aes-256-gcm',
+              password: password || ''
+            },
+            rawLink: raw
+          };
+        } else {
+          let decoded = Buffer.from(withoutProto.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+          const [creds, hostPort] = decoded.split('@');
+          const [method, password] = creds.split(':');
+          const [host, portStr] = hostPort.split(':');
+          return {
+            name,
+            outbound: {
+              type: 'shadowsocks',
+              tag: 'proxy',
+              server: host,
+              server_port: parseInt(portStr, 10) || 8388,
+              method: method || 'aes-256-gcm',
+              password: password || ''
+            },
+            rawLink: raw
+          };
+        }
+      } catch (err) {
+        return null;
+      }
+    }
+
     const parsed = new URL(mainUri);
-    let type = parsed.protocol.replace(':', '');
+    let type = parsed.protocol.replace(':', '').toLowerCase();
     if (type === 'hy2') type = 'hysteria2';
-    const uuid = parsed.username;
+    const uuid = decodeURIComponent(parsed.username || '');
     const server = parsed.hostname;
     const port = parseInt(parsed.port, 10) || 443;
     const params = Object.fromEntries(parsed.searchParams.entries());
@@ -96,6 +143,24 @@ function parseVlessUrl(link) {
         outbound.obfs = {
           type: params.obfs,
           password: params['obfs-password'] || ''
+        };
+      }
+    } else if (type === 'trojan') {
+      outbound = {
+        type: 'trojan',
+        tag: 'proxy',
+        server: server,
+        server_port: port,
+        password: uuid
+      };
+      if (params.security === 'tls' || params.security === 'reality' || port === 443 || params.sni) {
+        outbound.tls = {
+          enabled: true,
+          server_name: params.sni || server,
+          utls: {
+            enabled: true,
+            fingerprint: params.fp || 'chrome'
+          }
         };
       }
     } else {
@@ -129,28 +194,58 @@ function parseVlessUrl(link) {
       }
     }
 
-    return { name, outbound, rawLink: link.trim() };
+    // Transport (WebSocket, gRPC, HTTPUpgrade)
+    const netType = (params.type || '').toLowerCase();
+    if (netType === 'ws') {
+      outbound.transport = {
+        type: 'ws',
+        path: params.path ? decodeURIComponent(params.path) : '/',
+        headers: params.host ? { Host: decodeURIComponent(params.host) } : undefined
+      };
+    } else if (netType === 'grpc') {
+      outbound.transport = {
+        type: 'grpc',
+        service_name: params.serviceName ? decodeURIComponent(params.serviceName) : ''
+      };
+    } else if (netType === 'httpupgrade') {
+      outbound.transport = {
+        type: 'httpupgrade',
+        path: params.path ? decodeURIComponent(params.path) : '/',
+        host: params.host ? decodeURIComponent(params.host) : undefined
+      };
+    }
+
+    return { name, outbound, rawLink: raw };
   } catch (err) {
     return null;
   }
 }
 
-// Fetch subscription from URL (supports HTTP/HTTPS and redirects)
-function fetchSubscription(urlStr) {
+// Fetch subscription from URL (supports HTTP/HTTPS, self-signed/expired certs, redirects)
+function fetchSubscription(urlStr, redirects = 0) {
   return new Promise((resolve, reject) => {
+    if (redirects > 5) {
+      return reject(new Error('Слишком много перенаправлений (redirect loop)'));
+    }
     try {
-      const client = urlStr.startsWith('https:') ? https : http;
+      const isHttps = urlStr.startsWith('https:');
+      const client = isHttps ? https : http;
       const options = {
         headers: {
-          'User-Agent': 'WouldApp/1.0 (v2rayNG/sing-box)'
+          'User-Agent': 'v2rayNG/1.8.12 (Android; sing-box 1.14)',
+          'Accept': '*/*'
         },
-        timeout: 10000
+        timeout: 12000
       };
+
+      if (isHttps) {
+        options.agent = new https.Agent({ rejectUnauthorized: false });
+      }
 
       const req = client.get(urlStr, options, (res) => {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           const redirectUrl = new URL(res.headers.location, urlStr).toString();
-          return resolve(fetchSubscription(redirectUrl));
+          return resolve(fetchSubscription(redirectUrl, redirects + 1));
         }
 
         if (res.statusCode !== 200) {
@@ -165,12 +260,24 @@ function fetchSubscription(urlStr) {
       req.on('error', err => reject(new Error(`Ошибка подключения к подписке: ${err.message}`)));
       req.on('timeout', () => {
         req.destroy();
-        reject(new Error('Превышен таймаут загрузки подписки (10 сек)'));
+        reject(new Error('Превышен таймаут загрузки подписки (12 сек)'));
       });
     } catch (e) {
       reject(e);
     }
   });
+}
+
+function tryDecodeBase64(str) {
+  let s = str.trim().replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  try {
+    const decoded = Buffer.from(s, 'base64').toString('utf8');
+    if (decoded.includes('://') || decoded.includes('proxies:') || decoded.includes('"outbounds"')) {
+      return decoded;
+    }
+  } catch (e) {}
+  return null;
 }
 
 // Universal parser for: single link, multiline links, base64 data, or subscription URL
@@ -184,23 +291,31 @@ async function parseAnyInput(input) {
     raw = await fetchSubscription(raw);
   }
 
-  // If content is Base64 encoded (common in V2Ray/Xray subscriptions)
+  // Check if content is Base64 encoded
   if (!raw.includes('vless://') && !raw.includes('trojan://') && !raw.includes('ss://') && !raw.includes('hysteria2://')) {
-    try {
-      const decoded = Buffer.from(raw.replace(/\s+/g, ''), 'base64').toString('utf8');
-      if (decoded.includes('://')) {
-        raw = decoded;
-      }
-    } catch (e) {}
+    const decoded = tryDecodeBase64(raw);
+    if (decoded) raw = decoded;
   }
 
-  const lines = raw.split(/[\r\n]+/).map(l => l.trim()).filter(Boolean);
   const nodes = [];
 
-  for (const line of lines) {
-    const item = parseVlessUrl(line);
-    if (item) {
-      nodes.push(item);
+  // 1. First attempt: global regex search for all valid proxy URLs
+  const linkRegex = /(?:vless|trojan|ss|hysteria2|hy2):\/\/[^\s"'<>]+/gi;
+  const matches = raw.match(linkRegex);
+
+  if (matches && matches.length > 0) {
+    for (const link of matches) {
+      const item = parseVlessUrl(link);
+      if (item) nodes.push(item);
+    }
+  }
+
+  // 2. Second attempt: line by line fallback if regex didn't catch everything
+  if (nodes.length === 0) {
+    const lines = raw.split(/[\r\n]+/).map(l => l.trim()).filter(Boolean);
+    for (const line of lines) {
+      const item = parseVlessUrl(line);
+      if (item) nodes.push(item);
     }
   }
 
