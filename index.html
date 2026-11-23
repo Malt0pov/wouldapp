@@ -118,8 +118,9 @@
       user-select: none;
     }
 
-    /* Allow text selection in terminal, inputs, textareas, and IP displays (§8.10) */
-    #terminal-body, textarea, input, .vip-ip-address, [contenteditable="true"] {
+    /* Allow text selection in terminal, inputs, textareas, IP displays, and logs (§8.10) */
+    #terminal-body, textarea, input, .vip-ip-address, .srv-name, .srv-meta, .dialog-body, .telemetry-card, [contenteditable="true"] {
+      -webkit-user-select: text;
       user-select: text;
     }
 
@@ -2415,13 +2416,14 @@
         if (data.success && data.ip) {
           appState.lastPublicIp = data.ip;
           if (vipIp) vipIp.textContent = data.ip;
+          const country = data.country || 'Внешний узел';
           const cityPart = data.city ? `(${data.city}) ` : '';
-          if (vipGeo) vipGeo.textContent = `${data.country || ''} ${cityPart}• ${data.isp || ''}`.trim();
+          if (vipGeo) vipGeo.textContent = `${country} ${cityPart}• ${data.isp || ''}`.trim();
           
           const flagEmoji = getFlagEmoji(data.countryCode);
           if (vipFlag) vipFlag.textContent = flagEmoji;
 
-          const locationText = data.country + (data.city ? `, ${data.city}` : '');
+          const locationText = data.city ? `${country}, ${data.city}` : country;
           if (geoText) {
             if (data.proxied) {
               geoText.textContent = `🔒 ${locationText} • IP: ${data.ip} (Защищено ✓)`;
@@ -2492,9 +2494,12 @@
           setTimeout(refreshPublicIp, 800);
         }
 
-        // Blocked state (kill switch)
+        // Blocked state (kill switch) (§1, §8.1)
         if (data.blocked) {
-          document.getElementById('conn-headline').textContent = 'Трафик заблокирован (Kill Switch)';
+          const headline = document.getElementById('conn-headline');
+          const caption = document.getElementById('conn-caption');
+          if (headline) headline.textContent = 'Трафик заблокирован (Kill Switch)';
+          if (caption) caption.textContent = 'Прямой трафик заблокирован для предотвращения утечки IP';
         }
 
         // Session time from uptimeSeconds (§8.2 — not local timer)

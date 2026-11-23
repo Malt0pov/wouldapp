@@ -86,18 +86,39 @@ async function fetchSingboxTraffic() {
 }
 
 // Real TCP ping to a server (API_CONTRACT §6)
+function safeDecodeURIComponent(str) {
+  if (!str) return '';
+  try {
+    return decodeURIComponent(str);
+  } catch (e) {
+    return str;
+  }
+}
+
 function tcpPing(host, port, timeoutMs = 2000) {
   return new Promise((resolve) => {
+    if (!host) return resolve(null);
     const start = Date.now();
-    const socket = net.connect({ host, port: parseInt(port, 10) || 443 });
-    socket.setTimeout(timeoutMs);
-    socket.on('connect', () => {
-      const ms = Date.now() - start;
-      socket.destroy();
-      resolve(ms);
-    });
-    socket.on('error', () => { socket.destroy(); resolve(null); });
-    socket.on('timeout', () => { socket.destroy(); resolve(null); });
+    let resolved = false;
+    let socket;
+    const finish = (val) => {
+      if (!resolved) {
+        resolved = true;
+        if (socket) {
+          try { socket.destroy(); } catch (e) {}
+        }
+        resolve(val);
+      }
+    };
+    try {
+      socket = net.connect({ host, port: parseInt(port, 10) || 443 });
+      socket.setTimeout(timeoutMs);
+      socket.on('connect', () => finish(Date.now() - start));
+      socket.on('error', () => finish(null));
+      socket.on('timeout', () => finish(null));
+    } catch (e) {
+      finish(null);
+    }
   });
 }
 
@@ -317,7 +338,7 @@ function parseVlessUrl(link) {
     raw = match[0];
 
     const hashParts = raw.split('#');
-    const name = hashParts[1] ? decodeURIComponent(hashParts[1]) : 'Пользовательский узел';
+    const name = hashParts[1] ? safeDecodeURIComponent(hashParts[1]) : 'Пользовательский узел';
     const mainUri = hashParts[0];
 
     // Handle legacy Shadowsocks: ss://BASE64#name or ss://BASE64@host:port#name
@@ -370,7 +391,7 @@ function parseVlessUrl(link) {
     const parsed = new URL(mainUri);
     let type = parsed.protocol.replace(':', '').toLowerCase();
     if (type === 'hy2') type = 'hysteria2';
-    const uuid = decodeURIComponent(parsed.username || '');
+    const uuid = safeDecodeURIComponent(parsed.username || '');
     const server = parsed.hostname;
     const port = parseInt(parsed.port, 10) || 443;
     const params = Object.fromEntries(parsed.searchParams.entries());
@@ -450,19 +471,19 @@ function parseVlessUrl(link) {
     if (netType === 'ws') {
       outbound.transport = {
         type: 'ws',
-        path: params.path ? decodeURIComponent(params.path) : '/',
-        headers: params.host ? { Host: decodeURIComponent(params.host) } : undefined
+        path: params.path ? safeDecodeURIComponent(params.path) : '/',
+        headers: params.host ? { Host: safeDecodeURIComponent(params.host) } : undefined
       };
     } else if (netType === 'grpc') {
       outbound.transport = {
         type: 'grpc',
-        service_name: params.serviceName ? decodeURIComponent(params.serviceName) : ''
+        service_name: params.serviceName ? safeDecodeURIComponent(params.serviceName) : ''
       };
     } else if (netType === 'httpupgrade') {
       outbound.transport = {
         type: 'httpupgrade',
-        path: params.path ? decodeURIComponent(params.path) : '/',
-        host: params.host ? decodeURIComponent(params.host) : undefined
+        path: params.path ? safeDecodeURIComponent(params.path) : '/',
+        host: params.host ? safeDecodeURIComponent(params.host) : undefined
       };
     }
 
@@ -1133,7 +1154,8 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => body += chunk);
     req.on('end', async () => {
       try {
-        const { link } = JSON.parse(body);
+        const payload = JSON.parse(body);
+        const link = payload.link || payload.raw || payload.text || '';
         const nodes = await parseAnyInput(link);
         if (nodes && nodes.length > 0) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -1178,10 +1200,10 @@ const server = http.createServer((req, res) => {
           if (parsed) outbound = parsed.outbound;
         }
 
-        if (!outbound) {
+        if (!outbound || !outbound.server || !outbound.type) {
           isTransitioning = false;
           res.writeHead(400, { 'Content-Type': 'application/json' });
-          return res.end(JSON.stringify({ success: false, error: 'Нет данных узла' }));
+          return res.end(JSON.stringify({ success: false, error: 'Некорректные параметры узла (отсутствует server или type)', code: 'invalid_outbound' }));
         }
 
         const result = await startSingBox(outbound, payload.mode || 'proxy');
@@ -1210,7 +1232,7 @@ const server = http.createServer((req, res) => {
   }
 
   // Serve static files — with path traversal protection
-  let reqPath = urlParsed === '/' ? '/index.html' : decodeURIComponent(urlParsed);
+  let reqPath = urlParsed === '/' ? '/index.html' : safeDecodeURIComponent(urlParsed);
 
   // Resolve to absolute and normalize (collapses ../ sequences)
   const filePath = path.resolve(DIR, '.' + reqPath);
