@@ -4,19 +4,115 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const os = require('os');
+const net = require('net');
 const { spawn, exec, execSync } = require('child_process');
 const { URL } = require('url');
 
 const PORT = 3005;
 const DIR = __dirname;
-const BIN_DIR = path.join(DIR, 'bin');
+let BIN_DIR = path.join(DIR, 'bin');
+
+// Windows/Go non-ASCII path protection:
+// When the project directory contains Cyrillic/non-ASCII characters (e.g. C:\Users\Ярослав\...),
+// sing-box (Go runtime / lazy DLL loader) crashes with "A dynamic link library (DLL) initialization routine failed".
+// Moving runtime binaries to %ProgramData%\WouldApp\bin guarantees a 100% pure ASCII path on any Windows system.
+if (/[^\x00-\x7F]/.test(BIN_DIR)) {
+  const safeBinDir = path.join(process.env.ProgramData || 'C:\\ProgramData', 'WouldApp', 'bin');
+  try {
+    fs.mkdirSync(safeBinDir, { recursive: true });
+    const binFiles = ['sing-box.exe', 'wintun.dll', 'proxy_helper.exe'];
+    for (const f of binFiles) {
+      const src = path.join(path.join(DIR, 'bin'), f);
+      const dst = path.join(safeBinDir, f);
+      if (fs.existsSync(src)) {
+        if (!fs.existsSync(dst) || fs.statSync(src).size !== fs.statSync(dst).size) {
+          fs.copyFileSync(src, dst);
+        }
+      }
+    }
+    BIN_DIR = safeBinDir;
+  } catch (e) {
+    // fallback to original BIN_DIR
+  }
+}
+
 const SINGBOX_EXE = path.join(BIN_DIR, 'sing-box.exe');
 const CONFIG_PATH = path.join(BIN_DIR, 'active-config.json');
+
+// Session token for API authentication (API_CONTRACT §0)
+const SESSION_TOKEN = crypto.randomBytes(24).toString('hex');
 
 let singboxProcess = null;
 let processStartTime = null;
 let logsBuffer = [];
 let activeMode = 'proxy'; // 'tun' or 'proxy'
+
+// Persistent settings (API_CONTRACT §6)
+let serverSettings = {
+  dns: 'google',
+  mode: 'proxy',
+  killSwitch: false,
+  autoConnect: false,
+  autoStart: false,
+  sound: true
+};
+
+// Traffic tracking for /api/traffic (API_CONTRACT §2)
+let lastTrafficDown = 0;
+let lastTrafficUp = 0;
+
+// Fetch real traffic from sing-box Clash API (localhost:9090)
+async function fetchSingboxTraffic() {
+  if (!singboxProcess) return { downBytes: 0, upBytes: 0, connections: 0 };
+  return new Promise((resolve) => {
+    const req = http.get({ host: '127.0.0.1', port: 9090, path: '/traffic', timeout: 1500 }, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; req.destroy(); });
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data.trim().split('\n').pop());
+          lastTrafficDown += parsed.down || 0;
+          lastTrafficUp += parsed.up || 0;
+          resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 });
+        } catch (e) {
+          resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 });
+        }
+      });
+    });
+    req.on('error', () => resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 }));
+    req.on('timeout', () => { req.destroy(); resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 }); });
+  });
+}
+
+// Real TCP ping to a server (API_CONTRACT §6)
+function tcpPing(host, port, timeoutMs = 2000) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const socket = net.connect({ host, port: parseInt(port, 10) || 443 });
+    socket.setTimeout(timeoutMs);
+    socket.on('connect', () => {
+      const ms = Date.now() - start;
+      socket.destroy();
+      resolve(ms);
+    });
+    socket.on('error', () => { socket.destroy(); resolve(null); });
+    socket.on('timeout', () => { socket.destroy(); resolve(null); });
+  });
+}
+
+// AutoStart: manage HKCU\Run registry entry
+function applyAutoStart(enabled) {
+  try {
+    if (enabled) {
+      const appPath = path.join(DIR, 'WouldApp.exe');
+      if (fs.existsSync(appPath)) {
+        execSync(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v WouldApp /t REG_SZ /d "\\"${appPath}\\"" /f`, { stdio: 'ignore', windowsHide: true });
+      }
+    } else {
+      execSync(`reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v WouldApp /f`, { stdio: 'ignore', windowsHide: true });
+    }
+  } catch (e) {}
+}
 
 function addLog(msg) {
   const line = `[${new Date().toTimeString().split(' ')[0]}] ${msg}`;
@@ -26,11 +122,111 @@ function addLog(msg) {
 }
 
 const PROXY_HELPER_EXE = path.join(BIN_DIR, 'proxy_helper.exe');
+const PROXY_BACKUP_FILE = path.join(BIN_DIR, 'proxy-backup.json');
 
-// Windows System Proxy Manager (With WinINet Broadcast Notification)
+// Read current registry settings for Internet Settings
+function getSystemProxyState() {
+  try {
+    const out = execSync('reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"', {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+      windowsHide: true
+    });
+    const parseVal = (name) => {
+      const match = out.match(new RegExp(`${name}\\s+REG_[A-Z]+\\s+(.*)`));
+      return match ? match[1].trim() : null;
+    };
+    const rawEnable = parseVal('ProxyEnable');
+    return {
+      ProxyEnable: rawEnable !== null ? (parseInt(rawEnable, 16) || parseInt(rawEnable, 10) || 0) : 0,
+      ProxyServer: parseVal('ProxyServer') || '',
+      ProxyOverride: parseVal('ProxyOverride') || '',
+      AutoConfigURL: parseVal('AutoConfigURL') || ''
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+// Synchronously restore registry proxy state (used on exit / crash / restore)
+function restoreProxyStateSync(backup) {
+  if (!backup) return;
+  try {
+    if (backup.ProxyEnable === 0) {
+      if (fs.existsSync(PROXY_HELPER_EXE)) {
+        execSync(`"${PROXY_HELPER_EXE}" disable`, { stdio: 'ignore', windowsHide: true });
+      } else {
+        execSync('reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f', { stdio: 'ignore', windowsHide: true });
+      }
+    } else {
+      // User had an active proxy beforehand: restore it fully
+      execSync(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d ${backup.ProxyEnable} /f`, { stdio: 'ignore', windowsHide: true });
+      if (backup.ProxyServer) {
+        execSync(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d "${backup.ProxyServer}" /f`, { stdio: 'ignore', windowsHide: true });
+      }
+      if (backup.ProxyOverride) {
+        execSync(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "${backup.ProxyOverride}" /f`, { stdio: 'ignore', windowsHide: true });
+      }
+      if (fs.existsSync(PROXY_HELPER_EXE)) {
+        const port = (backup.ProxyServer && backup.ProxyServer.includes(':')) ? backup.ProxyServer.split(':').pop() : '2080';
+        execSync(`"${PROXY_HELPER_EXE}" enable ${port}`, { stdio: 'ignore', windowsHide: true });
+      }
+    }
+  } catch (e) {
+    addLog(`[proxy] Ошибка при восстановлении реестра: ${e.message}`);
+  }
+}
+
+// Restore proxy on startup if left hanging from previous crash
+function restoreProxyOnStartup() {
+  if (fs.existsSync(PROXY_BACKUP_FILE)) {
+    try {
+      const backup = JSON.parse(fs.readFileSync(PROXY_BACKUP_FILE, 'utf8'));
+      addLog('[proxy] Восстановление настроек прокси из файла аварийного бэкапа...');
+      restoreProxyStateSync(backup);
+      fs.unlinkSync(PROXY_BACKUP_FILE);
+      addLog('[proxy] Настройки прокси успешно восстановлены из бэкапа.');
+      return;
+    } catch (e) {
+      addLog(`[proxy] Ошибка чтения бэкапа: ${e.message}`);
+    }
+  }
+
+  // Check if system proxy was left pointing to our local port (127.0.0.1:2080)
+  const current = getSystemProxyState();
+  if (current && current.ProxyEnable === 1 && current.ProxyServer && current.ProxyServer.includes('127.0.0.1:2080')) {
+    addLog('[proxy] Обнаружен зависший системный прокси WouldApp (127.0.0.1:2080), сбрасываем...');
+    if (fs.existsSync(PROXY_HELPER_EXE)) {
+      execSync(`"${PROXY_HELPER_EXE}" disable`, { stdio: 'ignore', windowsHide: true });
+    } else {
+      execSync('reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f', { stdio: 'ignore', windowsHide: true });
+    }
+    addLog('[proxy] Зависший прокси сброшен, доступ в интернет восстановлен.');
+  } else {
+    addLog('[proxy] Системный прокси проверен: сторонние настройки сохранены.');
+  }
+}
+
+// Windows System Proxy Manager (With Backup & WinINet Broadcast Notification)
 function enableWindowsProxy(proxyPort = 2080, cb) {
+  // 1. Save backup before first modification if not already saved
+  if (!fs.existsSync(PROXY_BACKUP_FILE)) {
+    const currentState = getSystemProxyState();
+    if (currentState) {
+      try {
+        fs.writeFileSync(PROXY_BACKUP_FILE, JSON.stringify(currentState, null, 2), 'utf8');
+      } catch (e) {
+        addLog(`[proxy] Предупреждение: не удалось сохранить бэкап прокси: ${e.message}`);
+      }
+      if (currentState.AutoConfigURL) {
+        addLog(`[warning] Обнаружен активный PAC-скрипт (${currentState.AutoConfigURL}). Он может переопределять системный прокси.`);
+      }
+    }
+  }
+
+  // 2. Activate proxy
   if (fs.existsSync(PROXY_HELPER_EXE)) {
-    exec(`"${PROXY_HELPER_EXE}" enable ${proxyPort}`, (err, stdout) => {
+    exec(`"${PROXY_HELPER_EXE}" enable ${proxyPort}`, (err) => {
       if (err) addLog(`[proxy] Ошибка: ${err.message}`);
       else addLog(`[proxy] Системный прокси Windows активирован на 127.0.0.1:${proxyPort} (WinINet обновлен)`);
       if (cb) cb();
@@ -45,18 +241,44 @@ function enableWindowsProxy(proxyPort = 2080, cb) {
 }
 
 function disableWindowsProxy(cb) {
-  if (fs.existsSync(PROXY_HELPER_EXE)) {
-    exec(`"${PROXY_HELPER_EXE}" disable`, () => {
-      addLog(`[proxy] Системный прокси Windows отключен (WinINet сброшен)`);
-      if (cb) cb();
-    });
-  } else {
-    const cmd = `reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f`;
-    exec(cmd, () => {
-      addLog(`[proxy] Системный прокси Windows отключен`);
-      if (cb) cb();
-    });
+  let backup = null;
+  if (fs.existsSync(PROXY_BACKUP_FILE)) {
+    try {
+      backup = JSON.parse(fs.readFileSync(PROXY_BACKUP_FILE, 'utf8'));
+      fs.unlinkSync(PROXY_BACKUP_FILE);
+    } catch (e) {}
   }
+
+  if (backup) {
+    restoreProxyStateSync(backup);
+    addLog(`[proxy] Системный прокси возвращен в исходное состояние.`);
+    if (cb) cb();
+  } else {
+    if (fs.existsSync(PROXY_HELPER_EXE)) {
+      exec(`"${PROXY_HELPER_EXE}" disable`, () => {
+        addLog(`[proxy] Системный прокси Windows отключен (WinINet сброшен)`);
+        if (cb) cb();
+      });
+    } else {
+      const cmd = `reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f`;
+      exec(cmd, () => {
+        addLog(`[proxy] Системный прокси Windows отключен`);
+        if (cb) cb();
+      });
+    }
+  }
+}
+
+// Emergency cleanup on crashes / signals
+function emergencyProxyCleanup() {
+  killOrphanSingBox();
+  try {
+    if (fs.existsSync(PROXY_BACKUP_FILE)) {
+      const backup = JSON.parse(fs.readFileSync(PROXY_BACKUP_FILE, 'utf8'));
+      restoreProxyStateSync(backup);
+      fs.unlinkSync(PROXY_BACKUP_FILE);
+    }
+  } catch (e) {}
 }
 
 // Universal parser for vless://, trojan://, ss://, hysteria2://
@@ -480,6 +702,11 @@ function buildSingBoxConfig(outbound, withTun = false) {
       level: 'info',
       timestamp: true
     },
+    experimental: {
+      clash_api: {
+        external_controller: '127.0.0.1:9090'
+      }
+    },
     dns: {
       servers: [
         {
@@ -520,128 +747,178 @@ function buildSingBoxConfig(outbound, withTun = false) {
   };
 }
 
+// Check Administrator privileges (needed for wintun TUN adapter)
+function isRunningAsAdmin() {
+  try {
+    execSync('fltmc', { stdio: 'ignore', windowsHide: true });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Kill any orphaned sing-box processes
+function killOrphanSingBox() {
+  try {
+    execSync('taskkill /F /IM sing-box.exe', { stdio: 'ignore', windowsHide: true });
+  } catch (e) {}
+}
+
+// Kill process and reliably wait for exit without fixed arbitrary delays
+function killProcessWait(proc, timeoutMs = 2500) {
+  return new Promise((resolve) => {
+    if (!proc || proc.killed || proc.exitCode !== null) return resolve();
+    let resolved = false;
+    const done = () => {
+      if (!resolved) {
+        resolved = true;
+        resolve();
+      }
+    };
+
+    proc.once('exit', done);
+
+    try {
+      proc.kill('SIGTERM');
+    } catch (e) {}
+
+    // Fallback force kill if process hangs
+    setTimeout(() => {
+      if (!resolved) {
+        try {
+          execSync(`taskkill /F /T /PID ${proc.pid}`, { stdio: 'ignore', windowsHide: true });
+        } catch (e) {}
+        done();
+      }
+    }, 800);
+
+    setTimeout(done, timeoutMs);
+  });
+}
+
+// Wait for sing-box inbound port 2080 to start accepting connections (health-check)
+function waitForPort(port = 2080, timeoutMs = 3500) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const tryConnect = () => {
+      const socket = net.connect({ port, host: '127.0.0.1' });
+      socket.on('connect', () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.on('error', () => {
+        socket.destroy();
+        if (Date.now() - start >= timeoutMs) {
+          resolve(false);
+        } else {
+          setTimeout(tryConnect, 80);
+        }
+      });
+    };
+    tryConnect();
+  });
+}
+
+let isTransitioning = false;
+
+function stopSingBox(cb) {
+  const p = (async () => {
+    if (singboxProcess) {
+      addLog(`Остановка процесса sing-box (PID: ${singboxProcess.pid})...`);
+      const proc = singboxProcess;
+      singboxProcess = null;
+      processStartTime = null;
+      await killProcessWait(proc);
+    }
+    killOrphanSingBox();
+    await new Promise(res => disableWindowsProxy(res));
+  })();
+
+  if (typeof cb === 'function') {
+    p.then(() => cb()).catch(() => cb());
+  }
+  return p;
+}
+
 function startSingBox(outbound, requestedMode, cb) {
-  stopSingBox(() => {
+  const p = (async () => {
     const tryTun = requestedMode === 'tun';
+
+    if (tryTun && !isRunningAsAdmin()) {
+      const err = new Error('TUN-режим требует прав администратора. Запустите WouldApp от имени администратора или переключитесь на Системный прокси.');
+      err.code = 'tun_requires_admin';
+      throw err;
+    }
+
+    // Stop any existing process and wait for clean termination
+    await stopSingBox();
+
+    // Reset traffic counters for new session
+    lastTrafficDown = 0;
+    lastTrafficUp = 0;
+
     const configObj = buildSingBoxConfig(outbound, tryTun);
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(configObj, null, 2), 'utf8');
 
     addLog(`Запуск sing-box (режим: ${tryTun ? 'TUN (Wintun)' : 'Системный прокси'})...`);
-    let proc = spawn(SINGBOX_EXE, ['run', '-c', CONFIG_PATH], {
-      cwd: BIN_DIR,
-      windowsHide: true
-    });
 
-    let hasExited = false;
-    let exitError = null;
+    return new Promise((resolve, reject) => {
+      let errorOutput = '';
+      let isReady = false;
 
-    proc.stdout.on('data', (d) => {
-      addLog(`[stdout] ${d.toString().trim()}`);
-    });
+      const proc = spawn(SINGBOX_EXE, ['run', '-c', CONFIG_PATH], {
+        cwd: BIN_DIR,
+        windowsHide: true
+      });
 
-    proc.stderr.on('data', (d) => {
-      const msg = d.toString().trim();
-      addLog(`[stderr] ${msg}`);
-      if (msg.includes('Access is denied') || msg.includes('FATAL')) {
-        exitError = msg;
-      }
-    });
+      // Track immediately to eliminate untracked orphan processes
+      singboxProcess = proc;
 
-    proc.on('exit', (code) => {
-      hasExited = true;
-      if (singboxProcess === proc) {
-        singboxProcess = null;
-        processStartTime = null;
-        disableWindowsProxy();
-      }
-    });
+      proc.stdout.on('data', (d) => {
+        addLog(`[stdout] ${d.toString().trim()}`);
+      });
 
-    // Check after 600ms if process survived
-    setTimeout(() => {
-      if (!hasExited && !exitError) {
-        singboxProcess = proc;
-        processStartTime = Date.now();
-        activeMode = tryTun ? 'tun' : 'proxy';
+      proc.stderr.on('data', (d) => {
+        const msg = d.toString().trim();
+        addLog(`[stderr] ${msg}`);
+        errorOutput += msg + '\n';
+      });
 
-        if (!tryTun) {
-          enableWindowsProxy(2080);
+      proc.on('exit', (code) => {
+        if (singboxProcess === proc) {
+          singboxProcess = null;
+          processStartTime = null;
+          disableWindowsProxy();
         }
+        if (!isReady) {
+          reject(new Error(errorOutput.trim() || `sing-box завершился с кодом ${code}`));
+        }
+      });
 
-        return cb(null, { running: true, pid: proc.pid, mode: activeMode });
-      }
+      // Health-check: wait for 127.0.0.1:2080 to become ready
+      waitForPort(2080, 3500).then((portOpen) => {
+        if (portOpen && singboxProcess === proc) {
+          isReady = true;
+          processStartTime = Date.now();
+          activeMode = tryTun ? 'tun' : 'proxy';
 
-      // If TUN failed due to Access is denied (not running as Administrator), gracefully fallback to System Proxy!
-      if (tryTun) {
-        addLog(`[warning] TUN режим требует прав Администратора. Автоматическое переключение на системный прокси Windows (127.0.0.1:2080)...`);
-        try { proc.kill('SIGTERM'); } catch (e) {}
-
-        const fallbackConfig = buildSingBoxConfig(outbound, false);
-        fs.writeFileSync(CONFIG_PATH, JSON.stringify(fallbackConfig, null, 2), 'utf8');
-
-        let fallbackHasExited = false;
-        let fallbackError = null;
-
-        let fallbackProc = spawn(SINGBOX_EXE, ['run', '-c', CONFIG_PATH], {
-          cwd: BIN_DIR,
-          windowsHide: true
-        });
-
-        fallbackProc.stdout.on('data', d => addLog(`[stdout] ${d.toString().trim()}`));
-        fallbackProc.stderr.on('data', (d) => {
-          const msg = d.toString().trim();
-          addLog(`[stderr] ${msg}`);
-          if (msg.includes('FATAL') || msg.includes('ERROR')) {
-            fallbackError = msg;
-          }
-        });
-
-        fallbackProc.on('exit', () => {
-          fallbackHasExited = true;
-          if (singboxProcess === fallbackProc) {
-            singboxProcess = null;
-            processStartTime = null;
-            disableWindowsProxy();
-          }
-        });
-
-        setTimeout(() => {
-          if (!fallbackHasExited && !fallbackError) {
-            singboxProcess = fallbackProc;
-            processStartTime = Date.now();
-            activeMode = 'proxy';
+          if (!tryTun) {
             enableWindowsProxy(2080);
-            return cb(null, { running: true, pid: fallbackProc.pid, mode: 'proxy', note: 'Запущен в режиме системного прокси' });
-          } else {
-            singboxProcess = null;
-            processStartTime = null;
-            disableWindowsProxy();
-            return cb(new Error(fallbackError || exitError || 'Не удалось запустить sing-box'));
           }
-        }, 600);
-      } else {
-        singboxProcess = null;
-        processStartTime = null;
-        disableWindowsProxy();
-        cb(new Error(exitError || 'Не удалось запустить sing-box'));
-      }
-    }, 600);
-  });
-}
 
-function stopSingBox(cb) {
-  disableWindowsProxy(() => {
-    if (singboxProcess) {
-      addLog(`Остановка процесса sing-box (PID: ${singboxProcess.pid})...`);
-      try {
-        singboxProcess.kill('SIGTERM');
-      } catch (e) {}
-      singboxProcess = null;
-      processStartTime = null;
-      setTimeout(cb, 300);
-    } else {
-      if (cb) cb();
-    }
-  });
+          resolve({ running: true, pid: proc.pid, mode: activeMode });
+        } else if (!isReady) {
+          stopSingBox().catch(() => {});
+          reject(new Error(errorOutput.trim() || 'Таймаут: sing-box не открыл порт 2080'));
+        }
+      });
+    });
+  })();
+
+  if (typeof cb === 'function') {
+    p.then(res => cb(null, res)).catch(err => cb(err));
+  }
+  return p;
 }
 
 const MIME = {
@@ -653,21 +930,130 @@ const MIME = {
   '.ico': 'image/x-icon',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg'
+  '.jpeg': 'image/jpeg',
+  '.woff2': 'font/woff2',
+  '.woff': 'font/woff',
+  '.ttf': 'font/ttf',
+  '.webp': 'image/webp'
 };
 
 const server = http.createServer((req, res) => {
   const urlParsed = req.url.split('?')[0];
 
-  // API: Get Status
+  // 1. Host header validation (DNS-rebinding protection)
+  const host = (req.headers['host'] || '').toLowerCase();
+  const allowedHosts = [`127.0.0.1:${PORT}`, `localhost:${PORT}`];
+  if (host && !allowedHosts.includes(host)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return res.end('403 Forbidden: Invalid Host');
+  }
+
+  // 2. Origin validation (CSRF protection)
+  const origin = req.headers['origin'];
+  if (origin) {
+    const allowedOrigins = [`http://127.0.0.1:${PORT}`, `http://localhost:${PORT}`];
+    if (!allowedOrigins.includes(origin)) {
+      res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+      return res.end('403 Forbidden: Invalid Origin');
+    }
+  }
+
+  // 3. Token authentication for all /api/* routes (API_CONTRACT §0)
+  if (urlParsed.startsWith('/api/')) {
+    const clientToken = req.headers['x-wouldapp-token'];
+    if (!clientToken || clientToken !== SESSION_TOKEN) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ success: false, error: 'unauthorized' }));
+    }
+    // POST requests require Content-Type: application/json (API_CONTRACT §0)
+    if (req.method === 'POST') {
+      const cType = (req.headers['content-type'] || '').toLowerCase();
+      if (!cType.includes('application/json')) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ success: false, error: 'Content-Type must be application/json' }));
+      }
+    }
+  }
+
+  // API: Get Status (API_CONTRACT §1)
   if (req.method === 'GET' && urlParsed === '/api/status') {
+    const running = !!singboxProcess;
+    const uptimeSeconds = processStartTime ? Math.floor((Date.now() - processStartTime) / 1000) : 0;
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({
-      running: !!singboxProcess,
+      success: true,
+      running,
       mode: activeMode,
-      uptime: processStartTime ? Math.floor((Date.now() - processStartTime) / 1000) : 0,
-      logs: logsBuffer.slice(-20)
+      uptimeSeconds,
+      killSwitch: serverSettings.killSwitch,
+      blocked: false,
+      settings: { ...serverSettings },
+      traffic: { downBytes: lastTrafficDown, upBytes: lastTrafficUp },
+      logs: logsBuffer.slice(-30)
     }));
+  }
+
+  // API: Get Traffic (API_CONTRACT §2)
+  if (req.method === 'GET' && urlParsed === '/api/traffic') {
+    fetchSingboxTraffic().then((traffic) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, ...traffic }));
+    });
+    return;
+  }
+
+  // API: Ping servers (API_CONTRACT §6)
+  if (req.method === 'POST' && urlParsed === '/api/ping') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { servers } = JSON.parse(body);
+        if (!Array.isArray(servers)) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ success: false, error: 'servers must be an array' }));
+        }
+        const results = await Promise.all(servers.map(async (s) => {
+          const ping = await tcpPing(s.server, s.port || 443);
+          return { id: s.id, ping };
+        }));
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, results }));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // API: Get/Set Settings (API_CONTRACT §6)
+  if (urlParsed === '/api/settings') {
+    if (req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ success: true, settings: { ...serverSettings } }));
+    }
+    if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const partial = JSON.parse(body);
+          const allowed = ['dns', 'mode', 'killSwitch', 'autoConnect', 'autoStart', 'sound'];
+          for (const key of allowed) {
+            if (key in partial) serverSettings[key] = partial[key];
+          }
+          if ('mode' in partial) activeMode = partial.mode;
+          if ('autoStart' in partial) applyAutoStart(partial.autoStart);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, settings: { ...serverSettings } }));
+        } catch (e) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: e.message }));
+        }
+      });
+      return;
+    }
   }
 
   // API: Check Public IP & Geolocation
@@ -739,10 +1125,19 @@ const server = http.createServer((req, res) => {
   if (req.method === 'POST' && urlParsed === '/api/connect') {
     let body = '';
     req.on('data', chunk => body += chunk);
-    req.on('end', () => {
+    req.on('end', async () => {
+      if (isTransitioning) {
+        res.writeHead(409, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ success: false, error: 'Операция уже выполняется, подождите...' }));
+      }
+      isTransitioning = true;
       try {
         const payload = JSON.parse(body);
         let outbound = payload.outbound;
+
+        if (payload.killSwitch !== undefined) {
+          serverSettings.killSwitch = !!payload.killSwitch;
+        }
 
         if (!outbound && payload.link) {
           const parsed = parseVlessUrl(payload.link);
@@ -750,22 +1145,20 @@ const server = http.createServer((req, res) => {
         }
 
         if (!outbound) {
+          isTransitioning = false;
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ success: false, error: 'Нет данных узла' }));
         }
 
-        startSingBox(outbound, payload.mode || 'proxy', (err, result) => {
-          if (err) {
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: false, error: err.message }));
-          } else {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: true, result }));
-          }
-        });
+        const result = await startSingBox(outbound, payload.mode || 'proxy');
+        isTransitioning = false;
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, result }));
       } catch (err) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, error: err.message }));
+        isTransitioning = false;
+        const status = err.code === 'tun_requires_admin' ? 403 : 500;
+        res.writeHead(status, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message, code: err.code }));
       }
     });
     return;
@@ -773,20 +1166,64 @@ const server = http.createServer((req, res) => {
 
   // API: Disconnect
   if (req.method === 'POST' && urlParsed === '/api/disconnect') {
+    isTransitioning = true;
     stopSingBox(() => {
+      isTransitioning = false;
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true, disconnected: true }));
     });
     return;
   }
 
-  // Serve static files
-  let reqPath = urlParsed === '/' ? '/index.html' : urlParsed;
-  const filePath = path.join(DIR, reqPath);
+  // Serve static files — with path traversal protection
+  let reqPath = urlParsed === '/' ? '/index.html' : decodeURIComponent(urlParsed);
+
+  // Resolve to absolute and normalize (collapses ../ sequences)
+  const filePath = path.resolve(DIR, '.' + reqPath);
+
+  // 1. Block any path that escapes the application root directory
+  if (!filePath.startsWith(DIR + path.sep) && filePath !== DIR) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return res.end('403 Forbidden');
+  }
+
+  // 2. Compute path relative to DIR for blocklist checks
+  const relPath = path.relative(DIR, filePath).toLowerCase().replace(/\\/g, '/');
+  const firstSegment = relPath.split('/')[0];
+
+  // Block access to sensitive directories and files
+  const BLOCKED_PREFIXES = ['.git', 'bin', 'node_modules', 'runtimes'];
+  const BLOCKED_FILES = ['server.js', 'package.json', 'package-lock.json', '.gitignore', '.env'];
+  if (BLOCKED_PREFIXES.includes(firstSegment) ||
+      BLOCKED_FILES.includes(relPath) ||
+      firstSegment.startsWith('.')) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return res.end('403 Forbidden');
+  }
+
+  // 3. Whitelist allowed file extensions only
+  const ext = path.extname(filePath).toLowerCase();
+  const ALLOWED_EXT = ['.html', '.css', '.js', '.json', '.ico', '.png', '.jpg', '.jpeg', '.svg', '.woff2', '.woff', '.ttf', '.webp'];
+  if (!ALLOWED_EXT.includes(ext)) {
+    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+    return res.end('403 Forbidden');
+  }
 
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-    const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'text/html; charset=utf-8' });
+    // Dynamically inject session token into index.html (API_CONTRACT §0)
+    if (filePath === path.join(DIR, 'index.html')) {
+      try {
+        const html = fs.readFileSync(filePath, 'utf8');
+        const injected = html.replace('__WOULDAPP_TOKEN__', SESSION_TOKEN);
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        return res.end(injected);
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+        return res.end('500 Internal Server Error');
+      }
+    }
+
+    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
     fs.createReadStream(filePath).pipe(res);
   } else {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -804,11 +1241,28 @@ server.on('error', (err) => {
 });
 
 server.listen(PORT, '127.0.0.1', () => {
-  disableWindowsProxy();
+  restoreProxyOnStartup();
   console.log(`WouldApp Server running at http://localhost:${PORT}/`);
   addLog(`WouldApp backend initialized with Sing-box 1.14 engine.`);
 });
 
-// Clean up proxy on exit
-process.on('SIGINT', () => { stopSingBox(() => process.exit(0)); });
-process.on('SIGTERM', () => { stopSingBox(() => process.exit(0)); });
+// Process signal & crash handlers to guarantee proxy restoration
+process.on('exit', () => {
+  emergencyProxyCleanup();
+});
+process.on('SIGINT', () => {
+  stopSingBox(() => process.exit(0));
+});
+process.on('SIGTERM', () => {
+  stopSingBox(() => process.exit(0));
+});
+process.on('uncaughtException', (err) => {
+  console.error('[fatal] Неперехваченное исключение:', err);
+  addLog(`[fatal] Ошибка сервера: ${err.message}`);
+  emergencyProxyCleanup();
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[error] Unhandled Rejection:', reason);
+  addLog(`[error] Необработанный промис: ${reason}`);
+});

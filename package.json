@@ -1,0 +1,15 @@
+{
+  "name": "wouldapp-vpn-client",
+  "version": "2.0.0",
+  "private": true,
+  "description": "WouldApp — Windows VPN client на sing-box 1.14",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

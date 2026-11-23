@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Одноразовый токен текущего запуска: сервер подставляет его при отдаче index.html (API_CONTRACT §0) -->
+  <meta name="wouldapp-token" content="__WOULDAPP_TOKEN__">
   <title>WouldApp • Windows 11 Edition</title>
   
   <!-- App Icon & Favicon -->
@@ -16,6 +18,48 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 
   <style>
+    /* ==========================================================================
+       LOCALLY BUNDLED FONTS (PRIMARY)
+       Локальные файлы положены серверной частью в /assets/. Эти @font-face
+       объявлены после <link> на Google Fonts, поэтому при наличии файлов
+       локальный шрифт имеет приоритет, а CDN остаётся fallback'ом.
+       ========================================================================== */
+    @font-face {
+      font-family: 'Roboto';
+      src: url('/assets/roboto-400.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Roboto';
+      src: url('/assets/roboto-500.woff2') format('woff2');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Roboto';
+      src: url('/assets/roboto-700.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Roboto';
+      src: url('/assets/roboto-800.woff2') format('woff2');
+      font-weight: 800;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Material Symbols Outlined';
+      src: url('/assets/material-symbols.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: block;
+    }
+
     /* ==========================================================================
        GOOGLE MATERIAL DESIGN 3 (M3) DESIGN TOKENS (Dark Expressive Palette)
        https://m3.material.io/
@@ -65,6 +109,11 @@
       margin: 0;
       padding: 0;
       user-select: none;
+    }
+
+    /* Allow text selection in terminal, inputs, textareas, and IP displays (§8.10) */
+    #terminal-body, textarea, input, .vip-ip-address, [contenteditable="true"] {
+      user-select: text;
     }
 
     body {
@@ -2009,6 +2058,25 @@
 
   <script>
     // ==============================================================
+    // API Client with Session Token Authentication (API_CONTRACT §7)
+    // ==============================================================
+    const WA_TOKEN = document.querySelector('meta[name="wouldapp-token"]')?.content || '';
+    async function apiFetch(path, opts = {}) {
+      const isPost = (opts.method && opts.method.toUpperCase() === 'POST');
+      const headers = Object.assign(
+        { 'X-WouldApp-Token': WA_TOKEN },
+        (isPost || opts.body) ? { 'Content-Type': 'application/json' } : {},
+        opts.headers || {}
+      );
+      const r = await fetch(path, { ...opts, headers });
+      if (r.status === 401) {
+        showSnackbar('Сессия истекла — перезапустите WouldApp', 'error');
+        throw new Error('unauthorized');
+      }
+      return r;
+    }
+
+    // ==============================================================
     // Web Audio Synthesizer (Zero-Latency Micro-Haptics & Chimes)
     // ==============================================================
     const SoundFX = {
@@ -2112,26 +2180,25 @@
       }
     };
 
-    // Default Fallback Mock Servers
-    const DEFAULT_SERVERS = [
-      { id: 'srv-1', name: 'Нидерланды #1 • Amsterdam Fast', flag: '🇳🇱', ping: 22, proto: 'VLESS Reality', ip: '185.220.101.44' },
-      { id: 'srv-2', name: 'Германия #2 • Frankfurt High-Speed', flag: '🇩🇪', ping: 35, proto: 'Hysteria 2', ip: '45.142.214.88' },
-      { id: 'srv-3', name: 'Финляндия #1 • Helsinki Direct', flag: '🇫🇮', ping: 17, proto: 'VLESS Reality', ip: '95.217.34.12' },
-      { id: 'srv-4', name: 'США #1 • New York Streaming', flag: '🇺🇸', ping: 108, proto: 'Trojan TLS', ip: '198.51.100.22' }
-    ];
+    // No default mock servers (§8.4) — start with empty list
+    // Real servers come from import/subscription only
 
     // App State
     const appState = {
       status: 'disconnected', // 'disconnected', 'connecting', 'connected'
+      busy: false, // busy flag for connection transitions (§8.7)
       activeTab: 'home',
-      selectedId: 'srv-1',
+      selectedId: null,
       mode: 'proxy',
       searchQuery: '',
       secondsElapsed: 0,
       timerHandle: null,
       speedHandle: null,
+      pollHandle: null,
       waveData: new Array(40).fill(0),
-      servers: [...DEFAULT_SERVERS],
+      servers: [],
+      prevTrafficDown: 0,
+      prevTrafficUp: 0,
       // Settings State
       soundEnabled: true,
       accentTheme: 'cyan',
@@ -2156,9 +2223,10 @@
     function loadServersFromStorage() {
       try {
         const saved = localStorage.getItem('wouldapp_servers');
-        if (saved) {
+        if (saved !== null) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
+            // Accept saved array even if empty (§8.4 fix #9)
             appState.servers = parsed;
           }
         }
@@ -2167,6 +2235,8 @@
           appState.selectedId = savedId;
         } else if (appState.servers.length > 0) {
           appState.selectedId = appState.servers[0].id;
+        } else {
+          appState.selectedId = null;
         }
       } catch (e) {}
     }
@@ -2206,6 +2276,8 @@
 
     // Toggle VPN Connection
     async function toggleVpn() {
+      if (appState.busy) return; // §8.7: busy flag blocks all during transitions
+
       if (appState.status === 'disconnected') {
         let activeServer = appState.servers.find(s => s.id === appState.selectedId) || appState.servers[0];
 
@@ -2222,16 +2294,17 @@
           }
         }
 
+        appState.busy = true;
         setConnectionState('connecting');
 
         try {
-          const resp = await fetch('/api/connect', {
+          const resp = await apiFetch('/api/connect', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               outbound: activeServer.outbound,
-              link: activeServer.rawLink,
-              mode: appState.mode
+              mode: appState.mode,
+              killSwitch: appState.killSwitch
             })
           });
 
@@ -2241,23 +2314,45 @@
             showSnackbar(`✓ Защита включена: ${activeServer.name}`);
             startSpeedTicker();
             // Automatically verify public IP and geolocation
-            setTimeout(refreshPublicIp, 1200);
+            setTimeout(() => refreshPublicIp(true), 1200);
           } else {
             throw new Error(res.error || 'Ошибка запуска sing-box');
           }
         } catch (err) {
           setConnectionState('disconnected');
+          if (err.message && err.message.toLowerCase().includes('администратор')) {
+            changeMode('proxy');
+            const selectEl = document.getElementById('setting-mode-select');
+            if (selectEl) selectEl.value = 'proxy';
+          }
           showSnackbar(`Ошибка запуска: ${err.message}`, 'error');
+        } finally {
+          appState.busy = false;
         }
 
       } else {
-        setConnectionState('disconnected');
+        // §8.6: Wait for disconnect response before changing UI
+        appState.busy = true;
         try {
-          await fetch('/api/disconnect', { method: 'POST' });
-        } catch (e) {}
-        stopSpeedTicker();
-        showSnackbar('Туннель отключен. Трафик идет напрямую.');
-        setTimeout(refreshPublicIp, 800);
+          const resp = await apiFetch('/api/disconnect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const res = await resp.json();
+          if (res.success) {
+            setConnectionState('disconnected');
+            stopSpeedTicker();
+            showSnackbar('Туннель отключен. Трафик идет напрямую.');
+            setTimeout(() => refreshPublicIp(true), 800);
+          } else {
+            showSnackbar('Ошибка отключения: ' + (res.error || 'Неизвестная ошибка'), 'error');
+          }
+        } catch (e) {
+          showSnackbar('Ошибка связи при отключении', 'error');
+          // Keep state as 'connected' on error (§8.6)
+        } finally {
+          appState.busy = false;
+        }
       }
     }
 
@@ -2302,7 +2397,7 @@
       vipIp.textContent = 'Проверка...';
 
       try {
-        const resp = await fetch('/api/check-ip');
+        const resp = await apiFetch('/api/check-ip');
         const data = await resp.json();
 
         if (data.success && data.ip) {
@@ -2336,39 +2431,113 @@
       return String.fromCodePoint(...codePoints);
     }
 
-    // Speed Ticker & Wave Simulation
+    // Speed Ticker & Real Telemetry from /api/traffic (§8.1, §8.2)
     function startSpeedTicker() {
-      appState.secondsElapsed = 0;
-      clearInterval(appState.timerHandle);
-      clearInterval(appState.speedHandle);
+      // Speed ticker now only sets up the poll — actual data comes from pollStatus()
+      // No more Math.random() fake speeds
+    }
 
-      appState.timerHandle = setInterval(() => {
-        appState.secondsElapsed++;
-        const h = String(Math.floor(appState.secondsElapsed / 3600)).padStart(2, '0');
-        const m = String(Math.floor((appState.secondsElapsed % 3600) / 60)).padStart(2, '0');
-        const s = String(appState.secondsElapsed % 60).padStart(2, '0');
-        document.getElementById('tel-time').textContent = `${h}:${m}:${s}`;
-      }, 1000);
+    // Unified server polling: status + traffic + logs (§8.1, §8.2)
+    function startPolling() {
+      if (appState.pollHandle) return;
+      appState.pollHandle = setInterval(pollStatus, 1000);
+    }
 
-      appState.speedHandle = setInterval(() => {
-        const down = (Math.random() * 8.4 + 2.1).toFixed(1);
-        const up = (Math.random() * 2.2 + 0.4).toFixed(1);
-        document.getElementById('tel-down').textContent = `${down} MB/s`;
-        document.getElementById('tel-up').textContent = `${up} MB/s`;
+    function stopPolling() {
+      if (appState.pollHandle) {
+        clearInterval(appState.pollHandle);
+        appState.pollHandle = null;
+      }
+    }
 
-        appState.waveData.shift();
-        appState.waveData.push(parseFloat(down));
-        drawSpeedWave();
-      }, 600);
+    async function pollStatus() {
+      try {
+        const resp = await apiFetch('/api/status');
+        const data = await resp.json();
+        if (!data.success) return;
+
+        // Sync running state from server (§8.1)
+        if (data.running && appState.status === 'disconnected') {
+          // Server says running but UI shows disconnected — sync up
+          setConnectionState('connected', true);
+        } else if (!data.running && appState.status === 'connected') {
+          // Tunnel dropped externally
+          setConnectionState('disconnected', true);
+          showSnackbar('Туннель прерван', 'error');
+          stopSpeedTicker();
+          setTimeout(refreshPublicIp, 800);
+        }
+
+        // Blocked state (kill switch)
+        if (data.blocked) {
+          document.getElementById('conn-headline').textContent = 'Трафик заблокирован (Kill Switch)';
+        }
+
+        // Session time from uptimeSeconds (§8.2 — not local timer)
+        if (data.running && data.uptimeSeconds != null) {
+          const secs = data.uptimeSeconds;
+          const h = String(Math.floor(secs / 3600)).padStart(2, '0');
+          const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0');
+          const s = String(secs % 60).padStart(2, '0');
+          document.getElementById('tel-time').textContent = `${h}:${m}:${s}`;
+        }
+
+        // Real traffic from server (§8.2)
+        if (data.traffic) {
+          const downDelta = Math.max(0, data.traffic.downBytes - appState.prevTrafficDown);
+          const upDelta = Math.max(0, data.traffic.upBytes - appState.prevTrafficUp);
+          appState.prevTrafficDown = data.traffic.downBytes;
+          appState.prevTrafficUp = data.traffic.upBytes;
+
+          // Speed = delta bytes per second → MB/s
+          const downSpeed = (downDelta / 1024 / 1024).toFixed(1);
+          const upSpeed = (upDelta / 1024 / 1024).toFixed(1);
+
+          if (data.running) {
+            document.getElementById('tel-down').textContent = `${downSpeed} MB/s`;
+            document.getElementById('tel-up').textContent = `${upSpeed} MB/s`;
+
+            appState.waveData.shift();
+            appState.waveData.push(parseFloat(downSpeed));
+            drawSpeedWave();
+          }
+
+          // Update total traffic stat (§8.2 fix #4)
+          const totalDown = (data.traffic.downBytes / 1024 / 1024).toFixed(1);
+          const totalUp = (data.traffic.upBytes / 1024 / 1024).toFixed(1);
+          appState.totalDownloaded = data.traffic.downBytes;
+          appState.totalUploaded = data.traffic.upBytes;
+          const trafficTxt = document.getElementById('traffic-stat-text');
+          if (trafficTxt) trafficTxt.textContent = `Загружено: ${totalDown} MB • Отправлено: ${totalUp} MB`;
+        }
+
+        // Logs update (§8.1) — merged with poll, no separate 2500ms timer
+        if (data.logs) {
+          const term = document.getElementById('terminal-body');
+          if (term) {
+            term.innerHTML = data.logs.map(l => `<div>${escapeHtml(l)}</div>`).join('');
+            term.scrollTop = term.scrollHeight;
+          }
+        }
+
+        // Settings sync (§8.5)
+        if (data.settings) {
+          appState.mode = data.settings.mode || appState.mode;
+          appState.dns = data.settings.dns || appState.dns;
+          appState.killSwitch = !!data.settings.killSwitch;
+          appState.autoConnect = !!data.settings.autoConnect;
+          appState.autoStart = !!data.settings.autoStart;
+        }
+      } catch (e) {}
     }
 
     function stopSpeedTicker() {
-      clearInterval(appState.timerHandle);
-      clearInterval(appState.speedHandle);
       document.getElementById('tel-down').textContent = '0.0 MB/s';
       document.getElementById('tel-up').textContent = '0.0 MB/s';
       document.getElementById('tel-time').textContent = '00:00:00';
       appState.waveData = new Array(40).fill(0);
+      appState.prevTrafficDown = 0;
+      appState.prevTrafficUp = 0;
       drawSpeedWave();
     }
 
@@ -2406,34 +2575,64 @@
       const filtered = appState.servers.filter(s => {
         if (!appState.searchQuery) return true;
         const q = appState.searchQuery.toLowerCase();
-        return s.name.toLowerCase().includes(q) || s.ip.includes(q) || s.proto.toLowerCase().includes(q);
+        const name = (s.name || '').toLowerCase();
+        const ip = (s.ip || '');
+        const proto = (s.proto || '').toLowerCase();
+        return name.includes(q) || ip.includes(q) || proto.includes(q);
       });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 32px 16px; text-align: center; color: var(--md-sys-color-on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size: 36px; opacity: 0.5;">cloud_off</span>
+            <div style="font-size: 13px; font-weight: 600; color: var(--md-sys-color-on-surface);">${appState.servers.length === 0 ? 'Добавьте ключ или подписку' : 'Узлы не найдены'}</div>
+            <div style="font-size: 11px;">${appState.servers.length === 0 ? 'Импортируйте ключи Would.tg.live для начала работы' : 'Попробуйте изменить поисковый запрос'}</div>
+            ${appState.servers.length === 0 ? `<button class="btn-filled-m3" style="margin-top: 6px; height: 32px;" onclick="openImportModal()"><span class="material-symbols-outlined" style="font-size: 15px;">add</span> Добавить узел</button>` : ''}
+          </div>
+        `;
+        return;
+      }
 
       filtered.forEach(s => {
         const isSel = s.id === appState.selectedId;
         const div = document.createElement('div');
         div.className = `server-card-item ${isSel ? 'selected' : ''}`;
-        div.onclick = () => selectServer(s.id);
+        div.dataset.id = s.id;
 
         const hasOutbound = !!s.outbound;
+        const srvPort = s.outbound?.server_port || s.port || '';
+        const portStr = srvPort ? `:${srvPort}` : '';
         div.innerHTML = `
           <div class="srv-left">
             <span class="srv-flag">${s.flag || '🌐'}</span>
             <div class="srv-info">
               <span class="srv-name">${escapeHtml(s.name)}</span>
-              <span class="srv-meta">${escapeHtml(s.proto)} • IP: ${escapeHtml(s.ip)}</span>
+              <span class="srv-meta">${escapeHtml(s.proto)} • IP: ${escapeHtml(s.ip)}${portStr}</span>
             </div>
           </div>
           <div class="srv-right">
-            <span class="ping-pill">${s.ping} ms</span>
+            <span class="ping-pill">${s.ping != null ? s.ping + ' ms' : '—'}</span>
             <span class="material-symbols-outlined" style="font-size: 18px; color: ${isSel ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)'};">
               ${isSel ? 'check_circle' : 'radio_button_unchecked'}
             </span>
-            ${hasOutbound ? `<button class="btn-delete-node" title="Удалить узел" onclick="deleteServer('${s.id}', event)"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>` : ''}
+            ${hasOutbound ? `<button class="btn-delete-node" title="Удалить узел" data-delete-id="${escapeHtml(s.id)}"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>` : ''}
           </div>
         `;
         container.appendChild(div);
       });
+
+      container.onclick = (e) => {
+        const delBtn = e.target.closest('[data-delete-id]');
+        if (delBtn) {
+          e.stopPropagation();
+          deleteServer(delBtn.getAttribute('data-delete-id'), e);
+          return;
+        }
+        const item = e.target.closest('.server-card-item');
+        if (item && item.dataset.id) {
+          selectServer(item.dataset.id);
+        }
+      };
     }
 
     function renderFullServers() {
@@ -2441,53 +2640,121 @@
       if (!container) return;
       container.innerHTML = '';
 
+      if (appState.servers.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 48px 16px; text-align: center; color: var(--md-sys-color-on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size: 42px; opacity: 0.5;">vpn_key_off</span>
+            <div style="font-size: 15px; font-weight: 600; color: var(--md-sys-color-on-surface);">Добавьте ключ или подписку</div>
+            <div style="font-size: 12px; max-width: 340px;">Список серверов пуст. Вставьте подписку Would.tg.live или vless-ссылки для подключения.</div>
+            <button class="btn-filled-m3" style="margin-top: 6px; height: 36px;" onclick="openImportModal()"><span class="material-symbols-outlined" style="font-size: 16px;">add</span> Добавить узел</button>
+          </div>
+        `;
+        return;
+      }
+
       appState.servers.forEach(s => {
         const isSel = s.id === appState.selectedId;
         const div = document.createElement('div');
         div.className = `server-card-item ${isSel ? 'selected' : ''}`;
-        div.onclick = () => selectServer(s.id);
+        div.dataset.id = s.id;
 
         const hasOutbound = !!s.outbound;
+        const srvPort = s.outbound?.server_port || s.port || 443;
         div.innerHTML = `
           <div class="srv-left">
             <span class="srv-flag">${s.flag || '🌐'}</span>
             <div class="srv-info">
               <span class="srv-name" style="font-size: 15px;">${escapeHtml(s.name)}</span>
-              <span class="srv-meta">Протокол: ${escapeHtml(s.proto)} • Адрес сервера: ${escapeHtml(s.ip)}:443</span>
+              <span class="srv-meta">Протокол: ${escapeHtml(s.proto)} • Адрес сервера: ${escapeHtml(s.ip)}:${srvPort}</span>
             </div>
           </div>
           <div class="srv-right">
-            <span class="ping-pill">${s.ping} ms</span>
-            <button class="btn-tonal-m3" style="height: 32px; padding: 0 12px;" onclick="event.stopPropagation(); selectServer('${s.id}'); switchTab('home'); toggleVpn();">
-              Подключить
+            <span class="ping-pill">${s.ping != null ? s.ping + ' ms' : '—'}</span>
+            <button class="btn-tonal-m3 btn-connect-action" style="height: 32px; padding: 0 12px;" data-id="${escapeHtml(s.id)}">
+              ${isSel && appState.status === 'connected' ? 'Активен' : 'Подключить'}
             </button>
-            ${hasOutbound ? `<button class="btn-delete-node" title="Удалить узел" onclick="deleteServer('${s.id}', event)"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>` : ''}
+            ${hasOutbound ? `<button class="btn-delete-node" title="Удалить узел" data-delete-id="${escapeHtml(s.id)}"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>` : ''}
           </div>
         `;
         container.appendChild(div);
       });
+
+      container.onclick = async (e) => {
+        const delBtn = e.target.closest('[data-delete-id]');
+        if (delBtn) {
+          e.stopPropagation();
+          deleteServer(delBtn.getAttribute('data-delete-id'), e);
+          return;
+        }
+        const connBtn = e.target.closest('.btn-connect-action');
+        if (connBtn) {
+          e.stopPropagation();
+          const targetId = connBtn.getAttribute('data-id');
+          if (appState.status === 'connected') {
+            if (appState.selectedId !== targetId) {
+              await selectServer(targetId);
+            }
+          } else {
+            selectServer(targetId);
+            toggleVpn();
+          }
+          return;
+        }
+        const item = e.target.closest('.server-card-item');
+        if (item && item.dataset.id) {
+          selectServer(item.dataset.id);
+        }
+      };
     }
 
-    function selectServer(id) {
+    async function selectServer(id) {
+      const prevId = appState.selectedId;
       appState.selectedId = id;
       saveServersToStorage();
       const s = appState.servers.find(x => x.id === id);
       if (s) {
-        document.getElementById('tel-ping').textContent = `${s.ping} ms`;
-        showSnackbar(`Выбран узел: ${s.name}`);
+        document.getElementById('tel-ping').textContent = s.ping != null ? `${s.ping} ms` : '-- ms';
       }
       renderServerList();
       if (appState.activeTab === 'servers') renderFullServers();
+
+      // §8.9: Reconnect if currently connected and server changed
+      if (appState.status === 'connected' && id !== prevId && s && s.outbound && !appState.busy) {
+        appState.busy = true;
+        showSnackbar('Переключение узла…');
+        setConnectionState('connecting');
+        try {
+          const resp = await apiFetch('/api/connect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              outbound: s.outbound,
+              mode: appState.mode,
+              killSwitch: appState.killSwitch
+            })
+          });
+          const res = await resp.json();
+          if (res.success) {
+            setConnectionState('connected');
+            showSnackbar(`✓ Переключено на: ${s.name}`);
+            setTimeout(() => refreshPublicIp(true), 1200);
+          } else {
+            throw new Error(res.error);
+          }
+        } catch (err) {
+          setConnectionState('disconnected');
+          showSnackbar(`Ошибка переключения: ${err.message}`, 'error');
+        } finally {
+          appState.busy = false;
+        }
+      }
     }
 
     function deleteServer(id, e) {
       if (e) e.stopPropagation();
       appState.servers = appState.servers.filter(s => s.id !== id);
-      if (appState.servers.length === 0) {
-        appState.servers = [...DEFAULT_SERVERS];
-      }
       if (appState.selectedId === id) {
-        appState.selectedId = appState.servers[0].id;
+        appState.selectedId = appState.servers.length > 0 ? appState.servers[0].id : null;
       }
       saveServersToStorage();
       renderServerList();
@@ -2514,17 +2781,41 @@
       renderServerList();
     }
 
-    function testAllPings() {
+    async function testAllPings() {
+      const serversWithOutbound = appState.servers.filter(s => s.outbound);
+      if (serversWithOutbound.length === 0) {
+        showSnackbar('Нет узлов с outbound для замера пинга');
+        return;
+      }
       showSnackbar('Запущен замер пинга до всех узлов...');
-      appState.servers.forEach(s => {
-        const delta = Math.floor(Math.random() * 8) - 4;
-        s.ping = Math.max(14, s.ping + delta);
-      });
-      setTimeout(() => {
-        renderServerList();
-        if (appState.activeTab === 'servers') renderFullServers();
-        showSnackbar('✓ Пинг всех узлов обновлен');
-      }, 500);
+      try {
+        const resp = await apiFetch('/api/ping', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            servers: serversWithOutbound.map(s => ({
+              id: s.id,
+              server: s.outbound.server,
+              port: s.outbound.server_port || 443
+            }))
+          })
+        });
+        const data = await resp.json();
+        if (data.success && data.results) {
+          data.results.forEach(r => {
+            const srv = appState.servers.find(s => s.id === r.id);
+            if (srv) srv.ping = r.ping;
+          });
+          saveServersToStorage();
+          renderServerList();
+          if (appState.activeTab === 'servers') renderFullServers();
+          showSnackbar('✓ Пинг всех узлов обновлен (реальный TCP)');
+        } else {
+          showSnackbar('Ошибка замера пинга', 'error');
+        }
+      } catch (e) {
+        showSnackbar('Ошибка связи с сервером при замере пинга', 'error');
+      }
     }
 
     // Modal Import Logic
@@ -2566,7 +2857,7 @@
     async function processImportString(raw) {
       showSnackbar('Анализ и загрузка ключей...');
       try {
-        const resp = await fetch('/api/parse', {
+        const resp = await apiFetch('/api/parse', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ link: raw })
@@ -2591,7 +2882,7 @@
               id: 'user-' + Date.now() + '-' + idx,
               name: n.name || `Узел #${idx + 1}`,
               flag: flag,
-              ping: Math.floor(Math.random() * 20 + 20),
+              ping: null,
               proto: protoName,
               ip: n.outbound?.server || '127.0.0.1',
               outbound: n.outbound,
@@ -2613,10 +2904,17 @@
       }
     }
 
-    function changeMode(mode) {
+    async function changeMode(mode) {
       appState.mode = mode;
-      document.getElementById('conn-mode-tag').textContent = mode === 'tun' ? 'TUN (WINTUN)' : 'СИСТЕМНЫЙ ПРОКСИ';
+      const tag = document.getElementById('conn-mode-tag');
+      if (tag) tag.textContent = mode === 'tun' ? 'TUN (WINTUN)' : 'СИСТЕМНЫЙ ПРОКСИ';
       showSnackbar(`Режим переключен: ${mode.toUpperCase()}`);
+      try {
+        await apiFetch('/api/settings', {
+          method: 'POST',
+          body: JSON.stringify({ mode })
+        });
+      } catch (e) {}
     }
 
     // ==============================================================
@@ -2772,7 +3070,7 @@
       }
     }
 
-    function toggleSettingSwitch(switchId, stateKey, callback) {
+    async function toggleSettingSwitch(switchId, stateKey, callback) {
       const el = document.getElementById(switchId);
       if (!el) return;
       const isChecked = el.classList.toggle('checked');
@@ -2792,16 +3090,34 @@
       } else if (stateKey === 'minimizeToTray') {
         showSnackbar(isChecked ? 'Сворачивание в трей включено' : 'Сворачивание в трей выключено');
       }
+
+      // Sync settings with /api/settings (§6, §8.5)
+      const serverKey = stateKey === 'soundEnabled' ? 'sound' : stateKey;
+      if (['mode', 'dns', 'killSwitch', 'autoConnect', 'autoStart', 'sound'].includes(serverKey)) {
+        try {
+          await apiFetch('/api/settings', {
+            method: 'POST',
+            body: JSON.stringify({ [serverKey]: isChecked })
+          });
+        } catch (e) {}
+      }
+
       if (callback) callback(isChecked);
     }
 
-    function changeDns(dns) {
+    async function changeDns(dns) {
       appState.dns = dns;
       try {
         localStorage.setItem('wouldapp_dns', dns);
       } catch (e) {}
       SoundFX.play('click');
       showSnackbar(`DNS сервер изменен на: ${dns.toUpperCase()}`);
+      try {
+        await apiFetch('/api/settings', {
+          method: 'POST',
+          body: JSON.stringify({ dns })
+        });
+      } catch (e) {}
     }
 
     function resetTrafficStats() {
@@ -2835,6 +3151,48 @@
         showSnackbar('Все данные сброшены. Перезагрузка...');
         setTimeout(() => window.location.reload(), 1000);
       }
+    }
+
+    async function loadSettingsFromServer() {
+      try {
+        const resp = await apiFetch('/api/settings');
+        const data = await resp.json();
+        if (data.success && data.settings) {
+          const s = data.settings;
+          if (s.mode) {
+            appState.mode = s.mode;
+            const sel = document.getElementById('setting-mode-select');
+            if (sel) sel.value = s.mode;
+            const tag = document.getElementById('conn-mode-tag');
+            if (tag) tag.textContent = s.mode === 'tun' ? 'TUN (WINTUN)' : 'СИСТЕМНЫЙ ПРОКСИ';
+          }
+          if (s.dns) {
+            appState.dns = s.dns;
+            const sel = document.getElementById('setting-dns-select');
+            if (sel) sel.value = s.dns;
+          }
+          if (s.killSwitch !== undefined) {
+            appState.killSwitch = !!s.killSwitch;
+            const sw = document.getElementById('switch-killswitch');
+            if (sw) sw.classList.toggle('checked', appState.killSwitch);
+          }
+          if (s.autoConnect !== undefined) {
+            appState.autoConnect = !!s.autoConnect;
+            const sw = document.getElementById('switch-autoconnect');
+            if (sw) sw.classList.toggle('checked', appState.autoConnect);
+          }
+          if (s.autoStart !== undefined) {
+            appState.autoStart = !!s.autoStart;
+            const sw = document.getElementById('switch-autostart');
+            if (sw) sw.classList.toggle('checked', appState.autoStart);
+          }
+          if (s.sound !== undefined) {
+            appState.soundEnabled = !!s.sound;
+            const sw = document.getElementById('switch-sound');
+            if (sw) sw.classList.toggle('checked', appState.soundEnabled);
+          }
+        }
+      } catch (e) {}
     }
 
     function loadSettingsFromStorage() {
@@ -2895,7 +3253,7 @@
     // Terminal Logs
     async function updateLogs() {
       try {
-        const resp = await fetch('/api/status');
+        const resp = await apiFetch('/api/status');
         const data = await resp.json();
         const term = document.getElementById('terminal-body');
         if (term && data.logs) {
@@ -2911,7 +3269,7 @@
     }
 
     function escapeHtml(str) {
-      return str ? String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
+      return str ? String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;') : '';
     }
 
     function showSnackbar(text, type = 'info') {
@@ -2941,14 +3299,23 @@
     });
 
     // Init
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       loadServersFromStorage();
       loadSettingsFromStorage();
+      await loadSettingsFromServer();
       renderServerList();
       drawSpeedWave();
       refreshPublicIp();
-      setInterval(updateLogs, 2500);
+      startPolling();
       window.addEventListener('resize', drawSpeedWave);
+
+      // AutoConnect on startup if enabled (§8.5 fix #16)
+      if (appState.autoConnect) {
+        const canConnect = appState.servers.some(s => s.outbound);
+        if (canConnect && appState.status === 'disconnected') {
+          toggleVpn();
+        }
+      }
     });
   </script>
 </body>
