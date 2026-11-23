@@ -29,28 +29,35 @@
       src: url('/assets/roboto-400.woff2') format('woff2');
       font-weight: 400;
       font-style: normal;
-      font-display: swap;
+      font-display: block;
     }
     @font-face {
       font-family: 'Roboto';
       src: url('/assets/roboto-500.woff2') format('woff2');
       font-weight: 500;
       font-style: normal;
-      font-display: swap;
+      font-display: block;
+    }
+    @font-face {
+      font-family: 'Roboto';
+      src: url('/assets/roboto-500.woff2') format('woff2'), url('/assets/roboto-700.woff2') format('woff2');
+      font-weight: 600;
+      font-style: normal;
+      font-display: block;
     }
     @font-face {
       font-family: 'Roboto';
       src: url('/assets/roboto-700.woff2') format('woff2');
       font-weight: 700;
       font-style: normal;
-      font-display: swap;
+      font-display: block;
     }
     @font-face {
       font-family: 'Roboto';
       src: url('/assets/roboto-800.woff2') format('woff2');
       font-weight: 800;
       font-style: normal;
-      font-display: swap;
+      font-display: block;
     }
     @font-face {
       font-family: 'Material Symbols Outlined';
@@ -1959,16 +1966,6 @@
 
             <div class="settings-row">
               <div class="settings-label-group">
-                <div class="settings-item-title">Сворачивать при закрытии</div>
-                <div class="settings-item-desc">Не закрывать клиент при нажатии на крестик, а сворачивать в панель задач</div>
-              </div>
-              <div class="m3-switch checked" id="switch-tray" onclick="toggleSettingSwitch('switch-tray', 'minimizeToTray')">
-                <div class="m3-switch-thumb"></div>
-              </div>
-            </div>
-
-            <div class="settings-row">
-              <div class="settings-label-group">
                 <div class="settings-item-title">Статистика сессии</div>
                 <div class="settings-item-desc" id="traffic-stat-text">Загружено: 0.0 MB • Отправлено: 0.0 MB</div>
               </div>
@@ -2187,6 +2184,13 @@
       }
     };
 
+    // Safe Web Audio context unlock upon user gesture (§14 fix #40)
+    const unlockAudio = () => {
+      SoundFX.init();
+      ['pointerdown', 'keydown', 'click'].forEach(e => window.removeEventListener(e, unlockAudio));
+    };
+    ['pointerdown', 'keydown', 'click'].forEach(e => window.addEventListener(e, unlockAudio, { once: true, passive: true }));
+
     // No default mock servers (§8.4) — start with empty list
     // Real servers come from import/subscription only
 
@@ -2213,7 +2217,6 @@
       killSwitch: false,
       autoConnect: false,
       autoStart: false,
-      minimizeToTray: true,
       dns: 'google',
       totalDownloaded: 0,
       totalUploaded: 0
@@ -2281,9 +2284,9 @@
       if (tab === 'servers') renderFullServers();
     }
 
-    // Toggle VPN Connection
+    // Toggle VPN Connection (§8.7)
     async function toggleVpn() {
-      if (appState.busy) return; // §8.7: busy flag blocks all during transitions
+      if (appState.busy || appState.status === 'connecting') return; // §8.7: busy flag blocks all during transitions
 
       if (appState.status === 'disconnected') {
         let activeServer = appState.servers.find(s => s.id === appState.selectedId) || appState.servers[0];
@@ -2327,8 +2330,9 @@
           }
         } catch (err) {
           setConnectionState('disconnected');
+          // TUN admin error: switch mode to proxy silently on server and show single error snackbar (§8.8 fix #35, #36)
           if (err.message && err.message.toLowerCase().includes('администратор')) {
-            changeMode('proxy');
+            await changeMode('proxy', false);
             const selectEl = document.getElementById('setting-mode-select');
             if (selectEl) selectEl.value = 'proxy';
           }
@@ -2372,11 +2376,14 @@
       const dot = document.getElementById('geo-dot');
 
       if (stage) stage.className = 'connection-stage-wrap ' + state;
-      if (powerBtn) powerBtn.className = 'm3-wavy-power-btn ' + state;
+      if (powerBtn) {
+        powerBtn.className = 'm3-wavy-power-btn ' + state;
+        powerBtn.style.pointerEvents = (state === 'connecting') ? 'none' : 'auto';
+      }
       if (dot) dot.className = 'geo-dot ' + state;
 
       if (state === 'connecting') {
-        SoundFX.play('click');
+        // No duplicate click sound (§8.8 fix #37: global click listener already triggered)
         headline.textContent = 'Подключение...';
         caption.textContent = 'Вращение защитного кольца • Установка шифрования...';
         document.getElementById('geo-text').textContent = 'Подключение...';
@@ -2394,38 +2401,48 @@
       }
     }
 
-    // Live Public IP Checker (Queries /api/check-ip)
-    async function refreshPublicIp() {
+    // Live Public IP Checker (Queries /api/check-ip) (§8.14)
+    async function refreshPublicIp(notify = false) {
       const geoText = document.getElementById('geo-text');
       const vipIp = document.getElementById('vip-ip');
       const vipGeo = document.getElementById('vip-geo');
       const vipFlag = document.getElementById('vip-flag');
-
-      vipIp.textContent = 'Проверка...';
 
       try {
         const resp = await apiFetch('/api/check-ip');
         const data = await resp.json();
 
         if (data.success && data.ip) {
-          vipIp.textContent = data.ip;
-          vipGeo.textContent = `${data.country} (${data.city || 'Город определен'}) • ${data.isp || ''}`;
+          appState.lastPublicIp = data.ip;
+          if (vipIp) vipIp.textContent = data.ip;
+          const cityPart = data.city ? `(${data.city}) ` : '';
+          if (vipGeo) vipGeo.textContent = `${data.country || ''} ${cityPart}• ${data.isp || ''}`.trim();
           
           const flagEmoji = getFlagEmoji(data.countryCode);
-          vipFlag.textContent = flagEmoji;
+          if (vipFlag) vipFlag.textContent = flagEmoji;
 
-          if (data.proxied) {
-            geoText.textContent = `🔒 ${data.country}, ${data.city} • IP: ${data.ip} (Защищено ✓)`;
-            showSnackbar(`✓ Подтвержден внешний IP: ${data.ip} (${data.country})`);
-          } else {
-            geoText.textContent = `📍 ${data.country}, ${data.city} • IP: ${data.ip} (Без VPN)`;
+          const locationText = data.country + (data.city ? `, ${data.city}` : '');
+          if (geoText) {
+            if (data.proxied) {
+              geoText.textContent = `🔒 ${locationText} • IP: ${data.ip} (Защищено ✓)`;
+            } else {
+              geoText.textContent = `📍 ${locationText} • IP: ${data.ip} (Без VPN)`;
+            }
           }
-        } else {
-          vipIp.textContent = '127.0.0.1';
-          vipGeo.textContent = 'Прямое соединение';
+
+          // Snackbar only on explicit request / state change (§8.14 fix #33)
+          if (notify) {
+            showSnackbar(data.proxied ? `✓ Подтвержден внешний IP: ${data.ip} (${data.country})` : `Текущий IP: ${data.ip}`);
+          }
         }
       } catch (err) {
-        vipIp.textContent = 'Ошибка проверки';
+        // Do not lose previous IP on failure (§8.14 fix #43)
+        if (!appState.lastPublicIp && vipIp) {
+          vipIp.textContent = '—';
+        }
+        if (notify) {
+          showSnackbar('Не удалось обновить публичный IP', 'error');
+        }
       }
     }
 
@@ -2858,7 +2875,6 @@
       }
       await processImportString(val);
       document.getElementById('full-sub-input').value = '';
-      switchTab('home');
     }
 
     async function processImportString(raw) {
@@ -3018,7 +3034,7 @@
       r.style.setProperty('--md-sys-color-primary-container', theme.primaryContainer);
       r.style.setProperty('--md-sys-color-on-primary-container', theme.onPrimaryContainer);
 
-      // Update connecting gradient stops in the SVG power button
+      // Update connecting & connected gradient stops in the SVG power button (§8.11 fix #44)
       const gradConn = document.getElementById('btnGradConnecting');
       if (gradConn) {
         const stops = gradConn.querySelectorAll('stop');
@@ -3026,6 +3042,24 @@
           stops[0].setAttribute('stop-color', theme.btnGrad[0]);
           stops[1].setAttribute('stop-color', theme.btnGrad[1]);
           stops[2].setAttribute('stop-color', theme.btnGrad[2]);
+        }
+      }
+
+      const gradConnected = document.getElementById('btnGradConnected');
+      if (gradConnected) {
+        const stops = gradConnected.querySelectorAll('stop');
+        if (stops.length >= 3) {
+          stops[0].setAttribute('stop-color', theme.btnGrad[0]);
+          stops[1].setAttribute('stop-color', theme.btnGrad[1]);
+          stops[2].setAttribute('stop-color', theme.btnGrad[2]);
+        }
+      }
+
+      const gradDisconnected = document.getElementById('btnGradDisconnected');
+      if (gradDisconnected) {
+        const stops = gradDisconnected.querySelectorAll('stop');
+        if (stops.length >= 2) {
+          stops[0].setAttribute('stop-color', theme.primaryContainer + '33');
         }
       }
 

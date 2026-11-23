@@ -20,7 +20,7 @@ if (/[^\x00-\x7F]/.test(BIN_DIR)) {
   const safeBinDir = path.join(process.env.ProgramData || 'C:\\ProgramData', 'WouldApp', 'bin');
   try {
     fs.mkdirSync(safeBinDir, { recursive: true });
-    const binFiles = ['sing-box.exe', 'wintun.dll', 'proxy_helper.exe'];
+    const binFiles = ['sing-box.exe', 'wintun.dll', 'proxy_helper.exe', 'node.exe'];
     for (const f of binFiles) {
       const src = path.join(path.join(DIR, 'bin'), f);
       const dst = path.join(safeBinDir, f);
@@ -46,6 +46,7 @@ let singboxProcess = null;
 let processStartTime = null;
 let logsBuffer = [];
 let activeMode = 'proxy'; // 'tun' or 'proxy'
+let isTrafficBlocked = false; // true if Kill Switch triggered (§1)
 
 // Persistent settings (API_CONTRACT §6)
 let serverSettings = {
@@ -105,12 +106,38 @@ function applyAutoStart(enabled) {
   try {
     if (enabled) {
       const appPath = path.join(DIR, 'WouldApp.exe');
-      if (fs.existsSync(appPath)) {
-        execSync(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v WouldApp /t REG_SZ /d "\\"${appPath}\\"" /f`, { stdio: 'ignore', windowsHide: true });
-      }
+      const target = fs.existsSync(appPath) ? appPath : path.join(DIR, 'Запустить WouldApp.bat');
+      execSync(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v WouldApp /t REG_SZ /d "\\"${target}\\"" /f`, { stdio: 'ignore', windowsHide: true });
     } else {
       execSync(`reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v WouldApp /f`, { stdio: 'ignore', windowsHide: true });
     }
+  } catch (e) {}
+}
+
+const SETTINGS_PATH = path.join(DIR, 'settings.json');
+function loadSettingsFromDisk() {
+  try {
+    if (fs.existsSync(SETTINGS_PATH)) {
+      const data = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8'));
+      Object.assign(serverSettings, data);
+    }
+  } catch (e) {}
+  try {
+    const out = execSync('reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v WouldApp', {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+      windowsHide: true
+    });
+    serverSettings.autoStart = out.includes('WouldApp');
+  } catch (e) {
+    serverSettings.autoStart = false;
+  }
+  if (serverSettings.mode) activeMode = serverSettings.mode;
+}
+
+function saveSettingsToDisk() {
+  try {
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(serverSettings, null, 2), 'utf8');
   } catch (e) {}
 }
 
@@ -822,6 +849,7 @@ function waitForPort(port = 2080, timeoutMs = 3500) {
 let isTransitioning = false;
 
 function stopSingBox(cb) {
+  isTrafficBlocked = false;
   const p = (async () => {
     if (singboxProcess) {
       addLog(`Остановка процесса sing-box (PID: ${singboxProcess.pid})...`);
@@ -888,7 +916,12 @@ function startSingBox(outbound, requestedMode, cb) {
         if (singboxProcess === proc) {
           singboxProcess = null;
           processStartTime = null;
-          disableWindowsProxy();
+          if (serverSettings.killSwitch && isReady) {
+            isTrafficBlocked = true;
+            addLog('[kill-switch] Туннель прерван! Kill Switch активирован, прямой трафик заблокирован.');
+          } else {
+            disableWindowsProxy();
+          }
         }
         if (!isReady) {
           reject(new Error(errorOutput.trim() || `sing-box завершился с кодом ${code}`));
@@ -986,7 +1019,7 @@ const server = http.createServer((req, res) => {
       mode: activeMode,
       uptimeSeconds,
       killSwitch: serverSettings.killSwitch,
-      blocked: false,
+      blocked: isTrafficBlocked,
       settings: { ...serverSettings },
       traffic: { downBytes: lastTrafficDown, upBytes: lastTrafficUp },
       logs: logsBuffer.slice(-30)
@@ -1045,6 +1078,7 @@ const server = http.createServer((req, res) => {
           }
           if ('mode' in partial) activeMode = partial.mode;
           if ('autoStart' in partial) applyAutoStart(partial.autoStart);
+          saveSettingsToDisk();
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ success: true, settings: { ...serverSettings } }));
         } catch (e) {
@@ -1241,6 +1275,7 @@ server.on('error', (err) => {
 });
 
 server.listen(PORT, '127.0.0.1', () => {
+  loadSettingsFromDisk();
   restoreProxyOnStartup();
   console.log(`WouldApp Server running at http://localhost:${PORT}/`);
   addLog(`WouldApp backend initialized with Sing-box 1.14 engine.`);
