@@ -2814,7 +2814,7 @@
           showSnackbar('Ошибка замера пинга', 'error');
         }
       } catch (e) {
-        showSnackbar('Ошибка связи с сервером при замере пинга', 'error');
+        showSnackbar(e.message === 'unauthorized' ? 'Сессия истекла — обновите страницу' : (e.message || 'Ошибка связи с сервером при замере пинга'), 'error');
       }
     }
 
@@ -2900,7 +2900,7 @@
           showSnackbar(res.error || 'Ошибка распознавания ключей', 'error');
         }
       } catch (err) {
-        showSnackbar('Ошибка связи с сервером', 'error');
+        showSnackbar(err.message === 'unauthorized' ? 'Сессия истекла — обновите страницу' : (err.message || 'Ошибка связи с сервером'), 'error');
       }
     }
 

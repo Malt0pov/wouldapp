@@ -2,12 +2,15 @@
 title WouldApp VPN
 cd /d "%~dp0"
 
-:: 1. Find Node.js (bundled in bin\node.exe or system PATH)
-set "NODE_BIN=bin\node.exe"
-if not exist "%NODE_BIN%" set "NODE_BIN=node.exe"
+:: 1. Find Node.js (prefer system node, fallback to bundled bin\node.exe)
+set "NODE_BIN=node"
+where node >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    if exist "bin\node.exe" set "NODE_BIN=bin\node.exe"
+)
 
 :: 2. Start server in background
-start "" /b "%NODE_BIN%" server.js
+start "" /b %NODE_BIN% server.js
 timeout /t 1 /nobreak >nul
 
 :: 3. Launch isolated chromeless application window

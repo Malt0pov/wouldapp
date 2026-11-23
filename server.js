@@ -942,7 +942,7 @@ const server = http.createServer((req, res) => {
 
   // 1. Host header validation (DNS-rebinding protection)
   const host = (req.headers['host'] || '').toLowerCase();
-  const allowedHosts = [`127.0.0.1:${PORT}`, `localhost:${PORT}`];
+  const allowedHosts = [`127.0.0.1:${PORT}`, `localhost:${PORT}`, `127.0.0.1`, `localhost`, `[::1]:${PORT}`];
   if (host && !allowedHosts.includes(host)) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
     return res.end('403 Forbidden: Invalid Host');
@@ -951,7 +951,7 @@ const server = http.createServer((req, res) => {
   // 2. Origin validation (CSRF protection)
   const origin = req.headers['origin'];
   if (origin) {
-    const allowedOrigins = [`http://127.0.0.1:${PORT}`, `http://localhost:${PORT}`];
+    const allowedOrigins = [`http://127.0.0.1:${PORT}`, `http://localhost:${PORT}`, `http://[::1]:${PORT}`];
     if (!allowedOrigins.includes(origin)) {
       res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('403 Forbidden: Invalid Origin');
