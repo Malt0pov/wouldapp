@@ -168,6 +168,48 @@
       padding: 0 18px;
       z-index: 10;
       flex-shrink: 0;
+      -webkit-app-region: drag;
+    }
+
+    .app-titlebar button,
+    .app-titlebar a,
+    .geo-status-pill,
+    .window-controls {
+      -webkit-app-region: no-drag;
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+      padding-left: 10px;
+      border-left: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .btn-win-ctrl {
+      width: 30px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      color: var(--md-sys-color-on-surface-variant);
+      border-radius: var(--md-sys-shape-corner-xs);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      -webkit-app-region: no-drag;
+    }
+
+    .btn-win-ctrl:hover {
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .btn-win-ctrl.btn-win-close:hover {
+      background: #e81123;
+      color: #ffffff;
     }
 
     .titlebar-brand {
@@ -1477,6 +1519,14 @@
         <span class="material-symbols-outlined" style="font-size: 15px;">refresh</span>
         Обновить IP
       </button>
+      <div class="window-controls">
+        <button class="btn-win-ctrl" id="btn-win-min" title="Свернуть">
+          <span class="material-symbols-outlined" style="font-size: 16px;">remove</span>
+        </button>
+        <button class="btn-win-ctrl btn-win-close" id="btn-win-close" title="Закрыть">
+          <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -2056,10 +2106,33 @@
 
   <script>
     // ==============================================================
-    // API Client with Session Token Authentication (API_CONTRACT §7)
+    // API Client: Electron IPC Bridge & Web Fetch Fallback (API_CONTRACT §7)
     // ==============================================================
     const WA_TOKEN = document.querySelector('meta[name="wouldapp-token"]')?.content || '';
     async function apiFetch(path, opts = {}) {
+      if (window.electronAPI) {
+        const method = (opts.method || 'GET').toUpperCase();
+        const body = opts.body ? (typeof opts.body === 'string' ? JSON.parse(opts.body) : opts.body) : {};
+        let data;
+        if (path === '/api/status') data = await window.electronAPI.getStatus();
+        else if (path === '/api/connect') data = await window.electronAPI.connect(body);
+        else if (path === '/api/disconnect') data = await window.electronAPI.disconnect();
+        else if (path === '/api/parse') data = await window.electronAPI.parse(body);
+        else if (path === '/api/ping') data = await window.electronAPI.ping(body);
+        else if (path === '/api/check-ip') data = await window.electronAPI.checkIp();
+        else if (path === '/api/settings') {
+          if (method === 'POST') data = await window.electronAPI.saveSettings(body);
+          else data = await window.electronAPI.getSettings();
+        } else {
+          throw new Error('Unknown API endpoint: ' + path);
+        }
+        return {
+          ok: data && data.success !== false,
+          status: data && data.status ? data.status : (data && data.success === false ? 400 : 200),
+          json: async () => data,
+          text: async () => JSON.stringify(data)
+        };
+      }
       const isPost = (opts.method && opts.method.toUpperCase() === 'POST');
       const headers = Object.assign(
         { 'X-WouldApp-Token': WA_TOKEN },
@@ -3346,7 +3419,8 @@
 
     // Init
     window.addEventListener('DOMContentLoaded', async () => {
-      if (window.location.protocol === 'file:') {
+      // Bypass file: warning when running inside Electron
+      if (!window.electronAPI && window.location.protocol === 'file:') {
         showSnackbar('Ошибка: страница открыта как файл! Запустите «Запустить WouldApp.bat» или откройте http://localhost:3005', 'error');
         const h = document.getElementById('conn-headline');
         if (h) h.textContent = 'Сервер не запущен';
@@ -3354,6 +3428,21 @@
         if (c) c.textContent = 'Запустите WouldApp через батник или перейдите на http://localhost:3005';
         return;
       }
+
+      // Wire window control buttons in titlebar
+      const btnMin = document.getElementById('btn-win-min');
+      const btnClose = document.getElementById('btn-win-close');
+      if (btnMin) {
+        btnMin.addEventListener('click', () => {
+          if (window.electronAPI) window.electronAPI.minimizeWindow();
+        });
+      }
+      if (btnClose) {
+        btnClose.addEventListener('click', () => {
+          if (window.electronAPI) window.electronAPI.closeWindow();
+        });
+      }
+
       loadServersFromStorage();
       loadSettingsFromStorage();
       await loadSettingsFromServer();

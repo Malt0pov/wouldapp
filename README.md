@@ -6,7 +6,7 @@
 [![Core: Sing-box 1.14.4](https://img.shields.io/badge/Core-Sing--box%201.14.4-10b981.svg)](https://github.com/SagerNet/sing-box)
 [![Platform: Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078d4.svg)](https://www.microsoft.com/windows)
 
-**WouldApp** — локальный VPN-клиент для Windows на ядре **sing-box 1.14.4** с интерфейсом в стиле **Material Design 3**. Бэкенд на Node.js слушает только `127.0.0.1:3005`, управляет sing-box, системным прокси Windows и реестром. Интерфейс открывается как отдельное окно Edge/Chrome (`--app`) или в WebView2-обёртке `WouldApp.exe`.
+**WouldApp** — нативное десктопное VPN-приложение для Windows на ядре **sing-box 1.14.4** с интерфейсом в стиле **Material Design 3**. Работает как самостоятельное настольное приложение (Electron / нативная шина IPC) с системным треем, нативным окном без адресной строки и браузерных элементов, управляя sing-box, системным прокси Windows и реестром. Дополнительно сохранён автономный режим работы.
 
 Репозиторий: [github.com/Malt0pov/wouldapp](https://github.com/Malt0pov/wouldapp). Лицензия — MIT.
 
