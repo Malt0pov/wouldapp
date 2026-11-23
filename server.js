@@ -907,7 +907,16 @@ function startSingBox(outbound, requestedMode, cb) {
     lastTrafficUp = 0;
 
     const configObj = buildSingBoxConfig(outbound, tryTun);
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(configObj, null, 2), 'utf8');
+    const configJson = JSON.stringify(configObj, null, 2);
+    fs.mkdirSync(BIN_DIR, { recursive: true });
+    const fd = fs.openSync(CONFIG_PATH, 'w');
+    fs.writeSync(fd, configJson, 0, 'utf8');
+    fs.fsyncSync(fd);
+    fs.closeSync(fd);
+
+    if (!fs.existsSync(CONFIG_PATH) || fs.statSync(CONFIG_PATH).size === 0) {
+      throw new Error(`Не удалось сохранить конфигурацию: ${CONFIG_PATH}`);
+    }
 
     addLog(`Запуск sing-box (режим: ${tryTun ? 'TUN (Wintun)' : 'Системный прокси'})...`);
 
@@ -945,7 +954,8 @@ function startSingBox(outbound, requestedMode, cb) {
           }
         }
         if (!isReady) {
-          reject(new Error(errorOutput.trim() || `sing-box завершился с кодом ${code}`));
+          const cleanError = errorOutput.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').trim();
+          reject(new Error(cleanError || `sing-box завершился с кодом ${code}`));
         }
       });
 

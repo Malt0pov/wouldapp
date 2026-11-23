@@ -710,9 +710,8 @@ function stopSingBox(cb) {
     }
     killOrphanSingbox();
     await new Promise(r => disableWindowsProxy(r));
-    try {
-      if (fs.existsSync(CONFIG_PATH)) fs.unlinkSync(CONFIG_PATH);
-    } catch (e) {}
+    // NOTE: We deliberately do NOT unlink active-config.json here to prevent
+    // Windows NTFS DELETE_PENDING file locks and race conditions on reconnection.
     addLog('Соединение разорвано. Системный прокси сброшен.');
   })();
   p.then(() => cb && cb()).catch(() => cb && cb());
@@ -740,7 +739,18 @@ function startSingBox(outbound, requestedMode, cb) {
       }
 
       const config = buildSingBoxConfig(outbound, requestedMode, serverSettings.dns);
-      fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
+      const configJson = JSON.stringify(config, null, 2);
+
+      // Atomic disk flush: write, fsync to guarantee NTFS directory commit, and close handle
+      fs.mkdirSync(BIN_DIR, { recursive: true });
+      const fd = fs.openSync(CONFIG_PATH, 'w');
+      fs.writeSync(fd, configJson, 0, 'utf8');
+      fs.fsyncSync(fd);
+      fs.closeSync(fd);
+
+      if (!fs.existsSync(CONFIG_PATH) || fs.statSync(CONFIG_PATH).size === 0) {
+        throw new Error(`Не удалось сохранить конфигурацию: ${CONFIG_PATH}`);
+      }
 
       addLog(`Запуск sing-box (режим: ${tryTun ? 'TUN (Wintun)' : 'Системный прокси'})...`);
 
@@ -777,7 +787,9 @@ function startSingBox(outbound, requestedMode, cb) {
           }
         }
         if (!isReady) {
-          reject(new Error(errorOutput.trim() || `sing-box завершился с кодом ${code}`));
+          // Strip ANSI escape codes (\x1b[31m etc) so UI snackbar shows clean readable text
+          const cleanError = errorOutput.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').trim();
+          reject(new Error(cleanError || `sing-box завершился с кодом ${code}`));
         }
       });
 
