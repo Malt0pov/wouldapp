@@ -2068,12 +2068,19 @@
         (isPost || opts.body) ? { 'Content-Type': 'application/json' } : {},
         opts.headers || {}
       );
-      const r = await fetch(path, { ...opts, headers });
-      if (r.status === 401) {
-        showSnackbar('Сессия истекла — перезапустите WouldApp', 'error');
-        throw new Error('unauthorized');
+      try {
+        const r = await fetch(path, { ...opts, headers });
+        if (r.status === 401) {
+          showSnackbar('Сессия истекла — перезапустите WouldApp', 'error');
+          throw new Error('unauthorized');
+        }
+        return r;
+      } catch (err) {
+        if (err.name === 'TypeError' || (err.message && err.message.toLowerCase().includes('fetch'))) {
+          showSnackbar('Сервер WouldApp не запущен. Запустите «Запустить WouldApp.bat»', 'error');
+        }
+        throw err;
       }
-      return r;
     }
 
     // ==============================================================
@@ -3300,6 +3307,14 @@
 
     // Init
     window.addEventListener('DOMContentLoaded', async () => {
+      if (window.location.protocol === 'file:') {
+        showSnackbar('Ошибка: страница открыта как файл! Запустите «Запустить WouldApp.bat» или откройте http://localhost:3005', 'error');
+        const h = document.getElementById('conn-headline');
+        if (h) h.textContent = 'Сервер не запущен';
+        const c = document.getElementById('conn-caption');
+        if (c) c.textContent = 'Запустите WouldApp через батник или перейдите на http://localhost:3005';
+        return;
+      }
       loadServersFromStorage();
       loadSettingsFromStorage();
       await loadSettingsFromServer();

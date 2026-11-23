@@ -9,9 +9,9 @@ if %ERRORLEVEL% neq 0 (
     if exist "bin\node.exe" set "NODE_BIN=bin\node.exe"
 )
 
-:: 2. Start server in background
-start "" /b %NODE_BIN% server.js
-timeout /t 1 /nobreak >nul
+:: 2. Start server in minimized window (independent process that stays alive after bat exits)
+start "WouldApp Server" /min %NODE_BIN% server.js
+timeout /t 2 /nobreak >nul
 
 :: 3. Launch isolated chromeless application window
 set "PROFILE=%LOCALAPPDATA%\WouldApp\Profile"
