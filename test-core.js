@@ -38,14 +38,13 @@ try {
     }
   };
 
-  const selectedDns = { server: 'dns.google', server_port: 443 };
   const cfg = {
     log: { level: 'info', timestamp: true },
     experimental: { clash_api: { external_controller: '127.0.0.1:9090', external_ui: '' } },
     dns: {
       servers: [
-        { tag: 'remote-dns', type: 'https', server: selectedDns.server, server_port: selectedDns.server_port, domain_resolver: 'default-dns' },
-        { tag: 'default-dns', type: 'udp', server: '8.8.8.8' }
+        { tag: 'dns-remote', type: 'udp', server: '8.8.8.8' },
+        { tag: 'dns-direct', type: 'udp', server: '77.88.8.8' }
       ]
     },
     inbounds: [
@@ -62,8 +61,13 @@ try {
     ],
     outbounds: [{ ...sampleOutbound, tag: 'proxy' }, { type: 'direct', tag: 'direct' }, { type: 'block', tag: 'block' }],
     route: {
-      default_domain_resolver: 'default-dns',
-      rules: [{ protocol: 'dns', outbound: 'direct' }, { ip_is_private: true, outbound: 'direct' }],
+      default_domain_resolver: 'dns-direct',
+      rules: [
+        { protocol: 'dns', outbound: 'direct' },
+        { ip_is_private: true, outbound: 'direct' },
+        { outbound: 'proxy' }
+      ],
+      final: 'proxy',
       auto_detect_interface: true
     }
   };

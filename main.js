@@ -680,9 +680,9 @@ function buildSingBoxConfig(outbound, requestedMode = 'proxy', dnsChoice = 'goog
   const isTun = requestedMode === 'tun';
 
   const dnsServers = {
-    google: { server: 'dns.google', server_port: 443 },
-    cloudflare: { server: '1.1.1.1', server_port: 443 },
-    adguard: { server: 'dns.adguard-dns.com', server_port: 443 }
+    google: { server: '8.8.8.8', type: 'udp' },
+    cloudflare: { server: '1.1.1.1', type: 'udp' },
+    adguard: { server: '94.140.14.14', type: 'udp' }
   };
   const selectedDns = dnsServers[dnsChoice] || dnsServers.google;
 
@@ -724,24 +724,21 @@ function buildSingBoxConfig(outbound, requestedMode = 'proxy', dnsChoice = 'goog
     dns: {
       servers: [
         {
-          tag: 'remote-dns',
-          type: 'https',
-          server: selectedDns.server,
-          server_port: selectedDns.server_port,
-          detour: 'proxy',
-          domain_resolver: 'default-dns'
+          tag: 'dns-remote',
+          type: 'udp',
+          server: selectedDns.server
         },
         {
-          tag: 'default-dns',
+          tag: 'dns-direct',
           type: 'udp',
-          server: '8.8.8.8'
+          server: '77.88.8.8'
         }
       ]
     },
     inbounds,
     outbounds,
     route: {
-      default_domain_resolver: 'default-dns',
+      default_domain_resolver: 'dns-direct',
       rules: [
         { protocol: 'dns', outbound: 'direct' },
         { ip_is_private: true, outbound: 'direct' },
