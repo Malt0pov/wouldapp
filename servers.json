@@ -1,0 +1,234 @@
+[
+  {
+    "id": "srv_kz_gemini",
+    "name": "kz Казахстан (Gemini 👽)",
+    "flag": "🇰🇿",
+    "ip": "kazakx.kovsh.lol:443",
+    "proto": "VLESS Reality",
+    "ping": 187,
+    "outbound": {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "kazakx.kovsh.lol",
+      "server_port": 443,
+      "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "kazakx.kovsh.lol",
+        "reality": {
+          "enabled": true,
+          "public_key": "njJz2jZvKDypdUAfsndSAPBJnrt4JIRSzZJarhVyAA8",
+          "short_id": "e38d188d9e3ba043"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "firefox"
+        }
+      }
+    }
+  },
+  {
+    "id": "srv_us_2",
+    "name": "us США #2",
+    "flag": "🇺🇸",
+    "ip": "hoonez.rooferz.surf:443",
+    "proto": "VLESS Reality",
+    "ping": 264,
+    "outbound": {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "hoonez.rooferz.surf",
+      "server_port": 443,
+      "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "hoonez.rooferz.surf",
+        "reality": {
+          "enabled": true,
+          "public_key": "njJz2jZvKDypdUAfsndSAPBJnrt4JIRSzZJarhVyAA8",
+          "short_id": "e38d188d9e3ba043"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "firefox"
+        }
+      }
+    }
+  },
+  {
+    "id": "srv_us_1",
+    "name": "us США #1",
+    "flag": "🇺🇸",
+    "ip": "kriss.harcho.shop:443",
+    "proto": "VLESS Reality",
+    "ping": 264,
+    "outbound": {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "kriss.harcho.shop",
+      "server_port": 443,
+      "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "kriss.harcho.shop",
+        "reality": {
+          "enabled": true,
+          "public_key": "njJz2jZvKDypdUAfsndSAPBJnrt4JIRSzZJarhVyAA8",
+          "short_id": "e38d188d9e3ba043"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "firefox"
+        }
+      }
+    }
+  },
+  {
+    "id": "srv_in_india",
+    "name": "in Индия",
+    "flag": "🇮🇳",
+    "ip": "tina4life.harcho.shop:443",
+    "proto": "VLESS Reality",
+    "ping": 322,
+    "outbound": {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "tina4life.harcho.shop",
+      "server_port": 443,
+      "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "tina4life.harcho.shop",
+        "reality": {
+          "enabled": true,
+          "public_key": "njJz2jZvKDypdUAfsndSAPBJnrt4JIRSzZJarhVyAA8",
+          "short_id": "e38d188d9e3ba043"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "firefox"
+        }
+      }
+    }
+  },
+  {
+    "id": "srv_th_thailand",
+    "name": "th Таиланд",
+    "flag": "🇹🇭",
+    "ip": "tatatai.roxx.cxaw.beer:443",
+    "proto": "VLESS Reality",
+    "ping": 386,
+    "outbound": {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "tatatai.roxx.cxaw.beer",
+      "server_port": 443,
+      "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "tatatai.roxx.cxaw.beer",
+        "reality": {
+          "enabled": true,
+          "public_key": "njJz2jZvKDypdUAfsndSAPBJnrt4JIRSzZJarhVyAA8",
+          "short_id": "e38d188d9e3ba043"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "firefox"
+        }
+      }
+    }
+  },
+  {
+    "id": "srv_sg_singapore",
+    "name": "sg Сингапур",
+    "flag": "🇸🇬",
+    "ip": "lubluknstinu24na7.harcho.shop:443",
+    "proto": "VLESS Reality",
+    "ping": 442,
+    "outbound": {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "lubluknstinu24na7.harcho.shop",
+      "server_port": 443,
+      "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "lubluknstinu24na7.harcho.shop",
+        "reality": {
+          "enabled": true,
+          "public_key": "njJz2jZvKDypdUAfsndSAPBJnrt4JIRSzZJarhVyAA8",
+          "short_id": "e38d188d9e3ba043"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "firefox"
+        }
+      }
+    }
+  },
+  {
+    "id": "srv_jp_japan",
+    "name": "jp Япония",
+    "flag": "🇯🇵",
+    "ip": "jiopa.harcho.shop:443",
+    "proto": "VLESS Reality",
+    "ping": 1516,
+    "outbound": {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "jiopa.harcho.shop",
+      "server_port": 443,
+      "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "jiopa.harcho.shop",
+        "reality": {
+          "enabled": true,
+          "public_key": "njJz2jZvKDypdUAfsndSAPBJnrt4JIRSzZJarhVyAA8",
+          "short_id": "e38d188d9e3ba043"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "firefox"
+        }
+      }
+    }
+  },
+  {
+    "id": "srv_es_spain",
+    "name": "es Испания",
+    "flag": "🇪🇸",
+    "ip": "1ersg.rottshieldsons.pics:443",
+    "proto": "VLESS Reality",
+    "ping": null,
+    "outbound": {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "1ersg.rottshieldsons.pics",
+      "server_port": 443,
+      "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "1ersg.rottshieldsons.pics",
+        "reality": {
+          "enabled": true,
+          "public_key": "njJz2jZvKDypdUAfsndSAPBJnrt4JIRSzZJarhVyAA8",
+          "short_id": "e38d188d9e3ba043"
+        },
+        "utls": {
+          "enabled": true,
+          "fingerprint": "firefox"
+        }
+      }
+    }
+  }
+]

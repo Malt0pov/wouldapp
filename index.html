@@ -2302,27 +2302,54 @@
         localStorage.setItem('wouldapp_servers', JSON.stringify(appState.servers));
         localStorage.setItem('wouldapp_selected_id', appState.selectedId);
       } catch (e) {}
+      if (window.electronAPI && window.electronAPI.saveServers) {
+        window.electronAPI.saveServers({ servers: appState.servers, selectedId: appState.selectedId }).catch(() => {});
+      }
     }
 
-    function loadServersFromStorage() {
-      try {
-        const saved = localStorage.getItem('wouldapp_servers');
-        if (saved !== null) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            // Accept saved array even if empty (§8.4 fix #9)
-            appState.servers = parsed;
+    async function loadServersFromStorage() {
+      let loadedFromDisk = false;
+      if (window.electronAPI && window.electronAPI.getServers) {
+        try {
+          const res = await window.electronAPI.getServers();
+          if (res && res.success && Array.isArray(res.servers) && res.servers.length > 0) {
+            appState.servers = res.servers;
+            if (res.selectedId && appState.servers.some(s => s.id === res.selectedId)) {
+              appState.selectedId = res.selectedId;
+            } else if (appState.servers.length > 0) {
+              appState.selectedId = appState.servers[0].id;
+            } else {
+              appState.selectedId = null;
+            }
+            loadedFromDisk = true;
           }
-        }
-        const savedId = localStorage.getItem('wouldapp_selected_id');
-        if (savedId && appState.servers.some(s => s.id === savedId)) {
-          appState.selectedId = savedId;
-        } else if (appState.servers.length > 0) {
-          appState.selectedId = appState.servers[0].id;
-        } else {
-          appState.selectedId = null;
-        }
+        } catch (e) {}
+      }
+      if (!loadedFromDisk) {
+        try {
+          const saved = localStorage.getItem('wouldapp_servers');
+          if (saved !== null) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+              appState.servers = parsed;
+            }
+          }
+          const savedId = localStorage.getItem('wouldapp_selected_id');
+          if (savedId && appState.servers.some(s => s.id === savedId)) {
+            appState.selectedId = savedId;
+          } else if (appState.servers.length > 0) {
+            appState.selectedId = appState.servers[0].id;
+          } else {
+            appState.selectedId = null;
+          }
+        } catch (e) {}
+      }
+      try {
+        localStorage.setItem('wouldapp_servers', JSON.stringify(appState.servers));
+        if (appState.selectedId) localStorage.setItem('wouldapp_selected_id', appState.selectedId);
       } catch (e) {}
+      renderServerList();
+      if (appState.activeTab === 'servers') renderFullServers();
     }
 
     // Smart Flag Detection
@@ -3443,7 +3470,7 @@
         });
       }
 
-      loadServersFromStorage();
+      await loadServersFromStorage();
       loadSettingsFromStorage();
       await loadSettingsFromServer();
       renderServerList();

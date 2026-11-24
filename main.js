@@ -139,6 +139,44 @@ function applyAutoStart(enabled) {
 }
 
 const SETTINGS_PATH = path.join(DIR, 'settings.json');
+const SERVERS_PATH = path.join(DIR, 'servers.json');
+const PROGRAM_DATA_SERVERS_PATH = path.join(process.env.ProgramData || 'C:\\ProgramData', 'WouldApp', 'servers.json');
+
+function loadServersFromDisk() {
+  try {
+    let raw = null;
+    if (fs.existsSync(SERVERS_PATH)) {
+      raw = fs.readFileSync(SERVERS_PATH, 'utf8');
+    } else if (fs.existsSync(PROGRAM_DATA_SERVERS_PATH)) {
+      raw = fs.readFileSync(PROGRAM_DATA_SERVERS_PATH, 'utf8');
+    }
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return { servers: parsed, selectedId: parsed.length > 0 ? parsed[0].id : null };
+      } else if (parsed && Array.isArray(parsed.servers)) {
+        return { servers: parsed.servers, selectedId: parsed.selectedId || (parsed.servers.length > 0 ? parsed.servers[0].id : null) };
+      }
+    }
+  } catch (e) {}
+  return { servers: [], selectedId: null };
+}
+
+function saveServersToDisk(servers, selectedId) {
+  try {
+    const data = { servers: servers || [], selectedId: selectedId || null };
+    const payload = JSON.stringify(data, null, 2);
+    fs.writeFileSync(SERVERS_PATH, payload, 'utf8');
+    try {
+      const pdir = path.dirname(PROGRAM_DATA_SERVERS_PATH);
+      if (!fs.existsSync(pdir)) fs.mkdirSync(pdir, { recursive: true });
+      fs.writeFileSync(PROGRAM_DATA_SERVERS_PATH, payload, 'utf8');
+    } catch (e) {}
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 function loadSettingsFromDisk() {
   try {
     if (fs.existsSync(SETTINGS_PATH)) {
@@ -247,11 +285,13 @@ function enableWindowsProxy(port = 2080, cb) {
   const helper = path.join(BIN_DIR, 'proxy_helper.exe');
   if (fs.existsSync(helper)) {
     exec(`"${helper}" enable ${port}`, { windowsHide: true }, (err) => {
-      addLog(`Системный прокси Windows переключен на 127.0.0.1:${port} через helper.`);
-      cb && cb();
+      exec(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "localhost;127.0.0.1;<local>;<-loopback>" /f`, { windowsHide: true }, () => {
+        addLog(`Системный прокси Windows переключен на 127.0.0.1:${port} через helper.`);
+        cb && cb();
+      });
     });
   } else {
-    exec(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f && reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d "127.0.0.1:${port}" /f`, { windowsHide: true }, () => {
+    exec(`reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f && reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /t REG_SZ /d "127.0.0.1:${port}" /f && reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "localhost;127.0.0.1;<local>;<-loopback>" /f`, { windowsHide: true }, () => {
       addLog(`Системный прокси Windows включен на 127.0.0.1:${port}.`);
       cb && cb();
     });
@@ -688,6 +728,7 @@ function buildSingBoxConfig(outbound, requestedMode = 'proxy', dnsChoice = 'goog
           type: 'https',
           server: selectedDns.server,
           server_port: selectedDns.server_port,
+          detour: 'proxy',
           domain_resolver: 'default-dns'
         },
         {
@@ -703,8 +744,10 @@ function buildSingBoxConfig(outbound, requestedMode = 'proxy', dnsChoice = 'goog
       default_domain_resolver: 'default-dns',
       rules: [
         { protocol: 'dns', outbound: 'direct' },
-        { ip_is_private: true, outbound: 'direct' }
+        { ip_is_private: true, outbound: 'direct' },
+        { outbound: 'proxy' }
       ],
+      final: 'proxy',
       auto_detect_interface: true
     }
   };
@@ -1101,6 +1144,15 @@ function setupIpcHandlers() {
     } catch (e) {
       return { success: false, error: e.message };
     }
+  });
+
+  ipcMain.handle('get-servers', async () => {
+    return { success: true, ...loadServersFromDisk() };
+  });
+
+  ipcMain.handle('save-servers', async (event, payload) => {
+    const ok = saveServersToDisk(payload?.servers, payload?.selectedId);
+    return { success: ok };
   });
 
   ipcMain.handle('window-minimize', () => {

@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkIp: () => ipcRenderer.invoke('check-ip'),
   getSettings: () => ipcRenderer.invoke('get-settings'),
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
+  getServers: () => ipcRenderer.invoke('get-servers'),
+  saveServers: (payload) => ipcRenderer.invoke('save-servers', payload),
   minimizeWindow: () => ipcRenderer.invoke('window-minimize'),
   closeWindow: () => ipcRenderer.invoke('window-close')
 });
