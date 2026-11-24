@@ -1,10 +1,268 @@
 {
   "servers": [
     {
+      "id": "user-1795536470390-19",
+      "name": "🇸🇪 Швеция (БЫСТРЫЙ)⚡️",
+      "flag": "🇸🇪",
+      "ping": 513,
+      "proto": "VLESS Reality",
+      "ip": "sweringa.rottshieldsons.pics",
+      "outbound": {
+        "type": "vless",
+        "tag": "proxy",
+        "server": "sweringa.rottshieldsons.pics",
+        "server_port": 443,
+        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "flow": "xtls-rprx-vision",
+        "tls": {
+          "enabled": true,
+          "server_name": "sweringa.rottshieldsons.pics",
+          "reality": {
+            "enabled": true,
+            "public_key": "x6p656szvu_3CKLsJ4NtkooRvdTVGx7IoPca_p58_jA",
+            "short_id": "fb442438e2223836"
+          },
+          "utls": {
+            "enabled": true,
+            "fingerprint": "firefox"
+          }
+        }
+      },
+      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@sweringa.rottshieldsons.pics:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=sweringa.rottshieldsons.pics&fp=firefox&pbk=x6p656szvu_3CKLsJ4NtkooRvdTVGx7IoPca_p58_jA&sid=fb442438e2223836#%F0%9F%87%B8%F0%9F%87%AA%20%D0%A8%D0%B2%D0%B5%D1%86%D0%B8%D1%8F%20(%D0%91%D0%AB%D0%A1%D0%A2%D0%A0%D0%AB%D0%99)%E2%9A%A1%EF%B8%8F",
+      "realIp": "5.157.10.146"
+    },
+    {
+      "id": "user-1795536470390-3",
+      "name": " 🇪🇺🛜 Обход глушилок (LTE) #3",
+      "flag": "🌐",
+      "ping": 745,
+      "proto": "VLESS TLS",
+      "ip": "gas.rtkdvbr.cc",
+      "outbound": {
+        "type": "vless",
+        "tag": "proxy",
+        "server": "gas.rtkdvbr.cc",
+        "server_port": 443,
+        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "tls": {
+          "enabled": true,
+          "server_name": "gas.rtkdvbr.cc",
+          "utls": {
+            "enabled": true,
+            "fingerprint": "edge"
+          }
+        },
+        "transport": {
+          "type": "ws",
+          "path": "/amsws",
+          "headers": {
+            "Host": "gas.rtkdvbr.cc"
+          }
+        }
+      },
+      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@gas.rtkdvbr.cc:443?encryption=none&type=ws&path=%2Famsws&host=gas.rtkdvbr.cc&security=tls&sni=gas.rtkdvbr.cc&fp=edge&alpn=http%2F1.1#%20%F0%9F%87%AA%F0%9F%87%BA%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%233",
+      "realIp": "37.49.229.106"
+    },
+    {
+      "id": "user-1795536470390-10",
+      "name": "🇩🇪🛜 Обход глушилок (LTE) #10",
+      "flag": "🌐",
+      "ping": 870,
+      "proto": "VLESS TLS",
+      "ip": "solsps.rottshieldsons.pics",
+      "outbound": {
+        "type": "vless",
+        "tag": "proxy",
+        "server": "solsps.rottshieldsons.pics",
+        "server_port": 443,
+        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "tls": {
+          "enabled": true,
+          "server_name": "solsps.rottshieldsons.pics",
+          "utls": {
+            "enabled": true,
+            "fingerprint": "firefox"
+          }
+        },
+        "transport": {
+          "type": "ws",
+          "path": "/mwsgate",
+          "headers": {
+            "Host": "solsps.rottshieldsons.pics"
+          }
+        }
+      },
+      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@solsps.rottshieldsons.pics:443?encryption=none&type=ws&path=%2Fmwsgate&host=solsps.rottshieldsons.pics&security=tls&sni=solsps.rottshieldsons.pics&fp=firefox#%F0%9F%87%A9%F0%9F%87%AA%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%2310",
+      "realIp": "50.7.89.130"
+    },
+    {
+      "id": "user-1795536470390-4",
+      "name": "🇳🇱🛜 Обход глушилок (LTE) #4",
+      "flag": "🌐",
+      "ping": 870,
+      "proto": "HYSTERIA2 TLS",
+      "ip": "194.55.239.166",
+      "outbound": {
+        "type": "hysteria2",
+        "tag": "proxy",
+        "server": "194.55.239.166",
+        "server_port": 443,
+        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "tls": {
+          "enabled": true,
+          "server_name": "gazzz.rottshieldsons.pics",
+          "insecure": false
+        },
+        "obfs": {
+          "type": "salamander",
+          "password": "rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw"
+        }
+      },
+      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@194.55.239.166:443/?obfs=salamander&obfs-password=rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw&sni=gazzz.rottshieldsons.pics&fm=%7B%22udp%22%3A%5B%7B%22type%22%3A%22salamander%22%2C%22settings%22%3A%7B%22password%22%3A%22rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw%22%7D%7D%5D%2C%22quicParams%22%3A%7B%22disablePathMTUDiscovery%22%3Atrue%7D%7D#%F0%9F%87%B3%F0%9F%87%B1%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%234",
+      "realIp": "50.7.38.228"
+    },
+    {
+      "id": "user-1795536470390-29",
+      "name": "🇱🇹 Литва #2 🎮 Hysteria2",
+      "flag": "🌐",
+      "ping": 887,
+      "proto": "HYSTERIA2 TLS",
+      "ip": "litual3.harcho.shop",
+      "outbound": {
+        "type": "hysteria2",
+        "tag": "proxy",
+        "server": "litual3.harcho.shop",
+        "server_port": 443,
+        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "tls": {
+          "enabled": true,
+          "server_name": "litual3.harcho.shop",
+          "insecure": false
+        }
+      },
+      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@litual3.harcho.shop:443/?sni=litual3.harcho.shop&fm=%7B%22quicParams%22%3A%7B%22debug%22%3Afalse%2C%22congestion%22%3A%22bbr%22%7D%7D#%F0%9F%87%B1%F0%9F%87%B9%20%D0%9B%D0%B8%D1%82%D0%B2%D0%B0%20%232%20%F0%9F%8E%AE%20Hysteria2",
+      "realIp": "88.119.176.50"
+    },
+    {
+      "id": "user-1795536470390-7",
+      "name": "🇳🇱🛜 Обход глушилок (LTE) #7",
+      "flag": "🌐",
+      "ping": 888,
+      "proto": "VLESS TLS",
+      "ip": "ebsmogg.rekonkista.icu",
+      "outbound": {
+        "type": "vless",
+        "tag": "proxy",
+        "server": "ebsmogg.rekonkista.icu",
+        "server_port": 443,
+        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "tls": {
+          "enabled": true,
+          "server_name": "ebsmogg.rekonkista.icu",
+          "utls": {
+            "enabled": true,
+            "fingerprint": "firefox"
+          }
+        },
+        "transport": {
+          "type": "ws",
+          "path": "/mjgate",
+          "headers": {
+            "Host": "ebsmogg.rekonkista.icu"
+          }
+        }
+      },
+      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@ebsmogg.rekonkista.icu:443?encryption=none&type=ws&path=%2Fmjgate&host=ebsmogg.rekonkista.icu&security=tls&sni=ebsmogg.rekonkista.icu&fp=firefox&alpn=http%2F1.1#%F0%9F%87%B3%F0%9F%87%B1%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%237",
+      "realIp": "138.124.98.34"
+    },
+    {
+      "id": "user-1795536470390-1",
+      "name": "🇱🇹🛜 Обход глушилок (LTE) #1",
+      "flag": "🌐",
+      "ping": 911,
+      "proto": "HYSTERIA2 TLS",
+      "ip": "46.8.210.33",
+      "outbound": {
+        "type": "hysteria2",
+        "tag": "proxy",
+        "server": "46.8.210.33",
+        "server_port": 8444,
+        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "tls": {
+          "enabled": true,
+          "server_name": "litelitvalitter.rooferz.surf",
+          "insecure": false
+        },
+        "obfs": {
+          "type": "salamander",
+          "password": "hCSl41GFUpz9nTMwQr20Kyr7nwUDnXRl"
+        }
+      },
+      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@46.8.210.33:8444/?obfs=salamander&obfs-password=hCSl41GFUpz9nTMwQr20Kyr7nwUDnXRl&sni=litelitvalitter.rooferz.surf&fm=%7B%22udp%22%3A%5B%7B%22type%22%3A%22salamander%22%2C%22settings%22%3A%7B%22password%22%3A%22hCSl41GFUpz9nTMwQr20Kyr7nwUDnXRl%22%7D%7D%5D%7D#%F0%9F%87%B1%F0%9F%87%B9%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%231",
+      "realIp": "5.199.169.52"
+    },
+    {
+      "id": "user-1795536470390-12",
+      "name": "🇳🇱 Нидерланды #1.1 (❌ РФ сайты)",
+      "flag": "🇳🇱",
+      "ping": 920,
+      "proto": "VLESS Reality",
+      "ip": "z43bal.rottshieldsons.pics",
+      "outbound": {
+        "type": "vless",
+        "tag": "proxy",
+        "server": "z43bal.rottshieldsons.pics",
+        "server_port": 443,
+        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "flow": "xtls-rprx-vision",
+        "tls": {
+          "enabled": true,
+          "server_name": "z43bal.rottshieldsons.pics",
+          "reality": {
+            "enabled": true,
+            "public_key": "-ADm-o6yFYNcLgLQgHguNWDWrH9xcRwQyqLMoVuajgo",
+            "short_id": "8944e69f4aadde1e"
+          },
+          "utls": {
+            "enabled": true,
+            "fingerprint": "firefox"
+          }
+        }
+      },
+      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@z43bal.rottshieldsons.pics:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=z43bal.rottshieldsons.pics&fp=firefox&pbk=-ADm-o6yFYNcLgLQgHguNWDWrH9xcRwQyqLMoVuajgo&sid=8944e69f4aadde1e&spx=%2F#%F0%9F%87%B3%F0%9F%87%B1%20%D0%9D%D0%B8%D0%B4%D0%B5%D1%80%D0%BB%D0%B0%D0%BD%D0%B4%D1%8B%20%231.1%20(%E2%9D%8C%20%D0%A0%D0%A4%20%D1%81%D0%B0%D0%B9%D1%82%D1%8B)",
+      "realIp": "89.105.195.34"
+    },
+    {
+      "id": "user-1795536470390-5",
+      "name": "🇩🇪🛜 Обход глушилок (LTE) #5",
+      "flag": "🌐",
+      "ping": 1477,
+      "proto": "HYSTERIA2 TLS",
+      "ip": "194.55.239.166",
+      "outbound": {
+        "type": "hysteria2",
+        "tag": "proxy",
+        "server": "194.55.239.166",
+        "server_port": 8443,
+        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "tls": {
+          "enabled": true,
+          "server_name": "gazzz.rottshieldsons.pics",
+          "insecure": false
+        },
+        "obfs": {
+          "type": "salamander",
+          "password": "rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw"
+        }
+      },
+      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@194.55.239.166:8443/?obfs=salamander&obfs-password=rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw&sni=gazzz.rottshieldsons.pics&fm=%7B%22udp%22%3A%5B%7B%22type%22%3A%22salamander%22%2C%22settings%22%3A%7B%22password%22%3A%22rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw%22%7D%7D%5D%2C%22quicParams%22%3A%7B%22congestion%22%3A%22bbr%22%2C%22keepAlivePeriod%22%3A10%2C%22disablePathMTUDiscovery%22%3Atrue%7D%7D#%F0%9F%87%A9%F0%9F%87%AA%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%235",
+      "realIp": "50.7.89.132"
+    },
+    {
       "id": "user-1795536470390-39",
       "name": "🇹🇭 Таиланд",
       "flag": "🌐",
-      "ping": null,
+      "ping": 1495,
       "proto": "VLESS Reality",
       "ip": "tatatai.nxxzxaw.beer",
       "outbound": {
@@ -28,7 +286,61 @@
           }
         }
       },
-      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@tatatai.nxxzxaw.beer:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=tatatai.nxxzxaw.beer&fp=firefox&pbk=bZpzmeWiEJyJQy0W2hHc34Nr6BuFXj1UDd80Cbwh1Fk&sid=ff776ff77be48b88&spx=%2F#%F0%9F%87%B9%F0%9F%87%AD%20%D0%A2%D0%B0%D0%B8%D0%BB%D0%B0%D0%BD%D0%B4"
+      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@tatatai.nxxzxaw.beer:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=tatatai.nxxzxaw.beer&fp=firefox&pbk=bZpzmeWiEJyJQy0W2hHc34Nr6BuFXj1UDd80Cbwh1Fk&sid=ff776ff77be48b88&spx=%2F#%F0%9F%87%B9%F0%9F%87%AD%20%D0%A2%D0%B0%D0%B8%D0%BB%D0%B0%D0%BD%D0%B4",
+      "realIp": "103.80.48.233"
+    },
+    {
+      "id": "user-1795536470390-32",
+      "name": "🇦🇱 Албания (YouTube без рекламы)",
+      "flag": "🌐",
+      "ping": 2402,
+      "proto": "VLESS Reality",
+      "ip": "mylove.khovanski.mom",
+      "outbound": {
+        "type": "vless",
+        "tag": "proxy",
+        "server": "mylove.khovanski.mom",
+        "server_port": 443,
+        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "flow": "xtls-rprx-vision",
+        "tls": {
+          "enabled": true,
+          "server_name": "mylove.khovanski.mom",
+          "reality": {
+            "enabled": true,
+            "public_key": "cn19zhvxIt-kcsvM9hL2l1soDZzSETLDdiae0YDaPBQ",
+            "short_id": "4bd1446773450886"
+          },
+          "utls": {
+            "enabled": true,
+            "fingerprint": "firefox"
+          }
+        }
+      },
+      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@mylove.khovanski.mom:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=mylove.khovanski.mom&fp=firefox&pbk=cn19zhvxIt-kcsvM9hL2l1soDZzSETLDdiae0YDaPBQ&sid=4bd1446773450886#%F0%9F%87%A6%F0%9F%87%B1%20%D0%90%D0%BB%D0%B1%D0%B0%D0%BD%D0%B8%D1%8F%20(YouTube%20%D0%B1%D0%B5%D0%B7%20%D1%80%D0%B5%D0%BA%D0%BB%D0%B0%D0%BC%D1%8B)",
+      "realIp": "85.155.228.61"
+    },
+    {
+      "id": "user-1795536470390-13",
+      "name": "🇳🇱 Нидерланды #2🎮 Hysteria2",
+      "flag": "🇳🇱",
+      "ping": 3543,
+      "proto": "HYSTERIA2 TLS",
+      "ip": "k0l0ut.khovanski.mom",
+      "outbound": {
+        "type": "hysteria2",
+        "tag": "proxy",
+        "server": "k0l0ut.khovanski.mom",
+        "server_port": 443,
+        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
+        "tls": {
+          "enabled": true,
+          "server_name": "k0l0ut.khovanski.mom",
+          "insecure": false
+        }
+      },
+      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@k0l0ut.khovanski.mom:443/?sni=k0l0ut.khovanski.mom&fm=%7B%22quicParams%22%3A%7B%22debug%22%3Afalse%2C%22congestion%22%3A%22bbr%22%7D%7D#%F0%9F%87%B3%F0%9F%87%B1%20%D0%9D%D0%B8%D0%B4%D0%B5%D1%80%D0%BB%D0%B0%D0%BD%D0%B4%D1%8B%20%232%F0%9F%8E%AE%20Hysteria2",
+      "realIp": "31.76.63.47"
     },
     {
       "id": "user-1795536470390-43",
@@ -331,36 +643,6 @@
       "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@resx.rekonkista.icu:2053?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=resx.rekonkista.icu&fp=firefox&pbk=bZpzmeWiEJyJQy0W2hHc34Nr6BuFXj1UDd80Cbwh1Fk&sid=ff776ff77be48b88&spx=%2F#%F0%9F%87%B7%F0%9F%87%BA%20%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F%20(YouTube%20%D0%B1%D0%B5%D0%B7%20%D1%80%D0%B5%D0%BA%D0%BB%D0%B0%D0%BC%D1%8B)"
     },
     {
-      "id": "user-1795536470390-32",
-      "name": "🇦🇱 Албания (YouTube без рекламы)",
-      "flag": "🌐",
-      "ping": null,
-      "proto": "VLESS Reality",
-      "ip": "mylove.khovanski.mom",
-      "outbound": {
-        "type": "vless",
-        "tag": "proxy",
-        "server": "mylove.khovanski.mom",
-        "server_port": 443,
-        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "flow": "xtls-rprx-vision",
-        "tls": {
-          "enabled": true,
-          "server_name": "mylove.khovanski.mom",
-          "reality": {
-            "enabled": true,
-            "public_key": "cn19zhvxIt-kcsvM9hL2l1soDZzSETLDdiae0YDaPBQ",
-            "short_id": "4bd1446773450886"
-          },
-          "utls": {
-            "enabled": true,
-            "fingerprint": "firefox"
-          }
-        }
-      },
-      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@mylove.khovanski.mom:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=mylove.khovanski.mom&fp=firefox&pbk=cn19zhvxIt-kcsvM9hL2l1soDZzSETLDdiae0YDaPBQ&sid=4bd1446773450886#%F0%9F%87%A6%F0%9F%87%B1%20%D0%90%D0%BB%D0%B1%D0%B0%D0%BD%D0%B8%D1%8F%20(YouTube%20%D0%B1%D0%B5%D0%B7%20%D1%80%D0%B5%D0%BA%D0%BB%D0%B0%D0%BC%D1%8B)"
-    },
-    {
       "id": "user-1795536470390-31",
       "name": "🇲🇩 Молдова ",
       "flag": "🌐",
@@ -419,27 +701,6 @@
         }
       },
       "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@canadizian.harcho.shop:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=canadizian.harcho.shop&fp=firefox&pbk=8J-SvgA_FEZG-T-dX5sV2zqnQm4-J6aT1LK6Kk-7pho&sid=b3da8e3ebc600de3&spx=%2F#%F0%9F%87%A8%F0%9F%87%A6%20%D0%9A%D0%B0%D0%BD%D0%B0%D0%B4%D0%B0"
-    },
-    {
-      "id": "user-1795536470390-29",
-      "name": "🇱🇹 Литва #2 🎮 Hysteria2",
-      "flag": "🌐",
-      "ping": null,
-      "proto": "HYSTERIA2 TLS",
-      "ip": "litual3.harcho.shop",
-      "outbound": {
-        "type": "hysteria2",
-        "tag": "proxy",
-        "server": "litual3.harcho.shop",
-        "server_port": 443,
-        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "tls": {
-          "enabled": true,
-          "server_name": "litual3.harcho.shop",
-          "insecure": false
-        }
-      },
-      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@litual3.harcho.shop:443/?sni=litual3.harcho.shop&fm=%7B%22quicParams%22%3A%7B%22debug%22%3Afalse%2C%22congestion%22%3A%22bbr%22%7D%7D#%F0%9F%87%B1%F0%9F%87%B9%20%D0%9B%D0%B8%D1%82%D0%B2%D0%B0%20%232%20%F0%9F%8E%AE%20Hysteria2"
     },
     {
       "id": "user-1795536470390-28",
@@ -712,36 +973,6 @@
       "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@87.242.87.170:8447?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=fransya4lan.lerogrenta.shop&fp=firefox&pbk=GhdlbQMgyqer1pstMMImU6zKEroP59XTylCf8jYL4Ac&sid=460a3ab17e291549&spx=%2F#%F0%9F%87%AB%F0%9F%87%B7%20%20%D0%A4%D1%80%D0%B0%D0%BD%D1%86%D0%B8%D1%8F%20(%D0%91%D0%AB%D0%A1%D0%A2%D0%A0%D0%AB%D0%99)%E2%9A%A1%EF%B8%8F"
     },
     {
-      "id": "user-1795536470390-19",
-      "name": "🇸🇪 Швеция (БЫСТРЫЙ)⚡️",
-      "flag": "🇸🇪",
-      "ping": null,
-      "proto": "VLESS Reality",
-      "ip": "sweringa.rottshieldsons.pics",
-      "outbound": {
-        "type": "vless",
-        "tag": "proxy",
-        "server": "sweringa.rottshieldsons.pics",
-        "server_port": 443,
-        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "flow": "xtls-rprx-vision",
-        "tls": {
-          "enabled": true,
-          "server_name": "sweringa.rottshieldsons.pics",
-          "reality": {
-            "enabled": true,
-            "public_key": "x6p656szvu_3CKLsJ4NtkooRvdTVGx7IoPca_p58_jA",
-            "short_id": "fb442438e2223836"
-          },
-          "utls": {
-            "enabled": true,
-            "fingerprint": "firefox"
-          }
-        }
-      },
-      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@sweringa.rottshieldsons.pics:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=sweringa.rottshieldsons.pics&fp=firefox&pbk=x6p656szvu_3CKLsJ4NtkooRvdTVGx7IoPca_p58_jA&sid=fb442438e2223836#%F0%9F%87%B8%F0%9F%87%AA%20%D0%A8%D0%B2%D0%B5%D1%86%D0%B8%D1%8F%20(%D0%91%D0%AB%D0%A1%D0%A2%D0%A0%D0%AB%D0%99)%E2%9A%A1%EF%B8%8F"
-    },
-    {
       "id": "user-1795536470390-18",
       "name": "🇨🇿 Чехия (БЫСТРЫЙ)⚡️",
       "flag": "🌐",
@@ -892,57 +1123,6 @@
       "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@160.5.218.78:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=z43bal.rottshieldsons.pics&fp=firefox&pbk=IMLNyf42ZO_7AuM0_al7VODbYo3BKlPukctKaqFXTEY&sid=a266dee36778ef24&spx=%2F&fm=%7B%22tcp%22%3A%5B%7B%22type%22%3A%22fragment%22%2C%22settings%22%3A%7B%22delay%22%3A%221-3%22%2C%22length%22%3A%2230-60%22%2C%22packets%22%3A%22tlshello%22%7D%7D%5D%7D#%F0%9F%87%B3%F0%9F%87%B1%20%D0%9D%D0%B8%D0%B4%D0%B5%D1%80%D0%BB%D0%B0%D0%BD%D0%B4%D1%8B%20(Wi-Fi)%20%F0%9F%8C%90"
     },
     {
-      "id": "user-1795536470390-13",
-      "name": "🇳🇱 Нидерланды #2🎮 Hysteria2",
-      "flag": "🇳🇱",
-      "ping": null,
-      "proto": "HYSTERIA2 TLS",
-      "ip": "k0l0ut.khovanski.mom",
-      "outbound": {
-        "type": "hysteria2",
-        "tag": "proxy",
-        "server": "k0l0ut.khovanski.mom",
-        "server_port": 443,
-        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "tls": {
-          "enabled": true,
-          "server_name": "k0l0ut.khovanski.mom",
-          "insecure": false
-        }
-      },
-      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@k0l0ut.khovanski.mom:443/?sni=k0l0ut.khovanski.mom&fm=%7B%22quicParams%22%3A%7B%22debug%22%3Afalse%2C%22congestion%22%3A%22bbr%22%7D%7D#%F0%9F%87%B3%F0%9F%87%B1%20%D0%9D%D0%B8%D0%B4%D0%B5%D1%80%D0%BB%D0%B0%D0%BD%D0%B4%D1%8B%20%232%F0%9F%8E%AE%20Hysteria2"
-    },
-    {
-      "id": "user-1795536470390-12",
-      "name": "🇳🇱 Нидерланды #1.1 (❌ РФ сайты)",
-      "flag": "🇳🇱",
-      "ping": null,
-      "proto": "VLESS Reality",
-      "ip": "z43bal.rottshieldsons.pics",
-      "outbound": {
-        "type": "vless",
-        "tag": "proxy",
-        "server": "z43bal.rottshieldsons.pics",
-        "server_port": 443,
-        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "flow": "xtls-rprx-vision",
-        "tls": {
-          "enabled": true,
-          "server_name": "z43bal.rottshieldsons.pics",
-          "reality": {
-            "enabled": true,
-            "public_key": "-ADm-o6yFYNcLgLQgHguNWDWrH9xcRwQyqLMoVuajgo",
-            "short_id": "8944e69f4aadde1e"
-          },
-          "utls": {
-            "enabled": true,
-            "fingerprint": "firefox"
-          }
-        }
-      },
-      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@z43bal.rottshieldsons.pics:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=z43bal.rottshieldsons.pics&fp=firefox&pbk=-ADm-o6yFYNcLgLQgHguNWDWrH9xcRwQyqLMoVuajgo&sid=8944e69f4aadde1e&spx=%2F#%F0%9F%87%B3%F0%9F%87%B1%20%D0%9D%D0%B8%D0%B4%D0%B5%D1%80%D0%BB%D0%B0%D0%BD%D0%B4%D1%8B%20%231.1%20(%E2%9D%8C%20%D0%A0%D0%A4%20%D1%81%D0%B0%D0%B9%D1%82%D1%8B)"
-    },
-    {
       "id": "user-1795536470390-11",
       "name": "🇳🇱 Нидерланды #1 (БЫСТРЫЙ)⚡️",
       "flag": "🇳🇱",
@@ -971,37 +1151,6 @@
         }
       },
       "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@z43bal.rottshieldsons.pics:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=z43bal.rottshieldsons.pics&fp=firefox&pbk=-ADm-o6yFYNcLgLQgHguNWDWrH9xcRwQyqLMoVuajgo&sid=8944e69f4aadde1e&spx=%2F&fm=%7B%22tcp%22%3A%5B%7B%22type%22%3A%22fragment%22%2C%22settings%22%3A%7B%22length%22%3A%2210-20%22%2C%22packets%22%3A%22tlshello%22%2C%22interval%22%3A%2210-20%22%7D%7D%5D%7D#%F0%9F%87%B3%F0%9F%87%B1%20%D0%9D%D0%B8%D0%B4%D0%B5%D1%80%D0%BB%D0%B0%D0%BD%D0%B4%D1%8B%20%231%20(%D0%91%D0%AB%D0%A1%D0%A2%D0%A0%D0%AB%D0%99)%E2%9A%A1%EF%B8%8F"
-    },
-    {
-      "id": "user-1795536470390-10",
-      "name": "🇩🇪🛜 Обход глушилок (LTE) #10",
-      "flag": "🌐",
-      "ping": null,
-      "proto": "VLESS TLS",
-      "ip": "solsps.rottshieldsons.pics",
-      "outbound": {
-        "type": "vless",
-        "tag": "proxy",
-        "server": "solsps.rottshieldsons.pics",
-        "server_port": 443,
-        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "tls": {
-          "enabled": true,
-          "server_name": "solsps.rottshieldsons.pics",
-          "utls": {
-            "enabled": true,
-            "fingerprint": "firefox"
-          }
-        },
-        "transport": {
-          "type": "ws",
-          "path": "/mwsgate",
-          "headers": {
-            "Host": "solsps.rottshieldsons.pics"
-          }
-        }
-      },
-      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@solsps.rottshieldsons.pics:443?encryption=none&type=ws&path=%2Fmwsgate&host=solsps.rottshieldsons.pics&security=tls&sni=solsps.rottshieldsons.pics&fp=firefox#%F0%9F%87%A9%F0%9F%87%AA%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%2310"
     },
     {
       "id": "user-1795536470390-9",
@@ -1052,37 +1201,6 @@
       "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@j0lt1k.khovanski.mom:443?encryption=none&type=xhttp&path=%2Fapi%2Fgarden%2Ffeed&host=j0lt1k.khovanski.mom&mode=packet-up&extra=%7B%22path%22%3A%22%2Fapi%2Fgarden%2Ffeed%22%2C%22xmux%22%3A%7B%22cMaxLifetimeMs%22%3A0%2C%22cMaxReuseTimes%22%3A%2228-84%22%2C%22maxConcurrency%22%3A%2233-64%22%2C%22maxConnections%22%3A0%2C%22hMaxRequestTimes%22%3A%22360-720%22%2C%22hMaxReusableSecs%22%3A%221100-2400%22%7D%2C%22seqKey%22%3A%22preferences%22%2C%22sessionKey%22%3A%22member_id%22%2C%22xPaddingKey%22%3A%22_g%22%2C%22seqPlacement%22%3A%22cookie%22%2C%22sessionIDKey%22%3A%22member_id%22%2C%22uplinkDataKey%22%3A%22X-Garden-Sync%22%2C%22xPaddingBytes%22%3A%2248-240%22%2C%22xPaddingHeader%22%3A%22X-Plant-Token%22%2C%22xPaddingMethod%22%3A%22tokenish%22%2C%22uplinkChunkSize%22%3A0%2C%22sessionPlacement%22%3A%22cookie%22%2C%22uplinkHTTPMethod%22%3A%22GET%22%2C%22xPaddingObfsMode%22%3Atrue%2C%22xPaddingPlacement%22%3A%22queryInHeader%22%2C%22scMaxEachPostBytes%22%3A4096%2C%22sessionIDPlacement%22%3A%22cookie%22%2C%22uplinkDataPlacement%22%3A%22header%22%2C%22scMinPostsIntervalMs%22%3A34%7D&security=tls&sni=j0lt1k.khovanski.mom&fp=firefox&alpn=h2%2Chttp%2F1.1#%F0%9F%87%A9%F0%9F%87%AA%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%238"
     },
     {
-      "id": "user-1795536470390-7",
-      "name": "🇳🇱🛜 Обход глушилок (LTE) #7",
-      "flag": "🌐",
-      "ping": null,
-      "proto": "VLESS TLS",
-      "ip": "ebsmogg.rekonkista.icu",
-      "outbound": {
-        "type": "vless",
-        "tag": "proxy",
-        "server": "ebsmogg.rekonkista.icu",
-        "server_port": 443,
-        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "tls": {
-          "enabled": true,
-          "server_name": "ebsmogg.rekonkista.icu",
-          "utls": {
-            "enabled": true,
-            "fingerprint": "firefox"
-          }
-        },
-        "transport": {
-          "type": "ws",
-          "path": "/mjgate",
-          "headers": {
-            "Host": "ebsmogg.rekonkista.icu"
-          }
-        }
-      },
-      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@ebsmogg.rekonkista.icu:443?encryption=none&type=ws&path=%2Fmjgate&host=ebsmogg.rekonkista.icu&security=tls&sni=ebsmogg.rekonkista.icu&fp=firefox&alpn=http%2F1.1#%F0%9F%87%B3%F0%9F%87%B1%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%237"
-    },
-    {
       "id": "user-1795536470390-6",
       "name": "🇨🇿🛜 Обход глушилок (LTE) #6",
       "flag": "🌐",
@@ -1113,87 +1231,6 @@
       "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@show-green.birtix-vids.net:10965?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=czezz.ruletka.study&fp=firefox&pbk=Q5sV8JEuMcVO9THPYfUb5DqnXjjs71L05XuaLphorD4&sid=230827a65898ce7b&spx=%2F#%F0%9F%87%A8%F0%9F%87%BF%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%236"
     },
     {
-      "id": "user-1795536470390-5",
-      "name": "🇩🇪🛜 Обход глушилок (LTE) #5",
-      "flag": "🌐",
-      "ping": null,
-      "proto": "HYSTERIA2 TLS",
-      "ip": "194.55.239.166",
-      "outbound": {
-        "type": "hysteria2",
-        "tag": "proxy",
-        "server": "194.55.239.166",
-        "server_port": 8443,
-        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "tls": {
-          "enabled": true,
-          "server_name": "gazzz.rottshieldsons.pics",
-          "insecure": false
-        },
-        "obfs": {
-          "type": "salamander",
-          "password": "rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw"
-        }
-      },
-      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@194.55.239.166:8443/?obfs=salamander&obfs-password=rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw&sni=gazzz.rottshieldsons.pics&fm=%7B%22udp%22%3A%5B%7B%22type%22%3A%22salamander%22%2C%22settings%22%3A%7B%22password%22%3A%22rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw%22%7D%7D%5D%2C%22quicParams%22%3A%7B%22congestion%22%3A%22bbr%22%2C%22keepAlivePeriod%22%3A10%2C%22disablePathMTUDiscovery%22%3Atrue%7D%7D#%F0%9F%87%A9%F0%9F%87%AA%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%235"
-    },
-    {
-      "id": "user-1795536470390-4",
-      "name": "🇳🇱🛜 Обход глушилок (LTE) #4",
-      "flag": "🌐",
-      "ping": null,
-      "proto": "HYSTERIA2 TLS",
-      "ip": "194.55.239.166",
-      "outbound": {
-        "type": "hysteria2",
-        "tag": "proxy",
-        "server": "194.55.239.166",
-        "server_port": 443,
-        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "tls": {
-          "enabled": true,
-          "server_name": "gazzz.rottshieldsons.pics",
-          "insecure": false
-        },
-        "obfs": {
-          "type": "salamander",
-          "password": "rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw"
-        }
-      },
-      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@194.55.239.166:443/?obfs=salamander&obfs-password=rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw&sni=gazzz.rottshieldsons.pics&fm=%7B%22udp%22%3A%5B%7B%22type%22%3A%22salamander%22%2C%22settings%22%3A%7B%22password%22%3A%22rnrvbq6sysOvI2kOUAh0bZxNhiVH7aOw%22%7D%7D%5D%2C%22quicParams%22%3A%7B%22disablePathMTUDiscovery%22%3Atrue%7D%7D#%F0%9F%87%B3%F0%9F%87%B1%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%234"
-    },
-    {
-      "id": "user-1795536470390-3",
-      "name": " 🇪🇺🛜 Обход глушилок (LTE) #3",
-      "flag": "🌐",
-      "ping": null,
-      "proto": "VLESS TLS",
-      "ip": "gas.rtkdvbr.cc",
-      "outbound": {
-        "type": "vless",
-        "tag": "proxy",
-        "server": "gas.rtkdvbr.cc",
-        "server_port": 443,
-        "uuid": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "tls": {
-          "enabled": true,
-          "server_name": "gas.rtkdvbr.cc",
-          "utls": {
-            "enabled": true,
-            "fingerprint": "edge"
-          }
-        },
-        "transport": {
-          "type": "ws",
-          "path": "/amsws",
-          "headers": {
-            "Host": "gas.rtkdvbr.cc"
-          }
-        }
-      },
-      "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@gas.rtkdvbr.cc:443?encryption=none&type=ws&path=%2Famsws&host=gas.rtkdvbr.cc&security=tls&sni=gas.rtkdvbr.cc&fp=edge&alpn=http%2F1.1#%20%F0%9F%87%AA%F0%9F%87%BA%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%233"
-    },
-    {
       "id": "user-1795536470390-2",
       "name": "🇳🇱🛜 Обход глушилок (LTE) #2",
       "flag": "🌐",
@@ -1216,31 +1253,6 @@
         }
       },
       "rawLink": "vless://c59133f0-82a9-4ae7-b2da-9822f94c02d9@onl.freetato-converting.ru:8880?encryption=none&type=xhttp&path=%2Ffhx1&host=onl.freetato-converting.ru&mode=auto&security=tls&sni=onl.freetato-converting.ru&fp=firefox&alpn=h2#%F0%9F%87%B3%F0%9F%87%B1%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%232"
-    },
-    {
-      "id": "user-1795536470390-1",
-      "name": "🇱🇹🛜 Обход глушилок (LTE) #1",
-      "flag": "🌐",
-      "ping": null,
-      "proto": "HYSTERIA2 TLS",
-      "ip": "46.8.210.33",
-      "outbound": {
-        "type": "hysteria2",
-        "tag": "proxy",
-        "server": "46.8.210.33",
-        "server_port": 8444,
-        "password": "c59133f0-82a9-4ae7-b2da-9822f94c02d9",
-        "tls": {
-          "enabled": true,
-          "server_name": "litelitvalitter.rooferz.surf",
-          "insecure": false
-        },
-        "obfs": {
-          "type": "salamander",
-          "password": "hCSl41GFUpz9nTMwQr20Kyr7nwUDnXRl"
-        }
-      },
-      "rawLink": "hysteria2://c59133f0-82a9-4ae7-b2da-9822f94c02d9@46.8.210.33:8444/?obfs=salamander&obfs-password=hCSl41GFUpz9nTMwQr20Kyr7nwUDnXRl&sni=litelitvalitter.rooferz.surf&fm=%7B%22udp%22%3A%5B%7B%22type%22%3A%22salamander%22%2C%22settings%22%3A%7B%22password%22%3A%22hCSl41GFUpz9nTMwQr20Kyr7nwUDnXRl%22%7D%7D%5D%7D#%F0%9F%87%B1%F0%9F%87%B9%F0%9F%9B%9C%20%D0%9E%D0%B1%D1%85%D0%BE%D0%B4%20%D0%B3%D0%BB%D1%83%D1%88%D0%B8%D0%BB%D0%BE%D0%BA%20(LTE)%20%231"
     },
     {
       "id": "user-1795536470390-0",
@@ -1278,7 +1290,7 @@
       "flag": "🇰🇿",
       "ip": "kazakx.kovsh.lol:443",
       "proto": "VLESS Reality",
-      "ping": 187,
+      "ping": null,
       "outbound": {
         "type": "vless",
         "tag": "proxy",
@@ -1307,7 +1319,7 @@
       "flag": "🇺🇸",
       "ip": "hoonez.rooferz.surf:443",
       "proto": "VLESS Reality",
-      "ping": 264,
+      "ping": null,
       "outbound": {
         "type": "vless",
         "tag": "proxy",
@@ -1336,7 +1348,7 @@
       "flag": "🇺🇸",
       "ip": "kriss.harcho.shop:443",
       "proto": "VLESS Reality",
-      "ping": 264,
+      "ping": null,
       "outbound": {
         "type": "vless",
         "tag": "proxy",
@@ -1365,7 +1377,7 @@
       "flag": "🇮🇳",
       "ip": "tina4life.harcho.shop:443",
       "proto": "VLESS Reality",
-      "ping": 322,
+      "ping": null,
       "outbound": {
         "type": "vless",
         "tag": "proxy",
@@ -1394,7 +1406,7 @@
       "flag": "🇹🇭",
       "ip": "tatatai.roxx.cxaw.beer:443",
       "proto": "VLESS Reality",
-      "ping": 386,
+      "ping": null,
       "outbound": {
         "type": "vless",
         "tag": "proxy",
@@ -1423,7 +1435,7 @@
       "flag": "🇸🇬",
       "ip": "lubluknstinu24na7.harcho.shop:443",
       "proto": "VLESS Reality",
-      "ping": 442,
+      "ping": null,
       "outbound": {
         "type": "vless",
         "tag": "proxy",
@@ -1452,7 +1464,7 @@
       "flag": "🇯🇵",
       "ip": "jiopa.harcho.shop:443",
       "proto": "VLESS Reality",
-      "ping": 1516,
+      "ping": null,
       "outbound": {
         "type": "vless",
         "tag": "proxy",
@@ -1505,5 +1517,5 @@
       }
     }
   ],
-  "selectedId": "user-1795536470390-39"
+  "selectedId": "user-1795536470390-19"
 }
