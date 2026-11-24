@@ -2,6 +2,12 @@ const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require('electr
 const path = require('path');
 const fs = require('fs');
 
+// Disable hardware acceleration to guarantee 100% rendering compatibility on Windows
+// (prevents blank/dark-blue screen caused by GPU process crashes)
+try {
+  app.disableHardwareAcceleration();
+} catch (e) {}
+
 fs.writeFileSync(path.join(__dirname, 'boot.log'), 'Booting main.js at ' + new Date().toISOString() + '\n');
 
 process.on('uncaughtException', err => {
@@ -877,34 +883,15 @@ let mainWindow = null;
 let tray = null;
 let isQuitting = false;
 
-fs.appendFileSync(path.join(__dirname, 'boot.log'), 'Checking single instance lock...\n');
-const gotTheLock = app.requestSingleInstanceLock();
-fs.appendFileSync(path.join(__dirname, 'boot.log'), 'gotTheLock: ' + gotTheLock + '\n');
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on('second-instance', () => {
-    if (mainWindow) {
-      if (!mainWindow.isVisible()) mainWindow.show();
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-      try {
-        mainWindow.setAlwaysOnTop(true);
-        mainWindow.setAlwaysOnTop(false);
-      } catch (e) {}
-    }
-  });
-
-  app.whenReady().then(() => {
-    fs.appendFileSync(path.join(__dirname, 'boot.log'), 'app.whenReady reached\n');
-    loadSettingsFromDisk();
-    restoreProxyOnStartup();
-    createWindow();
-    createTray();
-    setupIpcHandlers();
-    fs.appendFileSync(path.join(__dirname, 'boot.log'), 'createWindow & Tray initialized\n');
-  });
-}
+app.whenReady().then(() => {
+  fs.appendFileSync(path.join(__dirname, 'boot.log'), 'app.whenReady reached at ' + new Date().toISOString() + '\n');
+  loadSettingsFromDisk();
+  restoreProxyOnStartup();
+  createWindow();
+  createTray();
+  setupIpcHandlers();
+  fs.appendFileSync(path.join(__dirname, 'boot.log'), 'createWindow & Tray initialized\n');
+});
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -927,6 +914,24 @@ function createWindow() {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
+  });
+
+  // Safety fallback: ensure window is displayed even if ready-to-show has high latency
+  setTimeout(() => {
+    if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+      mainWindow.show();
+    }
+  }, 1200);
+
+  mainWindow.webContents.on('render-process-gone', (event, details) => {
+    fs.appendFileSync(path.join(__dirname, 'boot.log'), `render-process-gone: ${details.reason}\n`);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.reload();
+    }
+  });
+
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    fs.appendFileSync(path.join(__dirname, 'boot.log'), `did-fail-load: ${errorCode} - ${errorDescription}\n`);
   });
 
   mainWindow.on('close', (e) => {
