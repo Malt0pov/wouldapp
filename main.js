@@ -568,28 +568,65 @@ async function parseAnyInput(input) {
 
 function checkIpDirect() {
   return new Promise((resolve) => {
-    const options = {
-      hostname: 'api.ipify.org',
-      port: 443,
-      path: '/?format=json',
-      method: 'GET',
-      timeout: 3500
-    };
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(data);
-          resolve({ success: true, ip: parsed.ip, country: 'Определен', proxied: (activeMode !== 'disconnected') });
-        } catch (e) {
-          resolve({ success: false, ip: '127.0.0.1', country: 'Не определен' });
-        }
+    // If singbox process is running, verify via tunnel proxy
+    if (singboxProcess) {
+      const connectReq = http.request({
+        host: '127.0.0.1',
+        port: 2080,
+        method: 'CONNECT',
+        path: 'api.ipify.org:443',
+        timeout: 4500
       });
-    });
-    req.on('error', () => resolve({ success: false, ip: '127.0.0.1', country: 'Не определен' }));
-    req.on('timeout', () => { req.destroy(); resolve({ success: false, ip: '127.0.0.1', country: 'Не определен' }); });
-    req.end();
+
+      connectReq.on('connect', (res, socket) => {
+        socket.setTimeout(4500);
+        const httpsReq = https.get({
+          host: 'api.ipify.org',
+          path: '/?format=json',
+          socket: socket,
+          agent: false,
+          timeout: 4500
+        }, (resp) => {
+          let d = '';
+          resp.on('data', c => d += c);
+          resp.on('end', () => {
+            try {
+              const parsed = JSON.parse(d);
+              resolve({ success: true, ip: parsed.ip, country: 'VPN Узел', proxied: true });
+            } catch (e) {
+              fallbackDirect();
+            }
+          });
+        });
+        httpsReq.on('error', () => fallbackDirect());
+        httpsReq.on('timeout', () => { httpsReq.destroy(); fallbackDirect(); });
+      });
+
+      connectReq.on('error', () => fallbackDirect());
+      connectReq.on('timeout', () => { connectReq.destroy(); fallbackDirect(); });
+      connectReq.end();
+      return;
+    }
+
+    fallbackDirect();
+
+    function fallbackDirect() {
+      const req = https.get('https://api.ipify.org/?format=json', { timeout: 3500 }, (res) => {
+        let data = '';
+        res.on('data', c => data += c);
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(data);
+            resolve({ success: true, ip: parsed.ip, country: 'Определен', proxied: false });
+          } catch (e) {
+            resolve({ success: false, ip: '127.0.0.1', country: 'Не определен', proxied: false });
+          }
+        });
+      });
+      req.on('error', () => resolve({ success: false, ip: '127.0.0.1', country: 'Не определен', proxied: false }));
+      req.on('timeout', () => { req.destroy(); resolve({ success: false, ip: '127.0.0.1', country: 'Не определен', proxied: false }); });
+      req.end();
+    }
   });
 }
 
@@ -776,11 +813,14 @@ function startSingBox(outbound, requestedMode, cb) {
       proc.stdout.on('data', d => {
         const str = d.toString();
         addLog(`[sing-box] ${str.trim()}`);
+        if (!isReady && (str.includes('FATAL') || str.includes('ERROR') || str.includes('panic') || str.includes('fatal'))) {
+          errorOutput += str + '\n';
+        }
       });
 
       proc.stderr.on('data', d => {
         const str = d.toString();
-        errorOutput += str;
+        errorOutput += str + '\n';
         addLog(`[sing-box err] ${str.trim()}`);
       });
 
@@ -845,9 +885,13 @@ if (!gotTheLock) {
 } else {
   app.on('second-instance', () => {
     if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
       if (!mainWindow.isVisible()) mainWindow.show();
+      if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.focus();
+      try {
+        mainWindow.setAlwaysOnTop(true);
+        mainWindow.setAlwaysOnTop(false);
+      } catch (e) {}
     }
   });
 
@@ -886,9 +930,13 @@ function createWindow() {
   });
 
   mainWindow.on('close', (e) => {
-    if (!isQuitting && serverSettings.minimizeToTray !== false) {
+    // If VPN tunnel is actively running, minimize to tray so connection stays alive
+    if (!isQuitting && singboxProcess && serverSettings.minimizeToTray !== false) {
       e.preventDefault();
       mainWindow.hide();
+    } else {
+      isQuitting = true;
+      app.quit();
     }
   });
 }
@@ -1056,7 +1104,7 @@ function setupIpcHandlers() {
 
   ipcMain.handle('window-close', () => {
     if (mainWindow) {
-      if (serverSettings.minimizeToTray !== false) {
+      if (!isQuitting && singboxProcess && serverSettings.minimizeToTray !== false) {
         mainWindow.hide();
       } else {
         isQuitting = true;
