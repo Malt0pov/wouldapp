@@ -977,6 +977,124 @@
       border-color: var(--md-sys-color-primary);
     }
 
+    /* Subscription Group Accordion */
+    .sub-group-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sub-group-header {
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-m);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .sub-group-header:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      background: var(--md-sys-color-surface-container-highest, var(--md-sys-color-surface-container-high));
+    }
+
+    .sub-group-header.expanded {
+      border-color: rgba(56, 189, 248, 0.55);
+    }
+
+    .sub-group-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .sub-home-btn {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      background: var(--md-sys-color-surface-container);
+      color: var(--md-sys-color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sub-group-header:hover .sub-home-btn,
+    .sub-group-header.expanded .sub-home-btn {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .sub-group-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .sub-group-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sub-group-meta {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .sub-group-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .sub-count-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .sub-chevron {
+      font-size: 20px;
+      color: var(--md-sys-color-on-surface-variant);
+      transition: transform 0.2s ease;
+    }
+
+    .sub-group-header.expanded .sub-chevron {
+      transform: rotate(180deg);
+      color: var(--md-sys-color-primary);
+    }
+
+    .sub-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-left: 10px;
+    }
+
+    .sub-group-list.collapsed {
+      display: none;
+    }
+
     .srv-left {
       display: flex;
       align-items: center;
@@ -1699,6 +1817,10 @@
                   <input type="text" class="m3-search-input" id="search-input" placeholder="Поиск узла по стране, IP или протоколу..." oninput="filterServers(this.value)">
                 </div>
                 <div class="sl-buttons">
+                  <select class="m3-search-input" id="ping-method-select-main" title="Метод проверки пинга" style="width: auto; min-width: 112px; height: 34px; padding: 0 8px; font-size: 12px;" onchange="changePingMethod(this.value)">
+                    <option value="proxy">Proxy GET</option>
+                    <option value="tcp">TCP Ping</option>
+                  </select>
                   <button class="btn-tonal-m3" onclick="testAllPings()">
                     <span class="material-symbols-outlined" style="font-size: 16px;">bolt</span>
                     Пинг
@@ -1950,6 +2072,17 @@
               <select class="m3-search-input" id="setting-mode-select" style="max-width: 280px;" onchange="changeMode(this.value)">
                 <option value="proxy" selected>Системный прокси (Рекомендуется)</option>
                 <option value="tun">TUN (Wintun адаптер, весь трафик)</option>
+              </select>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Метод проверки пинга</div>
+                <div class="settings-item-desc">Proxy GET проверяет реальную работу туннеля (включая Hysteria2 UDP), TCP Ping быстрее проверяет только порт</div>
+              </div>
+              <select class="m3-search-input" id="setting-ping-method" style="max-width: 280px;" onchange="changePingMethod(this.value)">
+                <option value="proxy" selected>Via Proxy GET (Рекомендуется)</option>
+                <option value="tcp">TCP Ping (Только порт)</option>
               </select>
             </div>
 
@@ -2695,6 +2828,65 @@
       ctx.stroke();
     }
 
+    // Subscription Group Helpers
+    const expandedGroupsSet = (() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem('wouldapp_expanded_groups') || '[]');
+        return new Set(Array.isArray(saved) ? saved : []);
+      } catch (e) {
+        return new Set();
+      }
+    })();
+
+    function saveExpandedGroups() {
+      try {
+        localStorage.setItem('wouldapp_expanded_groups', JSON.stringify([...expandedGroupsSet]));
+      } catch (e) {}
+    }
+
+    function getServerGroupName(s) {
+      if (s.subName && s.subName.trim()) return s.subName.trim();
+      if (s.id && s.id.startsWith('srv_')) return 'Встроенные узлы';
+      return 'Основная подписка';
+    }
+
+    function groupServersList(list) {
+      const groups = new Map();
+      list.forEach(s => {
+        const gName = getServerGroupName(s);
+        if (!groups.has(gName)) groups.set(gName, []);
+        groups.get(gName).push(s);
+      });
+      return groups;
+    }
+
+    function toggleSubGroup(groupName) {
+      if (expandedGroupsSet.has(groupName)) {
+        expandedGroupsSet.delete(groupName);
+      } else {
+        expandedGroupsSet.add(groupName);
+      }
+      saveExpandedGroups();
+      renderServerList();
+      if (appState.activeTab === 'servers') renderFullServers();
+    }
+
+    function deleteSubGroup(groupName, e) {
+      if (e) e.stopPropagation();
+      const before = appState.servers.length;
+      appState.servers = appState.servers.filter(s => getServerGroupName(s) !== groupName);
+      const removed = before - appState.servers.length;
+      expandedGroupsSet.delete(groupName);
+      saveExpandedGroups();
+      if (!appState.servers.some(s => s.id === appState.selectedId)) {
+        appState.selectedId = appState.servers.length > 0 ? appState.servers[0].id : null;
+      }
+      saveServersToStorage();
+      renderServerList();
+      if (appState.activeTab === 'servers') renderFullServers();
+      showSnackbar(`Удалена группа «${groupName}» (${removed} узлов)`);
+    }
+
     // Render Server List
     function renderServerList() {
       const container = document.getElementById('server-list-container');
@@ -2707,7 +2899,8 @@
         const name = (s.name || '').toLowerCase();
         const ip = (s.ip || '');
         const proto = (s.proto || '').toLowerCase();
-        return name.includes(q) || ip.includes(q) || proto.includes(q);
+        const sub = getServerGroupName(s).toLowerCase();
+        return name.includes(q) || ip.includes(q) || proto.includes(q) || sub.includes(q);
       });
 
       if (filtered.length === 0) {
@@ -2722,39 +2915,84 @@
         return;
       }
 
-      filtered.forEach(s => {
-        const isSel = s.id === appState.selectedId;
-        const div = document.createElement('div');
-        div.className = `server-card-item ${isSel ? 'selected' : ''}`;
-        div.dataset.id = s.id;
+      const groups = groupServersList(filtered);
+      const forceExpand = !!appState.searchQuery;
 
-        const hasOutbound = !!s.outbound;
-        const srvPort = s.outbound?.server_port || s.port || '';
-        const portStr = srvPort ? `:${srvPort}` : '';
-        div.innerHTML = `
-          <div class="srv-left">
-            <span class="srv-flag">${s.flag || '🌐'}</span>
-            <div class="srv-info">
-              <span class="srv-name">${escapeHtml(s.name)}</span>
-              <span class="srv-meta">${escapeHtml(s.proto)} • IP: ${escapeHtml(s.ip)}${portStr}</span>
+      groups.forEach((items, groupName) => {
+        const isExpanded = forceExpand || expandedGroupsSet.has(groupName);
+        const hasSelected = items.some(s => s.id === appState.selectedId);
+        const aliveCount = items.filter(s => s.ping != null).length;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'sub-group-wrap';
+
+        const header = document.createElement('div');
+        header.className = `sub-group-header ${isExpanded ? 'expanded' : ''}`;
+        header.dataset.group = groupName;
+        header.innerHTML = `
+          <div class="sub-group-left">
+            <button type="button" class="sub-home-btn" title="${isExpanded ? 'Свернуть список' : 'Развернуть список'}" data-toggle-group="${escapeHtml(groupName)}">
+              <span class="material-symbols-outlined" style="font-size: 18px;">home</span>
+            </button>
+            <div class="sub-group-info">
+              <span class="sub-group-title">${escapeHtml(groupName)}</span>
+              <span class="sub-group-meta">${hasSelected ? '● Выбран узел • ' : ''}${aliveCount > 0 ? `${aliveCount} доступно из ${items.length}` : `${items.length} узлов`}</span>
             </div>
           </div>
-          <div class="srv-right">
-            <span class="ping-pill">${s.ping != null ? s.ping + ' ms' : '—'}</span>
-            <span class="material-symbols-outlined" style="font-size: 18px; color: ${isSel ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)'};">
-              ${isSel ? 'check_circle' : 'radio_button_unchecked'}
-            </span>
-            ${hasOutbound ? `<button class="btn-delete-node" title="Удалить узел" data-delete-id="${escapeHtml(s.id)}"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>` : ''}
+          <div class="sub-group-right">
+            <span class="sub-count-badge">${items.length}</span>
+            <button type="button" class="btn-delete-node" title="Удалить всю подписку" data-delete-group="${escapeHtml(groupName)}">
+              <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+            </button>
+            <span class="material-symbols-outlined sub-chevron">expand_more</span>
           </div>
         `;
-        container.appendChild(div);
+        wrap.appendChild(header);
+
+        const listEl = document.createElement('div');
+        listEl.className = `sub-group-list ${isExpanded ? '' : 'collapsed'}`;
+
+        items.forEach(s => {
+          const isSel = s.id === appState.selectedId;
+          const div = document.createElement('div');
+          div.className = `server-card-item ${isSel ? 'selected' : ''}`;
+          div.dataset.id = s.id;
+
+          const srvPort = s.outbound?.server_port || s.port || '';
+          const portStr = srvPort ? `:${srvPort}` : '';
+          div.innerHTML = `
+            <div class="srv-left">
+              <span class="srv-flag">${s.flag || '🌐'}</span>
+              <div class="srv-info">
+                <span class="srv-name">${escapeHtml(s.name)}</span>
+                <span class="srv-meta">${escapeHtml(s.proto)} • IP: ${escapeHtml(s.ip)}${portStr}</span>
+              </div>
+            </div>
+            <div class="srv-right">
+              <span class="ping-pill">${s.ping != null ? s.ping + ' ms' : '—'}</span>
+              <span class="material-symbols-outlined" style="font-size: 18px; color: ${isSel ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)'};">
+                ${isSel ? 'check_circle' : 'radio_button_unchecked'}
+              </span>
+            </div>
+          `;
+          listEl.appendChild(div);
+        });
+
+        wrap.appendChild(listEl);
+        container.appendChild(wrap);
       });
 
       container.onclick = (e) => {
-        const delBtn = e.target.closest('[data-delete-id]');
-        if (delBtn) {
+        const delGroupBtn = e.target.closest('[data-delete-group]');
+        if (delGroupBtn) {
           e.stopPropagation();
-          deleteServer(delBtn.getAttribute('data-delete-id'), e);
+          deleteSubGroup(delGroupBtn.getAttribute('data-delete-group'), e);
+          return;
+        }
+        const groupHeader = e.target.closest('.sub-group-header');
+        if (groupHeader && groupHeader.dataset.group != null) {
+          e.stopPropagation();
+          toggleSubGroup(groupHeader.dataset.group);
           return;
         }
         const item = e.target.closest('.server-card-item');
@@ -2781,34 +3019,84 @@
         return;
       }
 
-      appState.servers.forEach(s => {
-        const isSel = s.id === appState.selectedId;
-        const div = document.createElement('div');
-        div.className = `server-card-item ${isSel ? 'selected' : ''}`;
-        div.dataset.id = s.id;
+      const groups = groupServersList(appState.servers);
 
-        const hasOutbound = !!s.outbound;
-        const srvPort = s.outbound?.server_port || s.port || 443;
-        div.innerHTML = `
-          <div class="srv-left">
-            <span class="srv-flag">${s.flag || '🌐'}</span>
-            <div class="srv-info">
-              <span class="srv-name" style="font-size: 15px;">${escapeHtml(s.name)}</span>
-              <span class="srv-meta">Протокол: ${escapeHtml(s.proto)} • Адрес сервера: ${escapeHtml(s.ip)}:${srvPort}</span>
+      groups.forEach((items, groupName) => {
+        const isExpanded = expandedGroupsSet.has(groupName);
+        const hasSelected = items.some(s => s.id === appState.selectedId);
+        const aliveCount = items.filter(s => s.ping != null).length;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'sub-group-wrap';
+
+        const header = document.createElement('div');
+        header.className = `sub-group-header ${isExpanded ? 'expanded' : ''}`;
+        header.dataset.group = groupName;
+        header.innerHTML = `
+          <div class="sub-group-left">
+            <button type="button" class="sub-home-btn" title="${isExpanded ? 'Свернуть список' : 'Развернуть список'}" data-toggle-group="${escapeHtml(groupName)}">
+              <span class="material-symbols-outlined" style="font-size: 18px;">home</span>
+            </button>
+            <div class="sub-group-info">
+              <span class="sub-group-title" style="font-size: 14.5px;">${escapeHtml(groupName)}</span>
+              <span class="sub-group-meta">${hasSelected ? '● Выбран узел • ' : ''}${aliveCount > 0 ? `${aliveCount} доступно из ${items.length}` : `${items.length} узлов`}</span>
             </div>
           </div>
-          <div class="srv-right">
-            <span class="ping-pill">${s.ping != null ? s.ping + ' ms' : '—'}</span>
-            <button class="btn-tonal-m3 btn-connect-action" style="height: 32px; padding: 0 12px;" data-id="${escapeHtml(s.id)}">
-              ${isSel && appState.status === 'connected' ? 'Активен' : 'Подключить'}
+          <div class="sub-group-right">
+            <span class="sub-count-badge">${items.length}</span>
+            <button type="button" class="btn-delete-node" title="Удалить всю подписку" data-delete-group="${escapeHtml(groupName)}">
+              <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
             </button>
-            ${hasOutbound ? `<button class="btn-delete-node" title="Удалить узел" data-delete-id="${escapeHtml(s.id)}"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span></button>` : ''}
+            <span class="material-symbols-outlined sub-chevron">expand_more</span>
           </div>
         `;
-        container.appendChild(div);
+        wrap.appendChild(header);
+
+        const listEl = document.createElement('div');
+        listEl.className = `sub-group-list ${isExpanded ? '' : 'collapsed'}`;
+
+        items.forEach(s => {
+          const isSel = s.id === appState.selectedId;
+          const div = document.createElement('div');
+          div.className = `server-card-item ${isSel ? 'selected' : ''}`;
+          div.dataset.id = s.id;
+
+          const srvPort = s.outbound?.server_port || s.port || 443;
+          div.innerHTML = `
+            <div class="srv-left">
+              <span class="srv-flag">${s.flag || '🌐'}</span>
+              <div class="srv-info">
+                <span class="srv-name" style="font-size: 15px;">${escapeHtml(s.name)}</span>
+                <span class="srv-meta">Протокол: ${escapeHtml(s.proto)} • Адрес сервера: ${escapeHtml(s.ip)}:${srvPort}</span>
+              </div>
+            </div>
+            <div class="srv-right">
+              <span class="ping-pill">${s.ping != null ? s.ping + ' ms' : '—'}</span>
+              <button class="btn-tonal-m3 btn-connect-action" style="height: 32px; padding: 0 12px;" data-id="${escapeHtml(s.id)}">
+                ${isSel && appState.status === 'connected' ? 'Активен' : 'Подключить'}
+              </button>
+            </div>
+          `;
+          listEl.appendChild(div);
+        });
+
+        wrap.appendChild(listEl);
+        container.appendChild(wrap);
       });
 
       container.onclick = async (e) => {
+        const delGroupBtn = e.target.closest('[data-delete-group]');
+        if (delGroupBtn) {
+          e.stopPropagation();
+          deleteSubGroup(delGroupBtn.getAttribute('data-delete-group'), e);
+          return;
+        }
+        const groupHeader = e.target.closest('.sub-group-header');
+        if (groupHeader && groupHeader.dataset.group != null) {
+          e.stopPropagation();
+          toggleSubGroup(groupHeader.dataset.group);
+          return;
+        }
         const delBtn = e.target.closest('[data-delete-id]');
         if (delBtn) {
           e.stopPropagation();
@@ -2910,22 +3198,48 @@
       renderServerList();
     }
 
+    function getPingMethod() {
+      return localStorage.getItem('wouldapp_ping_method') || 'proxy';
+    }
+
+    function changePingMethod(method) {
+      const val = method === 'tcp' ? 'tcp' : 'proxy';
+      localStorage.setItem('wouldapp_ping_method', val);
+      const selMain = document.getElementById('ping-method-select-main');
+      const selSet = document.getElementById('setting-ping-method');
+      if (selMain) selMain.value = val;
+      if (selSet) selSet.value = val;
+      showSnackbar(`Метод пинга: ${val === 'proxy' ? 'Via Proxy GET' : 'TCP Ping'}`);
+    }
+
+    // Sync ping method selectors on load
+    (() => {
+      const m = getPingMethod();
+      const selMain = document.getElementById('ping-method-select-main');
+      const selSet = document.getElementById('setting-ping-method');
+      if (selMain) selMain.value = m;
+      if (selSet) selSet.value = m;
+    })();
+
     async function testAllPings() {
       const serversWithOutbound = appState.servers.filter(s => s.outbound);
       if (serversWithOutbound.length === 0) {
         showSnackbar('Нет узлов с outbound для замера пинга');
         return;
       }
-      showSnackbar('Запущен замер пинга до всех узлов...');
+      const method = getPingMethod();
+      showSnackbar(`Запущен замер пинга (${method === 'proxy' ? 'Via Proxy GET' : 'TCP Ping'})...`);
       try {
         const resp = await apiFetch('/api/ping', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            method,
             servers: serversWithOutbound.map(s => ({
               id: s.id,
               server: s.outbound.server,
-              port: s.outbound.server_port || 443
+              port: s.outbound.server_port || 443,
+              outbound: s.outbound
             }))
           })
         });
@@ -2938,7 +3252,7 @@
           saveServersToStorage();
           renderServerList();
           if (appState.activeTab === 'servers') renderFullServers();
-          showSnackbar('✓ Пинг всех узлов обновлен (реальный TCP)');
+          showSnackbar(`✓ Пинг обновлен (${method === 'proxy' ? 'Via Proxy GET' : 'TCP Ping'})`);
         } else {
           showSnackbar('Ошибка замера пинга', 'error');
         }
@@ -3001,10 +3315,16 @@
             appState.servers = [];
           }
 
+          let fallbackSubName = 'Мои узлы';
+          if (/^https?:\/\//i.test(raw.trim())) {
+            try { fallbackSubName = new URL(raw.trim()).hostname; } catch (e) {}
+          }
+
           list.forEach((n, idx) => {
             const flag = detectFlagFromName(n.name);
             const protoName = (n.outbound?.type || 'vless').toUpperCase() + 
               (n.outbound?.tls?.reality ? ' Reality' : (n.outbound?.tls ? ' TLS' : ''));
+            const subName = n.subName || fallbackSubName;
 
             const item = {
               id: 'user-' + Date.now() + '-' + idx,
@@ -3014,10 +3334,13 @@
               proto: protoName,
               ip: n.outbound?.server || '127.0.0.1',
               outbound: n.outbound,
-              rawLink: n.rawLink || raw
+              rawLink: n.rawLink || raw,
+              subName: subName
             };
             appState.servers.unshift(item);
+            expandedGroupsSet.add(subName);
           });
+          saveExpandedGroups();
 
           appState.selectedId = appState.servers[0].id;
           saveServersToStorage();

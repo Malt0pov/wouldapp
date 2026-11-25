@@ -352,7 +352,10 @@ function parseVlessUrl(link) {
             creds = Buffer.from(creds.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
           } catch(e) {}
           const [method, password] = creds.split(':');
-          const [host, portStr] = atParts[1].split(':');
+          const hostPortClean = atParts[1].split('/')[0].split('?')[0];
+          const lastColon = hostPortClean.lastIndexOf(':');
+          const host = lastColon > 0 ? hostPortClean.slice(0, lastColon).replace(/^\[|\]$/g, '') : hostPortClean;
+          const portStr = lastColon > 0 ? hostPortClean.slice(lastColon + 1) : '8388';
           return {
             name,
             outbound: {
@@ -366,10 +369,14 @@ function parseVlessUrl(link) {
             rawLink: raw
           };
         } else {
-          let decoded = Buffer.from(withoutProto.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+          const cleanB64 = withoutProto.split('/')[0].split('?')[0];
+          let decoded = Buffer.from(cleanB64.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
           const [creds, hostPort] = decoded.split('@');
           const [method, password] = creds.split(':');
-          const [host, portStr] = hostPort.split(':');
+          const hostPortClean = hostPort.split('/')[0].split('?')[0];
+          const lastColon = hostPortClean.lastIndexOf(':');
+          const host = lastColon > 0 ? hostPortClean.slice(0, lastColon).replace(/^\[|\]$/g, '') : hostPortClean;
+          const portStr = lastColon > 0 ? hostPortClean.slice(lastColon + 1) : '8388';
           return {
             name,
             outbound: {
@@ -398,6 +405,9 @@ function parseVlessUrl(link) {
 
     let outbound;
 
+    const isInsecure = params.insecure === '1' || params.allowInsecure === '1' || params.insecure === 'true';
+    const alpnList = params.alpn ? safeDecodeURIComponent(params.alpn).split(',').map(s => s.trim()).filter(Boolean) : null;
+
     if (type === 'hysteria2') {
       outbound = {
         type: 'hysteria2',
@@ -408,9 +418,10 @@ function parseVlessUrl(link) {
         tls: {
           enabled: true,
           server_name: params.sni || server,
-          insecure: params.insecure === '1' || params.allowInsecure === '1'
+          insecure: isInsecure
         }
       };
+      if (alpnList && alpnList.length > 0) outbound.tls.alpn = alpnList;
       if (params.obfs) {
         outbound.obfs = {
           type: params.obfs,
@@ -428,12 +439,21 @@ function parseVlessUrl(link) {
       if (params.security === 'tls' || params.security === 'reality' || port === 443 || params.sni) {
         outbound.tls = {
           enabled: true,
-          server_name: params.sni || server,
+          server_name: params.sni || params.host || server,
           utls: {
             enabled: true,
             fingerprint: params.fp || 'chrome'
           }
         };
+        if (isInsecure) outbound.tls.insecure = true;
+        if (alpnList && alpnList.length > 0) outbound.tls.alpn = alpnList;
+        if (params.security === 'reality') {
+          outbound.tls.reality = {
+            enabled: true,
+            public_key: params.pbk || '',
+            short_id: params.sid || ''
+          };
+        }
       }
     } else {
       outbound = {
@@ -449,12 +469,14 @@ function parseVlessUrl(link) {
       if (params.security === 'reality' || params.security === 'tls') {
         outbound.tls = {
           enabled: true,
-          server_name: params.sni || server,
+          server_name: params.sni || params.host || server,
           utls: {
             enabled: true,
             fingerprint: params.fp || 'chrome'
           }
         };
+        if (isInsecure) outbound.tls.insecure = true;
+        if (alpnList && alpnList.length > 0) outbound.tls.alpn = alpnList;
 
         if (params.security === 'reality') {
           outbound.tls.reality = {
@@ -466,7 +488,7 @@ function parseVlessUrl(link) {
       }
     }
 
-    // Transport (WebSocket, gRPC, HTTPUpgrade)
+    // Transport (WebSocket, gRPC, HTTPUpgrade, HTTP/2)
     const netType = (params.type || '').toLowerCase();
     if (netType === 'ws') {
       outbound.transport = {
@@ -485,6 +507,14 @@ function parseVlessUrl(link) {
         path: params.path ? safeDecodeURIComponent(params.path) : '/',
         host: params.host ? safeDecodeURIComponent(params.host) : undefined
       };
+    } else if (netType === 'http' || netType === 'h2') {
+      outbound.transport = {
+        type: 'http',
+        path: params.path ? safeDecodeURIComponent(params.path) : '/',
+        host: params.host ? safeDecodeURIComponent(params.host).split(',').map(s => s.trim()).filter(Boolean) : undefined
+      };
+    } else if (netType === 'xhttp' || netType === 'splithttp') {
+      outbound._unsupported = 'Транспорт xhttp (SplitHTTP) не поддерживается ядром sing-box 1.14';
     }
 
     return { name, outbound, rawLink: raw };
@@ -571,12 +601,100 @@ function mapJsonOutboundToSingbox(ob, name) {
           path: ws.path || '/',
           headers: ws.headers || (ws.host ? { Host: ws.host } : undefined)
         };
+      } else if (stream.network === 'grpc') {
+        const grpc = stream.grpcSettings || {};
+        outbound.transport = {
+          type: 'grpc',
+          service_name: grpc.serviceName || grpc.service_name || ''
+        };
+      } else if (stream.network === 'httpupgrade') {
+        const hu = stream.httpupgradeSettings || {};
+        outbound.transport = {
+          type: 'httpupgrade',
+          path: hu.path || '/',
+          host: hu.host || undefined
+        };
+      } else if (stream.network === 'http' || stream.network === 'h2') {
+        const hs = stream.httpSettings || {};
+        outbound.transport = {
+          type: 'http',
+          path: hs.path || '/',
+          host: Array.isArray(hs.host) ? hs.host : (hs.host ? [hs.host] : undefined)
+        };
+      } else if (stream.network === 'xhttp' || stream.network === 'splithttp') {
+        outbound._unsupported = 'Транспорт xhttp (SplitHTTP) не поддерживается ядром sing-box 1.14';
       }
 
       return {
-        name: name || ob.tag || `VLESS Reality (${server})`,
+        name: name || ob.tag || `VLESS (${server})`,
         outbound: outbound,
         rawLink: `vless://${uuid}@${server}:${port}?security=${sec}#${encodeURIComponent(name || ob.tag || 'Узел')}`
+      };
+    }
+
+    if (proto === 'trojan') {
+      const srv = ob.settings?.servers?.[0];
+      const server = srv?.address || ob.server;
+      const port = parseInt(srv?.port || ob.server_port || 443, 10);
+      const password = srv?.password || ob.password;
+      if (!server || server === '0.0.0.0' || server === '127.0.0.1') return null;
+      const stream = ob.streamSettings || {};
+      const tlsSettings = stream.tlsSettings || ob.tls || {};
+      const outbound = {
+        type: 'trojan',
+        tag: 'proxy',
+        server,
+        server_port: port,
+        password,
+        tls: {
+          enabled: true,
+          server_name: tlsSettings.serverName || tlsSettings.server_name || server,
+          utls: { enabled: true, fingerprint: tlsSettings.fingerprint || 'chrome' }
+        }
+      };
+      if (tlsSettings.allowInsecure || tlsSettings.insecure) outbound.tls.insecure = true;
+      return {
+        name: name || ob.tag || `Trojan (${server})`,
+        outbound,
+        rawLink: `trojan://${password}@${server}:${port}#${encodeURIComponent(name || ob.tag || 'Узел')}`
+      };
+    }
+
+    if (proto === 'shadowsocks') {
+      const srv = ob.settings?.servers?.[0];
+      const server = srv?.address || ob.server;
+      const port = parseInt(srv?.port || ob.server_port || 8388, 10);
+      const method = srv?.method || ob.method || 'aes-256-gcm';
+      const password = srv?.password || ob.password || '';
+      if (!server || server === '0.0.0.0' || server === '127.0.0.1') return null;
+      return {
+        name: name || ob.tag || `Shadowsocks (${server})`,
+        outbound: { type: 'shadowsocks', tag: 'proxy', server, server_port: port, method, password },
+        rawLink: `ss://${Buffer.from(`${method}:${password}`).toString('base64')}@${server}:${port}#${encodeURIComponent(name || ob.tag || 'Узел')}`
+      };
+    }
+
+    if (proto === 'hysteria2') {
+      const server = ob.server;
+      const port = parseInt(ob.server_port || 443, 10);
+      if (!server || server === '0.0.0.0' || server === '127.0.0.1') return null;
+      const outbound = {
+        type: 'hysteria2',
+        tag: 'proxy',
+        server,
+        server_port: port,
+        password: ob.password || '',
+        tls: {
+          enabled: true,
+          server_name: ob.tls?.server_name || server,
+          insecure: !!ob.tls?.insecure
+        }
+      };
+      if (ob.obfs) outbound.obfs = ob.obfs;
+      return {
+        name: name || ob.tag || `Hysteria2 (${server})`,
+        outbound,
+        rawLink: `hysteria2://${ob.password || ''}@${server}:${port}#${encodeURIComponent(name || ob.tag || 'Узел')}`
       };
     }
   } catch(e) {
@@ -620,7 +738,20 @@ function fetchSubscription(urlStr, redirects = 0) {
 
         let body = '';
         res.on('data', chunk => body += chunk);
-        res.on('end', () => resolve(body));
+        res.on('end', () => {
+          let title = '';
+          const rawTitle = res.headers['profile-title'] || '';
+          if (rawTitle) {
+            if (rawTitle.startsWith('base64:')) {
+              try {
+                title = Buffer.from(rawTitle.slice(7).trim(), 'base64').toString('utf8').trim();
+              } catch (e) {}
+            } else {
+              title = safeDecodeURIComponent(rawTitle).trim();
+            }
+          }
+          resolve({ body, title });
+        });
       });
 
       req.on('error', err => reject(new Error(`Ошибка подключения к подписке: ${err.message}`)));
@@ -650,11 +781,17 @@ function tryDecodeBase64(str) {
 async function parseAnyInput(input) {
   if (!input) return [];
   let raw = input.trim();
+  let subName = '';
 
   // If input is an HTTP/HTTPS subscription URL
   if (raw.startsWith('http://') || raw.startsWith('https://')) {
     addLog(`[sub] Загрузка подписки по URL: ${raw}...`);
-    raw = await fetchSubscription(raw);
+    const fetched = await fetchSubscription(raw);
+    subName = fetched.title || '';
+    if (!subName) {
+      try { subName = new URL(raw).hostname; } catch (e) {}
+    }
+    raw = fetched.body;
   }
 
   // Check if content is Base64 encoded
@@ -718,6 +855,21 @@ async function parseAnyInput(input) {
     }
   }
 
+  if (!subName) {
+    const titleMatch = raw.match(/#profile-title:\s*(.+)/i);
+    if (titleMatch && titleMatch[1]) {
+      const val = titleMatch[1].trim();
+      if (val.startsWith('base64:')) {
+        try { subName = Buffer.from(val.slice(7).trim(), 'base64').toString('utf8').trim(); } catch (e) {}
+      } else {
+        subName = safeDecodeURIComponent(val);
+      }
+    }
+  }
+  if (subName) {
+    nodes.forEach(n => { n.subName = subName; });
+  }
+
   addLog(`[sub] Распознано узлов: ${nodes.length}`);
   return nodes;
 }
@@ -744,6 +896,9 @@ function buildSingBoxConfig(outbound, withTun = false) {
       stack: 'system'
     });
   }
+
+  const cleanOutbound = { ...outbound, tag: 'proxy' };
+  delete cleanOutbound._unsupported;
 
   return {
     log: {
@@ -772,7 +927,7 @@ function buildSingBoxConfig(outbound, withTun = false) {
     },
     inbounds: inbounds,
     outbounds: [
-      outbound,
+      cleanOutbound,
       {
         type: 'direct',
         tag: 'direct'
@@ -889,8 +1044,130 @@ function stopSingBox(cb) {
   return p;
 }
 
+// Verify real end-to-end proxy connectivity through local mixed inbound
+function verifyTunnel(port = 2080, timeoutMs = 4500) {
+  return new Promise((resolve) => {
+    const req = http.get({
+      host: '127.0.0.1',
+      port,
+      path: 'http://cp.cloudflare.com/generate_204',
+      headers: { Host: 'cp.cloudflare.com' },
+      timeout: timeoutMs
+    }, (res) => {
+      res.resume();
+      resolve(res.statusCode >= 200 && res.statusCode < 400);
+    });
+    req.on('error', () => resolve(false));
+    req.on('timeout', () => {
+      req.destroy();
+      resolve(false);
+    });
+  });
+}
+
+function formatTunnelError(errorOutput) {
+  const clean = (errorOutput || '').replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
+  if (clean.includes('reality verification failed')) {
+    return 'Ошибка Reality-рукопожатия: ключ сервера устарел или узел недоступен';
+  }
+  if (clean.includes('x509:') || clean.includes('tls:') || clean.includes('certificate')) {
+    return 'Ошибка TLS-сертификата узла';
+  }
+  if (clean.includes('connection refused')) {
+    return 'Узел отклонил подключение (connection refused)';
+  }
+  if (clean.includes('timeout') || clean.includes('i/o timeout')) {
+    return 'Таймаут подключения к удалённому серверу';
+  }
+  if (clean.includes('malformed HTTP response')) {
+    return 'Несовместимый транспорт узла (возможно, xhttp не поддерживается)';
+  }
+  return 'Сервер не отвечает или не пропускает трафик';
+}
+
+// Measure real end-to-end proxy latency via temporary sing-box + Clash API
+async function realProxyPing(servers) {
+  const validItems = [];
+  const resultsMap = new Map();
+
+  for (let i = 0; i < servers.length; i++) {
+    const s = servers[i];
+    if (s.outbound && s.outbound.server && s.outbound.type && !s.outbound._unsupported) {
+      const cleanOb = { ...s.outbound, tag: `p_${i}` };
+      delete cleanOb._unsupported;
+      validItems.push({ index: i, id: s.id, outbound: cleanOb });
+    } else {
+      resultsMap.set(s.id, null);
+    }
+  }
+
+  if (validItems.length === 0) {
+    return Promise.all(servers.map(async (s) => ({
+      id: s.id,
+      ping: s.outbound?._unsupported ? null : await tcpPing(s.server, s.port || 443)
+    })));
+  }
+
+  const PING_PORT = 20891;
+  const CLASH_PORT = 19091;
+  const pingCfgPath = path.join(BIN_DIR, 'ping-config.json');
+  const cfg = {
+    log: { level: 'error' },
+    experimental: { clash_api: { external_controller: `127.0.0.1:${CLASH_PORT}` } },
+    inbounds: [{ type: 'mixed', tag: 'ping-in', listen: '127.0.0.1', listen_port: PING_PORT }],
+    outbounds: [...validItems.map(x => x.outbound), { type: 'direct', tag: 'direct' }],
+    route: { final: validItems[0].outbound.tag }
+  };
+
+  fs.mkdirSync(BIN_DIR, { recursive: true });
+  fs.writeFileSync(pingCfgPath, JSON.stringify(cfg), 'utf8');
+
+  const proc = spawn(SINGBOX_EXE, ['run', '-c', pingCfgPath], {
+    cwd: BIN_DIR,
+    windowsHide: true
+  });
+
+  try {
+    const ready = await waitForPort(CLASH_PORT, 3000);
+    if (ready) {
+      await Promise.all(validItems.map((item) => new Promise((resolve) => {
+        const req = http.get(
+          `http://127.0.0.1:${CLASH_PORT}/proxies/${item.outbound.tag}/delay?timeout=4500&url=http://cp.cloudflare.com/generate_204`,
+          { timeout: 5000 },
+          (res) => {
+            let body = '';
+            res.on('data', c => body += c);
+            res.on('end', () => {
+              try {
+                const parsed = JSON.parse(body);
+                resultsMap.set(item.id, typeof parsed.delay === 'number' && parsed.delay > 0 ? parsed.delay : null);
+              } catch {
+                resultsMap.set(item.id, null);
+              }
+              resolve();
+            });
+          }
+        );
+        req.on('error', () => { resultsMap.set(item.id, null); resolve(); });
+        req.on('timeout', () => { req.destroy(); resultsMap.set(item.id, null); resolve(); });
+      })));
+    }
+  } finally {
+    await killProcessWait(proc, 1200);
+    try { if (fs.existsSync(pingCfgPath)) fs.unlinkSync(pingCfgPath); } catch (e) {}
+  }
+
+  return servers.map(s => ({ id: s.id, ping: resultsMap.has(s.id) ? resultsMap.get(s.id) : null }));
+}
+
 function startSingBox(outbound, requestedMode, cb) {
   const p = (async () => {
+    if (outbound._unsupported) {
+      const err = new Error(outbound._unsupported);
+      err.code = 'unsupported_transport';
+      throw err;
+    }
+
     const tryTun = requestedMode === 'tun';
 
     if (tryTun && !isRunningAsAdmin()) {
@@ -955,13 +1232,22 @@ function startSingBox(outbound, requestedMode, cb) {
         }
         if (!isReady) {
           const cleanError = errorOutput.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '').trim();
-          reject(new Error(cleanError || `sing-box завершился с кодом ${code}`));
+          const friendly = formatTunnelError(cleanError);
+          reject(new Error(cleanError.includes('FATAL') ? cleanError : friendly));
         }
       });
 
-      // Health-check: wait for 127.0.0.1:2080 to become ready
-      waitForPort(2080, 3500).then((portOpen) => {
+      // Health-check: wait for 127.0.0.1:2080 to become ready, then verify real tunnel
+      waitForPort(2080, 3500).then(async (portOpen) => {
         if (portOpen && singboxProcess === proc) {
+          const tunnelOk = await verifyTunnel(2080, 4500);
+          if (!tunnelOk) {
+            const msg = formatTunnelError(errorOutput);
+            addLog(`[error] Проверка туннеля не пройдена: ${msg}`);
+            await stopSingBox().catch(() => {});
+            return reject(new Error(msg));
+          }
+
           isReady = true;
           processStartTime = Date.now();
           activeMode = tryTun ? 'tun' : 'proxy';
@@ -1072,15 +1358,18 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => body += chunk);
     req.on('end', async () => {
       try {
-        const { servers } = JSON.parse(body);
+        const { servers, method } = JSON.parse(body);
         if (!Array.isArray(servers)) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           return res.end(JSON.stringify({ success: false, error: 'servers must be an array' }));
         }
-        const results = await Promise.all(servers.map(async (s) => {
-          const ping = await tcpPing(s.server, s.port || 443);
-          return { id: s.id, ping };
-        }));
+        const useProxyPing = method !== 'tcp' && servers.some(s => s.outbound);
+        const results = useProxyPing
+          ? await realProxyPing(servers)
+          : await Promise.all(servers.map(async (s) => {
+              const ping = await tcpPing(s.server, s.port || 443);
+              return { id: s.id, ping };
+            }));
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true, results }));
       } catch (e) {

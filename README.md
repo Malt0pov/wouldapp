@@ -1,7 +1,7 @@
 # WouldApp — Windows VPN-клиент на sing-box
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-7c3aed.svg)](package.json)
+[![Version: 0.1.0 Beta](https://img.shields.io/badge/Version-0.1.0%20Beta-7c3aed.svg)](package.json)
 [![Design: Material Design 3](https://img.shields.io/badge/Design-Material%203-7c3aed.svg)](https://m3.material.io/)
 [![Core: Sing-box 1.14.4](https://img.shields.io/badge/Core-Sing--box%201.14.4-10b981.svg)](https://github.com/SagerNet/sing-box)
 [![Platform: Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078d4.svg)](https://www.microsoft.com/windows)
@@ -26,18 +26,19 @@
 
 ### Протоколы и транспорт
 
-- **VLESS** — Reality, TLS + uTLS-отпечаток, flow.
-- **Trojan** — TLS.
+- **VLESS** — Reality, TLS + uTLS-отпечаток, ALPN, flow.
+- **Trojan** — TLS, Reality, ALPN.
 - **Shadowsocks** — включая методы SS2022 (метод берётся из ссылки).
-- **Hysteria2** — включая obfs.
-- Транспорты: **WebSocket**, **gRPC**, **HTTPUpgrade**.
-- **TUIC не реализован:** ссылки `tuic://` не парсятся. Это план, а не текущая возможность.
+- **Hysteria2** — включая `obfs` (`salamander`), `alpn`, `insecure`.
+- Транспорты: **WebSocket**, **gRPC**, **HTTPUpgrade**, **HTTP/2 (`http`)**.
+- **Ограничения:** `xhttp` (`SplitHTTP`) и `tuic://` ядром `sing-box 1.14.4` в текущей бета-версии не поддерживаются (клиент явно предупреждает при попытке подключения).
 
 ### Импорт узлов и подписки
 
 - Вставка ссылок: `vless://`, `trojan://`, `ss://`, `hysteria2://` (и `hy2://`).
 - Пачка ссылок текстом, «сырой» base64 и JSON-конфиги провайдеров (Happ / sing-box / Xray).
-- Подписки по URL: base64-ответы, JSON, мультиссылки.
+- Подписки по URL: base64-ответы, JSON, мультиссылки. Автоматическое определение названия подписки из заголовка `profile-title` (или домена).
+- Группировка узлов по подпискам с разворачиванием/сворачиванием по кнопке домика и удалением всей подписки целиком.
 - **HWID-привязка** для провайдеров, которые её требуют (Remnawave, Happ): при загрузке подписки отправляются заголовки `x-hwid` / `x-device-id`. При исчерпании лимита устройств показывается понятная ошибка с подсказкой.
 - **QR-кода нет** — импорт только текстом или по URL.
 
@@ -54,10 +55,12 @@
 
 ### Пинг и выбор узла
 
-- Реальный **TCP-connect** до узла с таймаутом 2000 мс (`POST /api/ping`). Фиктивных пингов и HTTP-заглушек нет.
-- Узлы без `outbound` не пингуются — в списке отображается прочерк.
-- Сортировка списка по минимальному пингу, поиск по стране и протоколу.
-- Смена узла при активном подключении — переподключение через `/api/connect`.
+- Два режима проверки пинга на выбор в UI и настройках:
+  - **Via Proxy GET** (по умолчанию) — реальная сквозная проверка через временный `sing-box` (`generate_204`), работает для всех протоколов, включая **Hysteria2 (UDP)** и **VLESS Reality**.
+  - **TCP Ping** — быстрая проверка TCP-порта с таймаутом 2000 мс.
+- При подключении выполняется реальная проверка прохождения трафика через туннель — клиент не покажет ложный статус «Подключено», если ключ узла устарел или сервер не отвечает.
+- Поиск по названию, подписке, адресу и протоколу.
+- Смена узла при активном подключении — автоматическое переподключение.
 
 ### Телеметрия
 
@@ -128,12 +131,11 @@ Kill Switch включается в настройках и работает к�
 
 ### Запуск
 
-1. **`Запустить WouldApp.bat`** — запускает `bin\node.exe server.js`, затем открывает окно Edge/Chrome в режиме `--app` с профилем `%LOCALAPPDATA%\WouldApp\Profile`. Если Edge/Chrome не найдены, страница откроется в браузере по умолчанию.
-2. **`WouldApp.exe`** — WebView2-обёртка: тот же локальный сервер плюс встроенное окно (нужен WebView2 Runtime, обычно уже установлен вместе с Edge).
-3. **Для TUN** запустите `.exe` или `.bat` через «Запуск от имени администратора».
-4. **Для отладки:** `bin\node.exe server.js` (или `npm start`), затем откройте `http://127.0.0.1:3005` — сервер сам подставит одноразовый токен в отдаваемую страницу.
+1. **`WouldApp.exe`** или **`npm start`** — запускает нативное Electron-приложение с треем и IPC-шиной.
+2. **Для TUN** запустите `WouldApp.exe` через «Запуск от имени администратора».
+3. **Автономный веб-режим:** `npm run dev:server` (или `bin\node.exe server.js`), затем откройте `http://127.0.0.1:3005`.
 
-Проверка синтаксиса бэкенда: `npm run check`.
+Проверка синтаксиса и базовых тестов: `npm run check` и `npm test`.
 
 ---
 
@@ -147,7 +149,7 @@ would-vpn-client/
 ├── server.js               # Резервный HTTP API сервер (для автономного запуска в браузере)
 ├── WouldApp.exe            # Нативный бесшумный лаунчер приложения с иконкой
 ├── package.json            # Зависимости и метаданные Electron
-├── API_CONTRACT.md         # Контракт взаимодействия API и IPC
+├── test-core.js            # Базовый набор проверок конфигурации и синтаксиса
 ├── assets/                 # Локально бандлированные шрифты Roboto и Material Symbols
 ├── bin/                    # НЕ в git: sing-box.exe, wintun.dll, node.exe, proxy_helper.exe
 │   └── active-config.json  # Генерируемый активный конфиг туннеля

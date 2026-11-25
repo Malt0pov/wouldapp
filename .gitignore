@@ -1,7 +1,12 @@
 node_modules/
 bin/
+servers.json
 settings.json
 *.zip
 *.log
+*.blockmap
+dist/
+out/
+release/
 WouldApp-Setup.exe
 payload.zip
