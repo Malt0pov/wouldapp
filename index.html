@@ -68,46 +68,46 @@
     }
 
     /* ==========================================================================
-       GOOGLE MATERIAL DESIGN 3 (M3) DESIGN TOKENS (Dark Expressive Palette)
+       GOOGLE MATERIAL DESIGN 3 (M3) DESIGN TOKENS (Minimal Tonal Dark)
        https://m3.material.io/
        ========================================================================== */
     :root {
-      /* M3 Dark Surface & Containers */
-      --md-sys-color-surface: #0b0f19;
-      --md-sys-color-surface-container-lowest: #0e1422;
-      --md-sys-color-surface-container-low: #131b2e;
-      --md-sys-color-surface-container: #18223a;
-      --md-sys-color-surface-container-high: #1e2b48;
-      --md-sys-color-surface-container-highest: #263558;
-      
-      /* M3 Primary (Sky Cyan / Deep Blue) */
-      --md-sys-color-primary: #38bdf8;
-      --md-sys-color-on-primary: #003554;
-      --md-sys-color-primary-container: #0284c7;
-      --md-sys-color-on-primary-container: #e0f2fe;
+      /* M3 Tonal Neutral Surfaces */
+      --md-sys-color-surface: #111318;
+      --md-sys-color-surface-container-lowest: #0c0e13;
+      --md-sys-color-surface-container-low: #17191f;
+      --md-sys-color-surface-container: #1b1e25;
+      --md-sys-color-surface-container-high: #232730;
+      --md-sys-color-surface-container-highest: #2c303a;
+
+      /* M3 Primary (Soft Google Blue) */
+      --md-sys-color-primary: #a8c7fa;
+      --md-sys-color-on-primary: #062e6f;
+      --md-sys-color-primary-container: #0842a0;
+      --md-sys-color-on-primary-container: #d3e3fd;
 
       /* M3 Secondary & Neutral Variants */
-      --md-sys-color-secondary: #94a3b8;
-      --md-sys-color-secondary-container: #1e293b;
-      --md-sys-color-on-secondary-container: #f1f5f9;
-      --md-sys-color-on-surface: #f8fafc;
-      --md-sys-color-on-surface-variant: #94a3b8;
+      --md-sys-color-secondary: #9aa0a6;
+      --md-sys-color-secondary-container: #282c34;
+      --md-sys-color-on-secondary-container: #e3e3e3;
+      --md-sys-color-on-surface: #e3e3e3;
+      --md-sys-color-on-surface-variant: #9aa0a6;
       --md-sys-color-outline: rgba(255, 255, 255, 0.12);
-      --md-sys-color-outline-variant: rgba(255, 255, 255, 0.06);
+      --md-sys-color-outline-variant: rgba(255, 255, 255, 0.07);
 
       /* State Colors */
-      --md-sys-color-success: #10b981;
-      --md-sys-color-on-success: #022c22;
-      --md-sys-color-success-container: rgba(16, 185, 129, 0.16);
-      --md-sys-color-error: #f87171;
-      --md-sys-color-error-container: rgba(248, 113, 113, 0.16);
+      --md-sys-color-success: #6dd58c;
+      --md-sys-color-on-success: #072711;
+      --md-sys-color-success-container: rgba(109, 213, 140, 0.14);
+      --md-sys-color-error: #f2b8b5;
+      --md-sys-color-error-container: rgba(242, 184, 181, 0.14);
 
-      /* M3 Shapes & Elevation */
+      /* M3 Shapes */
       --md-sys-shape-corner-xs: 4px;
       --md-sys-shape-corner-s: 8px;
-      --md-sys-shape-corner-m: 14px;
-      --md-sys-shape-corner-l: 20px;
-      --md-sys-shape-corner-xl: 28px;
+      --md-sys-shape-corner-m: 12px;
+      --md-sys-shape-corner-l: 16px;
+      --md-sys-shape-corner-xl: 24px;
       --md-sys-shape-corner-full: 9999px;
     }
 
@@ -222,14 +222,13 @@
       width: 28px;
       height: 28px;
       border-radius: 8px;
-      background: linear-gradient(135deg, #0284c7, #38bdf8);
-      color: #fff;
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
+      font-weight: 700;
       font-size: 14px;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
     }
 
     .brand-title {
@@ -269,18 +268,14 @@
       height: 8px;
       border-radius: 50%;
       background: var(--md-sys-color-secondary);
-      box-shadow: 0 0 6px rgba(148, 163, 184, 0.5);
     }
 
     .geo-dot.connected {
       background: var(--md-sys-color-success);
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.9);
-      animation: pulseGreen 2s infinite;
     }
 
     .geo-dot.connecting {
       background: var(--md-sys-color-primary);
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
       animation: pulseCyan 1s infinite alternate;
     }
 
@@ -343,6 +338,36 @@
       padding: 18px 0;
       gap: 14px;
       flex-shrink: 0;
+      transition: background 0.25s ease, border-color 0.25s ease, border-radius 0.25s ease, margin 0.25s ease;
+    }
+
+    .m3-nav-rail.liquid-glass {
+      width: 76px;
+      margin: 10px 0 10px 10px;
+      padding: 16px 0;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.065) 0%, rgba(255, 255, 255, 0.025) 100%);
+      backdrop-filter: blur(22px) saturate(150%);
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    .m3-nav-rail.liquid-glass .rail-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .m3-nav-rail.liquid-glass .rail-item.active .rail-pill {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--md-sys-color-primary);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .m3-nav-rail.liquid-glass .rail-tg-btn {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(12px);
     }
 
     .rail-item {
@@ -394,11 +419,10 @@
     .rail-item.active .rail-pill {
       background: var(--md-sys-color-primary-container);
       color: var(--md-sys-color-on-primary-container);
-      box-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);
     }
 
     .rail-item.active .material-symbols-outlined {
-      transform: scale(1.1);
+      transform: scale(1.04);
     }
 
     .rail-spacer {
@@ -406,23 +430,23 @@
     }
 
     .rail-tg-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #0284c7, #38bdf8);
-      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-primary);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
-      transition: all 0.25s ease;
+      transition: background 0.15s ease, border-color 0.15s ease;
       text-decoration: none;
     }
 
     .rail-tg-btn:hover {
-      transform: translateY(-2px) scale(1.06);
-      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
+      background: var(--md-sys-color-surface-container-highest);
+      border-color: var(--md-sys-color-outline);
     }
 
     /* Content Stage */
@@ -467,12 +491,11 @@
       background: var(--md-sys-color-surface-container-low);
       border: 1px solid var(--md-sys-color-outline-variant);
       border-radius: var(--md-sys-shape-corner-xl);
-      padding: 24px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     }
 
     .card-header-clean {
@@ -483,9 +506,9 @@
     }
 
     .card-title-m3 {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -576,32 +599,28 @@
 
     .connection-stage-wrap.connecting .wavy-btn-shape,
     .m3-wavy-power-btn.connecting .wavy-btn-shape {
-      fill: url(#btnGradConnecting);
-      stroke: #e0f2fe;
-      stroke-width: 3.5px;
-      filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.85));
+      fill: var(--md-sys-color-primary-container);
+      stroke: var(--md-sys-color-primary);
+      stroke-width: 2.5px;
     }
 
     .connection-stage-wrap.connecting .wavy-power-glyph,
     .m3-wavy-power-btn.connecting .wavy-power-glyph {
-      color: #ffffff;
-      text-shadow: 0 0 16px rgba(255, 255, 255, 0.95);
+      color: var(--md-sys-color-on-primary-container);
       animation: pulseGlyph 1.4s ease-in-out infinite alternate;
     }
 
-    /* CONNECTED: Solid Emerald Green Glow & Vibrant Shield */
+    /* CONNECTED: Clean M3 Success Tonal */
     .connection-stage-wrap.connected .wavy-btn-shape,
     .m3-wavy-power-btn.connected .wavy-btn-shape {
-      fill: url(#btnGradConnected);
-      stroke: #a7f3d0;
-      stroke-width: 3.5px;
-      filter: drop-shadow(0 0 25px rgba(16, 185, 129, 0.85));
+      fill: var(--md-sys-color-success-container);
+      stroke: var(--md-sys-color-success);
+      stroke-width: 2.5px;
     }
 
     .connection-stage-wrap.connected .wavy-power-glyph,
     .m3-wavy-power-btn.connected .wavy-power-glyph {
-      color: #ffffff;
-      text-shadow: 0 0 16px rgba(255, 255, 255, 0.95);
+      color: var(--md-sys-color-success);
     }
 
     @keyframes spinWavy {
@@ -618,8 +637,8 @@
     .connection-status-headline {
       text-align: center;
       font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
+      font-weight: 500;
+      letter-spacing: 0;
       margin-bottom: 4px;
     }
 
@@ -656,9 +675,8 @@
       align-items: center;
       gap: 6px;
       font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-weight: 500;
+      letter-spacing: 0;
       color: var(--md-sys-color-on-surface-variant);
     }
 
@@ -675,11 +693,12 @@
     }
 
     .vip-ip-address {
-      font-size: 16px;
-      font-weight: 800;
-      font-family: monospace;
-      color: var(--md-sys-color-primary);
-      letter-spacing: 0.5px;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      color: var(--md-sys-color-on-surface);
+      letter-spacing: 0;
     }
 
     .vip-geo-desc {
@@ -765,27 +784,16 @@
 
     /* Would.tg Franchise Promo Card */
     .would-tg-card {
-      background: linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(56, 189, 248, 0.08) 100%);
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
       border-radius: var(--md-sys-shape-corner-xl);
-      padding: 20px 24px;
+      padding: 16px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       position: relative;
       overflow: hidden;
-    }
-
-    .would-tg-card::after {
-      content: '';
-      position: absolute;
-      top: -30px;
-      right: -30px;
-      width: 120px;
-      height: 120px;
-      background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
-      pointer-events: none;
     }
 
     .wtg-left {
@@ -798,51 +806,48 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 3px 8px;
+      padding: 2px 8px;
       border-radius: var(--md-sys-shape-corner-full);
-      background: #0284c7;
-      color: #fff;
+      background: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
       font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
       width: fit-content;
     }
 
     .wtg-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
     }
 
     .wtg-desc {
       font-size: 12px;
-      color: #cbd5e1;
+      color: var(--md-sys-color-on-surface-variant);
       max-width: 480px;
       line-height: 1.4;
     }
 
     .btn-wtg-action {
-      padding: 10px 20px;
+      padding: 9px 18px;
       border-radius: var(--md-sys-shape-corner-full);
       background: var(--md-sys-color-primary);
       color: var(--md-sys-color-on-primary);
       font-size: 12.5px;
-      font-weight: 700;
+      font-weight: 600;
       border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
       flex-shrink: 0;
-      box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
-      transition: all 0.2s ease;
+      transition: opacity 0.15s ease;
       text-decoration: none;
     }
 
     .btn-wtg-action:hover {
-      background: #7dd3fc;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.55);
+      opacity: 0.9;
     }
 
     /* Server Manager Card */
@@ -881,20 +886,19 @@
 
     .m3-search-input {
       width: 100%;
-      height: 38px;
-      border-radius: var(--md-sys-shape-corner-full);
+      height: 36px;
+      border-radius: var(--md-sys-shape-corner-s);
       background: var(--md-sys-color-surface-container);
       border: 1px solid var(--md-sys-color-outline-variant);
-      padding: 0 16px 0 38px;
+      padding: 0 12px 0 36px;
       color: var(--md-sys-color-on-surface);
       font-size: 12.5px;
       outline: none;
-      transition: all 0.2s ease;
+      transition: border-color 0.15s ease;
     }
 
     .m3-search-input:focus {
       border-color: var(--md-sys-color-primary);
-      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
     }
 
     .sl-buttons {
@@ -903,44 +907,52 @@
     }
 
     .btn-filled-m3 {
-      height: 38px;
+      height: 36px;
       padding: 0 16px;
-      border-radius: var(--md-sys-shape-corner-full);
+      border-radius: var(--md-sys-shape-corner-s);
       background: var(--md-sys-color-primary);
       color: var(--md-sys-color-on-primary);
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 12.5px;
+      font-weight: 500;
       border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: opacity 0.15s ease, transform 0.1s ease;
     }
 
     .btn-filled-m3:hover {
-      background: #7dd3fc;
+      opacity: 0.9;
+    }
+
+    .btn-filled-m3:active {
+      transform: scale(0.98);
     }
 
     .btn-tonal-m3 {
-      height: 38px;
+      height: 36px;
       padding: 0 14px;
-      border-radius: var(--md-sys-shape-corner-full);
+      border-radius: var(--md-sys-shape-corner-s);
       background: var(--md-sys-color-surface-container-high);
       color: var(--md-sys-color-on-surface);
       border: 1px solid var(--md-sys-color-outline-variant);
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 12.5px;
+      font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
     }
 
     .btn-tonal-m3:hover {
       background: var(--md-sys-color-surface-container-highest);
-      border-color: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-outline);
+    }
+
+    .btn-tonal-m3:active {
+      transform: scale(0.98);
     }
 
     /* Server Scroll List */
@@ -957,23 +969,22 @@
       background: var(--md-sys-color-surface-container);
       border: 1px solid var(--md-sys-color-outline-variant);
       border-radius: var(--md-sys-shape-corner-m);
-      padding: 12px 16px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
     .server-card-item:hover {
       background: var(--md-sys-color-surface-container-high);
-      border-color: rgba(56, 189, 248, 0.4);
-      transform: translateX(3px);
+      border-color: var(--md-sys-color-outline);
     }
 
     .server-card-item.selected {
-      background: rgba(56, 189, 248, 0.12);
+      background: var(--md-sys-color-surface-container-high);
       border-color: var(--md-sys-color-primary);
     }
 
@@ -1133,13 +1144,14 @@
 
     .ping-pill {
       font-size: 11px;
-      font-weight: 700;
-      font-family: monospace;
-      padding: 3px 8px;
-      border-radius: var(--md-sys-shape-corner-full);
-      background: rgba(16, 185, 129, 0.14);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.25);
+      font-weight: 500;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface-variant);
+      border: 1px solid var(--md-sys-color-outline-variant);
     }
 
     .btn-delete-node {
@@ -1615,10 +1627,9 @@
   <!-- Top Titlebar -->
   <header class="app-titlebar">
     <div class="titlebar-brand">
-      <img src="app_icon.png" class="brand-avatar" alt="WouldApp" style="width:28px;height:28px;border-radius:8px;object-fit:cover;box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+      <img src="app_icon.png" class="brand-avatar" alt="WouldApp" style="width:26px;height:26px;border-radius:7px;object-fit:cover;">
       <div class="brand-title">
         <span>WouldApp</span>
-        <span class="brand-badge">Desktop 1.14</span>
       </div>
     </div>
 
@@ -1711,7 +1722,7 @@
                 <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">vpn_lock</span>
                 <span>Центр управления защитой</span>
               </div>
-              <span class="vip-badge" id="conn-mode-tag">СИСТЕМНЫЙ ПРОКСИ</span>
+              <span class="vip-badge" id="conn-mode-tag">Системный прокси</span>
             </div>
 
             <!-- WAVY SCALLOPED POWER BUTTON (M3 EXPRESSIVE) -->
@@ -1814,7 +1825,7 @@
               <div class="sl-header">
                 <div class="search-input-wrap">
                   <span class="material-symbols-outlined">search</span>
-                  <input type="text" class="m3-search-input" id="search-input" placeholder="Поиск узла по стране, IP или протоколу..." oninput="filterServers(this.value)">
+                  <input type="text" class="m3-search-input" id="search-input" placeholder="Поиск узла" oninput="filterServers(this.value)">
                 </div>
                 <div class="sl-buttons">
                   <select class="m3-search-input" id="ping-method-select-main" title="Метод проверки пинга" style="width: auto; min-width: 112px; height: 34px; padding: 0 8px; font-size: 12px;" onchange="changePingMethod(this.value)">
@@ -1924,26 +1935,43 @@
       <div class="tab-view" id="view-settings">
         <div class="settings-grid-layout">
 
-          <!-- 1. Customization & Ambient Glow -->
+          <!-- 1. Настройки интерфейса -->
           <div class="settings-section-card">
             <div class="settings-section-header">
               <div class="settings-section-title">
-                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">palette</span>
-                <span>Персонализация и акцентный свет</span>
+                <span class="material-symbols-outlined">palette</span>
+                <span>Настройки интерфейса</span>
               </div>
-              <span class="brand-badge" id="current-accent-label">Циан Кибер</span>
             </div>
 
-            <!-- Accent Color Swatches -->
-            <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+            <div class="settings-row">
               <div class="settings-label-group">
-                <div class="settings-item-title">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">brush</span>
-                  Акцентный свет (Material You)
-                </div>
-                <div class="settings-item-desc">Выберите цветовую подсветку кнопки подключения, карточек, индикаторов и эффектов свечения</div>
+                <div class="settings-item-title">Язык</div>
+                <div class="settings-item-desc">Язык интерфейса приложения</div>
               </div>
+              <select class="m3-search-input" id="setting-language-select" style="max-width: 240px;" onchange="updateServerSetting('language', this.value)">
+                <option value="ru" selected>Русский</option>
+                <option value="en">English</option>
+              </select>
+            </div>
 
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Тема</div>
+                <div class="settings-item-desc">Цветовая схема поверхности интерфейса</div>
+              </div>
+              <select class="m3-search-input" id="setting-theme-select" style="max-width: 240px;" onchange="applySurfaceTheme(this.value)">
+                <option value="slate" selected>Графит M3</option>
+                <option value="amoled">AMOLED Black</option>
+                <option value="navy">Тёмно-синяя</option>
+              </select>
+            </div>
+
+            <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Акцентный цвет</div>
+                <div class="settings-item-desc">Основной цвет выделения, кнопок и активных элементов</div>
+              </div>
               <div class="color-swatches-grid" id="color-swatches">
                 <div class="color-swatch-item active" onclick="applyAccent('cyan')" id="swatch-item-cyan">
                   <button class="color-swatch-btn active" style="background: #38bdf8;" id="swatch-cyan">
@@ -1951,186 +1979,196 @@
                   </button>
                   <span class="color-swatch-label">Циан</span>
                 </div>
-
                 <div class="color-swatch-item" onclick="applyAccent('mint')" id="swatch-item-mint">
-                  <button class="color-swatch-btn" style="background: #10b981;" id="swatch-mint">
+                  <button class="color-swatch-btn" style="background: #6dd58c;" id="swatch-mint">
                     <span class="material-symbols-outlined swatch-check">check</span>
                   </button>
                   <span class="color-swatch-label">Мята</span>
                 </div>
-
                 <div class="color-swatch-item" onclick="applyAccent('purple')" id="swatch-item-purple">
-                  <button class="color-swatch-btn" style="background: #c084fc;" id="swatch-purple">
+                  <button class="color-swatch-btn" style="background: #d0bcff;" id="swatch-purple">
                     <span class="material-symbols-outlined swatch-check">check</span>
                   </button>
-                  <span class="color-swatch-label">Неон</span>
+                  <span class="color-swatch-label">Лаванда</span>
                 </div>
-
                 <div class="color-swatch-item" onclick="applyAccent('amber')" id="swatch-item-amber">
-                  <button class="color-swatch-btn" style="background: #fbbf24;" id="swatch-amber">
+                  <button class="color-swatch-btn" style="background: #fbbc04;" id="swatch-amber">
                     <span class="material-symbols-outlined swatch-check">check</span>
                   </button>
                   <span class="color-swatch-label">Янтарь</span>
                 </div>
-
                 <div class="color-swatch-item" onclick="applyAccent('rose')" id="swatch-item-rose">
-                  <button class="color-swatch-btn" style="background: #fb7185;" id="swatch-rose">
+                  <button class="color-swatch-btn" style="background: #f28b82;" id="swatch-rose">
                     <span class="material-symbols-outlined swatch-check">check</span>
                   </button>
-                  <span class="color-swatch-label">Рубин</span>
+                  <span class="color-swatch-label">Коралл</span>
                 </div>
-
                 <div class="color-swatch-item" onclick="applyAccent('cobalt')" id="swatch-item-cobalt">
-                  <button class="color-swatch-btn" style="background: #60a5fa;" id="swatch-cobalt">
+                  <button class="color-swatch-btn" style="background: #a8c7fa;" id="swatch-cobalt">
                     <span class="material-symbols-outlined swatch-check">check</span>
                   </button>
-                  <span class="color-swatch-label">Сапфир</span>
+                  <span class="color-swatch-label">M3 Синий</span>
                 </div>
               </div>
             </div>
 
-            <!-- Background Theme -->
-            <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+            <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
               <div class="settings-label-group">
-                <div class="settings-item-title">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">contrast</span>
-                  Тема подложки
-                </div>
-                <div class="settings-item-desc">Глубина тёмной темы интерфейса для вашего экрана</div>
+                <div class="settings-item-title">Форма кнопки подключения (MD3)</div>
+                <div class="settings-item-desc">Выберите геометрию центральной кнопки на главном экране</div>
               </div>
-
-              <div class="theme-cards-row" style="width: 100%;">
-                <div class="theme-card-option active" id="theme-card-navy" onclick="applySurfaceTheme('navy')">
-                  <div class="theme-card-title">
-                    <span>Material Navy</span>
-                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--md-sys-color-primary);">dark_mode</span>
-                  </div>
-                  <div class="theme-preview-pill" style="background: #18223a; color: #38bdf8;">Синий космос</div>
+              <div class="color-swatches-grid" id="power-shape-grid">
+                <div class="color-swatch-item active" onclick="applyPowerShape('wavy')" id="shape-item-wavy">
+                  <button type="button" class="color-swatch-btn" style="background: var(--md-sys-color-surface-container-high); border: 1px solid var(--md-sys-color-outline);">
+                    <svg viewBox="0 0 160 160" width="22" height="22"><path fill="var(--md-sys-color-primary)" d="M 151 80 C 151 84.57, 132.78 87.8, 131.19 93.72 C 129.6 99.64, 143.78 111.54, 141.49 115.5 C 139.21 119.46, 121.81 113.15, 117.48 117.48 C 113.15 121.81, 119.46 139.21, 115.5 141.49 C 111.54 143.78, 99.64 129.6, 93.72 131.19 C 87.8 132.78, 84.57 151, 80 151 C 75.43 151, 72.2 132.78, 66.28 131.19 C 60.36 129.6, 48.46 143.78, 44.5 141.49 C 40.54 139.21, 46.85 121.81, 42.52 117.48 C 38.19 113.15, 20.8 119.46, 18.51 115.5 C 16.23 111.54, 30.39 99.64, 28.81 93.72 C 27.22 87.8, 9 84.57, 9 80 C 9 75.43, 27.22 72.2, 28.81 66.28 C 30.39 60.36, 16.23 48.46, 18.51 44.5 C 20.8 40.54, 38.19 46.85, 42.52 42.52 C 46.85 38.19, 40.54 20.8, 44.5 18.51 C 48.46 16.23, 60.36 30.39, 66.28 28.81 C 72.2 27.22, 75.43 9, 80 9 C 84.57 9, 87.8 27.22, 93.72 28.81 C 99.64 30.39, 111.54 16.23, 115.5 18.51 C 119.46 20.8, 113.15 38.19, 117.48 42.52 C 121.81 46.85, 139.21 40.54, 141.49 44.5 C 143.78 48.46, 129.6 60.36, 131.19 66.28 C 132.78 72.2, 151 75.43, 151 80 Z"/></svg>
+                  </button>
+                  <span class="color-swatch-label">Волна</span>
                 </div>
-
-                <div class="theme-card-option" id="theme-card-amoled" onclick="applySurfaceTheme('amoled')">
-                  <div class="theme-card-title">
-                    <span>AMOLED Black</span>
-                    <span class="material-symbols-outlined" style="font-size: 14px; color: #aaa;">brightness_1</span>
-                  </div>
-                  <div class="theme-preview-pill" style="background: #121212; color: #ffffff;">Чистый #000000</div>
+                <div class="color-swatch-item" onclick="applyPowerShape('circle')" id="shape-item-circle">
+                  <button type="button" class="color-swatch-btn" style="background: var(--md-sys-color-surface-container-high); border: 1px solid var(--md-sys-color-outline);">
+                    <svg viewBox="0 0 160 160" width="22" height="22"><path fill="var(--md-sys-color-primary)" d="M 80 12 A 68 68 0 1 1 79.9 12 Z"/></svg>
+                  </button>
+                  <span class="color-swatch-label">Круг</span>
                 </div>
-
-                <div class="theme-card-option" id="theme-card-slate" onclick="applySurfaceTheme('slate')">
-                  <div class="theme-card-title">
-                    <span>Slate Graphite</span>
-                    <span class="material-symbols-outlined" style="font-size: 14px; color: #94a3b8;">shield_moon</span>
-                  </div>
-                  <div class="theme-preview-pill" style="background: #334155; color: #cbd5e1;">Тёмный графит</div>
+                <div class="color-swatch-item" onclick="applyPowerShape('squircle')" id="shape-item-squircle">
+                  <button type="button" class="color-swatch-btn" style="background: var(--md-sys-color-surface-container-high); border: 1px solid var(--md-sys-color-outline);">
+                    <svg viewBox="0 0 160 160" width="22" height="22"><path fill="var(--md-sys-color-primary)" d="M 80 12 C 132 12, 148 28, 148 80 C 148 132, 132 148, 80 148 C 28 148, 12 132, 12 80 C 12 28, 28 12, 80 12 Z"/></svg>
+                  </button>
+                  <span class="color-swatch-label">Сквиркл</span>
+                </div>
+                <div class="color-swatch-item" onclick="applyPowerShape('clover')" id="shape-item-clover">
+                  <button type="button" class="color-swatch-btn" style="background: var(--md-sys-color-surface-container-high); border: 1px solid var(--md-sys-color-outline);">
+                    <svg viewBox="0 0 160 160" width="22" height="22"><path fill="var(--md-sys-color-primary)" d="M 80 26 C 102 6, 138 22, 134 52 C 154 66, 154 94, 134 108 C 138 138, 102 154, 80 134 C 58 154, 22 138, 26 108 C 6 94, 6 66, 26 52 C 22 22, 58 6, 80 26 Z"/></svg>
+                  </button>
+                  <span class="color-swatch-label">Клевер</span>
+                </div>
+                <div class="color-swatch-item" onclick="applyPowerShape('hexagon')" id="shape-item-hexagon">
+                  <button type="button" class="color-swatch-btn" style="background: var(--md-sys-color-surface-container-high); border: 1px solid var(--md-sys-color-outline);">
+                    <svg viewBox="0 0 160 160" width="22" height="22"><path fill="var(--md-sys-color-primary)" d="M 70 15 Q 80 9 90 15 L 136 42 Q 146 48 146 60 L 146 100 Q 146 112 136 118 L 90 145 Q 80 151 70 145 L 24 118 Q 14 112 14 100 L 14 60 Q 14 48 24 42 Z"/></svg>
+                  </button>
+                  <span class="color-swatch-label">Гексагон</span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- 2. Audio & Haptic Feedback -->
-          <div class="settings-section-card">
-            <div class="settings-section-header">
-              <div class="settings-section-title">
-                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">volume_up</span>
-                <span>Звуковой отклик и взаимодействие</span>
-              </div>
-              <button class="btn-tonal-sm" onclick="SoundFX.play('connect')" title="Проверить звук">
-                <span class="material-symbols-outlined" style="font-size: 14px;">play_arrow</span>
-                Тест звука
-              </button>
             </div>
 
             <div class="settings-row">
               <div class="settings-label-group">
-                <div class="settings-item-title">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">graphic_eq</span>
-                  Звуковые эффекты интерфейса
-                </div>
-                <div class="settings-item-desc">Мягкие звуковые микро-клики при нажатии кнопок, переключении вкладок и футуристичный аккорд при подключении к сети</div>
+                <div class="settings-item-title">Жидкое стекло (боковое меню)</div>
+                <div class="settings-item-desc">Полупрозрачная стеклянная панель навигации с размытием</div>
               </div>
-              <div class="m3-switch checked" id="switch-sound" onclick="toggleSettingSwitch('switch-sound', 'soundEnabled')">
+              <div class="m3-switch checked" id="switch-liquid-glass" onclick="toggleLiquidGlass()">
                 <div class="m3-switch-thumb"></div>
               </div>
             </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Звуковой отклик</div>
+                <div class="settings-item-desc">Микро-клики и звук при подключении</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <button class="btn-tonal-sm" onclick="SoundFX.play('connect')" title="Проверить звук">Тест</button>
+                <div class="m3-switch checked" id="switch-sound" onclick="toggleSettingSwitch('switch-sound', 'soundEnabled')">
+                  <div class="m3-switch-thumb"></div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- 3. Network & Security Engine -->
+          <!-- 2. Настройки туннеля -->
           <div class="settings-section-card">
             <div class="settings-section-header">
               <div class="settings-section-title">
-                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">shield</span>
-                <span>Сетевое ядро и безопасность (Sing-box 1.14)</span>
+                <span class="material-symbols-outlined">tune</span>
+                <span>Настройки туннеля</span>
               </div>
-              <span class="brand-badge">WinINet Sync</span>
             </div>
 
             <div class="settings-row">
               <div class="settings-label-group">
-                <div class="settings-item-title">Режим туннелирования</div>
-                <div class="settings-item-desc">Системный прокси работает сразу без UAC и прав админа. Режим TUN перехватывает весь трафик ПК через Wintun.</div>
+                <div class="settings-item-title">Правила маршрутизации</div>
+                <div class="settings-item-desc">Весь трафик через VPN или обход российских доменов и локальных адресов</div>
               </div>
-              <select class="m3-search-input" id="setting-mode-select" style="max-width: 280px;" onchange="changeMode(this.value)">
-                <option value="proxy" selected>Системный прокси (Рекомендуется)</option>
-                <option value="tun">TUN (Wintun адаптер, весь трафик)</option>
+              <select class="m3-search-input" id="setting-routing-select" style="max-width: 240px;" onchange="updateServerSetting('routingMode', this.value)">
+                <option value="global" selected>Весь трафик (Global)</option>
+                <option value="bypass_ru">Обход РФ и LAN</option>
+                <option value="direct">Напрямую (Direct)</option>
               </select>
             </div>
 
             <div class="settings-row">
               <div class="settings-label-group">
-                <div class="settings-item-title">Метод проверки пинга</div>
-                <div class="settings-item-desc">Proxy GET проверяет реальную работу туннеля (включая Hysteria2 UDP), TCP Ping быстрее проверяет только порт</div>
+                <div class="settings-item-title">Режим туннелирования</div>
+                <div class="settings-item-desc">Системный прокси работает без прав админа. TUN перехватывает весь трафик ПК</div>
               </div>
-              <select class="m3-search-input" id="setting-ping-method" style="max-width: 280px;" onchange="changePingMethod(this.value)">
-                <option value="proxy" selected>Via Proxy GET (Рекомендуется)</option>
-                <option value="tcp">TCP Ping (Только порт)</option>
+              <select class="m3-search-input" id="setting-mode-select" style="max-width: 240px;" onchange="changeMode(this.value)">
+                <option value="proxy" selected>Системный прокси</option>
+                <option value="tun">TUN (Wintun адаптер)</option>
+              </select>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Включить фрагментацию</div>
+                <div class="settings-item-desc">Разбиение TLS ClientHello для обхода DPI-блокировок</div>
+              </div>
+              <div class="m3-switch" id="switch-fragment" onclick="toggleSettingSwitch('switch-fragment', 'fragmentEnabled', (v) => updateServerSetting('fragmentEnabled', v))">
+                <div class="m3-switch-thumb"></div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Включить мультиплексор</div>
+                <div class="settings-item-desc">Мультиплексирование соединений (h2mux) для узлов без Vision</div>
+              </div>
+              <div class="m3-switch" id="switch-mux" onclick="toggleSettingSwitch('switch-mux', 'muxEnabled', (v) => updateServerSetting('muxEnabled', v))">
+                <div class="m3-switch-thumb"></div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Предпочитаемый тип IP</div>
+                <div class="settings-item-desc">Стратегия DNS-резолвинга и выбора адреса</div>
+              </div>
+              <select class="m3-search-input" id="setting-iptype-select" style="max-width: 240px;" onchange="updateServerSetting('ipType', this.value)">
+                <option value="prefer_ipv4" selected>IPv4 (Предпочтительно)</option>
+                <option value="ipv4_only">Только IPv4</option>
+                <option value="prefer_ipv6">IPv6 (Предпочтительно)</option>
               </select>
             </div>
 
             <div class="settings-row">
               <div class="settings-label-group">
                 <div class="settings-item-title">Защищенный DNS-сервер</div>
-                <div class="settings-item-desc">Шифрованное разрешение доменных имен без перехвата провайдером</div>
+                <div class="settings-item-desc">Разрешение доменных имен через туннель</div>
               </div>
-              <select class="m3-search-input" id="setting-dns-select" style="max-width: 280px;" onchange="changeDns(this.value)">
-                <option value="google" selected>Google DNS (8.8.8.8 / 8.8.4.4)</option>
-                <option value="cloudflare">Cloudflare DNS (1.1.1.1 / 1.0.0.1)</option>
-                <option value="quad9">Quad9 Security (9.9.9.9)</option>
+              <select class="m3-search-input" id="setting-dns-select" style="max-width: 240px;" onchange="changeDns(this.value)">
+                <option value="google" selected>Google DNS (8.8.8.8)</option>
+                <option value="cloudflare">Cloudflare (1.1.1.1)</option>
+                <option value="quad9">Quad9 (9.9.9.9)</option>
+                <option value="adguard">AdGuard DNS (94.140.14.14)</option>
               </select>
             </div>
 
             <div class="settings-row">
               <div class="settings-label-group">
-                <div class="settings-item-title">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">lock</span>
-                  Kill Switch (Аварийная блокировка)
-                </div>
-                <div class="settings-item-desc">Автоматически блокировать незащищенный трафик ПК, если соединение с VLESS-сервером прервано</div>
+                <div class="settings-item-title">Kill Switch</div>
+                <div class="settings-item-desc">Блокировать трафик при аварийном разрыве туннеля</div>
               </div>
               <div class="m3-switch" id="switch-killswitch" onclick="toggleSettingSwitch('switch-killswitch', 'killSwitch')">
                 <div class="m3-switch-thumb"></div>
               </div>
             </div>
-
-            <div class="settings-row">
-              <div class="settings-label-group">
-                <div class="settings-item-title">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">autorenew</span>
-                  Автоматическое подключение
-                </div>
-                <div class="settings-item-desc">Подключаться к последнему выбранному серверу сразу при открытии WouldApp</div>
-              </div>
-              <div class="m3-switch" id="switch-autoconnect" onclick="toggleSettingSwitch('switch-autoconnect', 'autoConnect')">
-                <div class="m3-switch-thumb"></div>
-              </div>
-            </div>
           </div>
 
-          <!-- 4. Windows Integration & Traffic -->
+          <!-- 3. Дополнительные настройки -->
           <div class="settings-section-card">
             <div class="settings-section-header">
               <div class="settings-section-title">
-                <span class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">desktop_windows</span>
-                <span>Интеграция с Windows и трафик</span>
+                <span class="material-symbols-outlined">settings_applications</span>
+                <span>Дополнительные настройки</span>
               </div>
               <button class="btn-tonal-sm" onclick="resetTrafficStats()">
                 <span class="material-symbols-outlined" style="font-size: 14px;">restart_alt</span>
@@ -2140,8 +2178,50 @@
 
             <div class="settings-row">
               <div class="settings-label-group">
+                <div class="settings-item-title">Разрешить подключения из LAN</div>
+                <div class="settings-item-desc">Открыть локальный прокси (2080) для устройств в вашей локальной сети</div>
+              </div>
+              <div class="m3-switch" id="switch-allowlan" onclick="toggleSettingSwitch('switch-allowlan', 'allowLan', (v) => updateServerSetting('allowLan', v))">
+                <div class="m3-switch-thumb"></div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Метод проверки пинга</div>
+                <div class="settings-item-desc">Proxy GET проверяет реальный туннель, TCP Ping быстрее проверяет только порт</div>
+              </div>
+              <select class="m3-search-input" id="setting-ping-method" style="max-width: 240px;" onchange="changePingMethod(this.value)">
+                <option value="proxy" selected>Via Proxy GET</option>
+                <option value="tcp">TCP Ping</option>
+              </select>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Автоматическое подключение</div>
+                <div class="settings-item-desc">Подключаться к последнему выбранному узлу сразу при запуске</div>
+              </div>
+              <div class="m3-switch" id="switch-autoconnect" onclick="toggleSettingSwitch('switch-autoconnect', 'autoConnect')">
+                <div class="m3-switch-thumb"></div>
+              </div>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
+                <div class="settings-item-title">Ярлык на рабочем столе</div>
+                <div class="settings-item-desc">Создать или обновить ярлык WouldApp с иконкой на рабочем столе</div>
+              </div>
+              <button class="btn-tonal-sm" onclick="createDesktopShortcutUI()">
+                <span class="material-symbols-outlined" style="font-size: 14px;">add_to_home_screen</span>
+                Создать ярлык
+              </button>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-group">
                 <div class="settings-item-title">Автозапуск с Windows</div>
-                <div class="settings-item-desc">Запускать фоновую защиту WouldApp автоматически при включении ПК</div>
+                <div class="settings-item-desc">Запускать WouldApp автоматически при входе в систему</div>
               </div>
               <div class="m3-switch" id="switch-autostart" onclick="toggleSettingSwitch('switch-autostart', 'autoStart')">
                 <div class="m3-switch-thumb"></div>
@@ -2485,23 +2565,108 @@
       if (appState.activeTab === 'servers') renderFullServers();
     }
 
-    // Smart Flag Detection
-    function detectFlagFromName(name) {
+    // Smart Country Code & SVG Flag Renderer (works natively on Windows without SE/NL letter fallback)
+    function extractFlagCodeFromEmoji(str) {
+      if (!str) return null;
+      const chars = Array.from(str);
+      for (let i = 0; i < chars.length - 1; i++) {
+        const c1 = chars[i].codePointAt(0);
+        const c2 = chars[i + 1].codePointAt(0);
+        if (c1 >= 0x1F1E6 && c1 <= 0x1F1FF && c2 >= 0x1F1E6 && c2 <= 0x1F1FF) {
+          return String.fromCharCode(c1 - 0x1F1E6 + 97, c2 - 0x1F1E6 + 97);
+        }
+      }
+      return null;
+    }
+
+    function detectCountryCode(name, flagStr) {
+      const fromName = extractFlagCodeFromEmoji(name);
+      if (fromName) return fromName;
+      const fromFlag = extractFlagCodeFromEmoji(flagStr);
+      if (fromFlag) return fromFlag;
+
       const lower = (name || '').toLowerCase();
-      if (lower.includes('нидерланд') || lower.includes('netherland') || lower.includes('amsterdam') || lower.includes('nl')) return '🇳🇱';
-      if (lower.includes('германи') || lower.includes('germany') || lower.includes('frankfurt') || lower.includes('de')) return '🇩🇪';
-      if (lower.includes('финлянд') || lower.includes('finland') || lower.includes('helsinki') || lower.includes('fi')) return '🇫🇮';
-      if (lower.includes('сша') || lower.includes('usa') || lower.includes('united states') || lower.includes('america') || lower.includes('us')) return '🇺🇸';
-      if (lower.includes('турци') || lower.includes('turkey') || lower.includes('istanbul') || lower.includes('tr')) return '🇹🇷';
-      if (lower.includes('швеци') || lower.includes('sweden') || lower.includes('stockholm') || lower.includes('se')) return '🇸🇪';
-      if (lower.includes('польш') || lower.includes('poland') || lower.includes('warsaw') || lower.includes('pl')) return '🇵🇱';
-      if (lower.includes('франци') || lower.includes('france') || lower.includes('paris') || lower.includes('fr')) return '🇫🇷';
-      if (lower.includes('великобрит') || lower.includes('uk') || lower.includes('london') || lower.includes('gb')) return '🇬🇧';
-      if (lower.includes('казахст') || lower.includes('kazakh') || lower.includes('kz')) return '🇰🇿';
-      if (lower.includes('оаэ') || lower.includes('uae') || lower.includes('dubai') || lower.includes('ae')) return '🇦🇪';
-      if (lower.includes('сингапур') || lower.includes('singapore') || lower.includes('sg')) return '🇸🇬';
-      if (lower.includes('япони') || lower.includes('japan') || lower.includes('tokyo') || lower.includes('jp')) return '🇯🇵';
-      return '🌐';
+      const map = [
+        ['nl', ['нидерланд', 'голланди', 'netherland', 'amsterdam']],
+        ['de', ['германи', 'germany', 'frankfurt']],
+        ['se', ['швеци', 'sweden', 'stockholm']],
+        ['fi', ['финлянд', 'finland', 'helsinki']],
+        ['lt', ['литв', 'lithuania', 'vilnius']],
+        ['ee', ['эстони', 'estonia', 'tallinn']],
+        ['lv', ['латви', 'latvia', 'riga']],
+        ['pl', ['польш', 'poland', 'warsaw']],
+        ['cz', ['чехи', 'czech', 'prague']],
+        ['fr', ['франци', 'france', 'paris']],
+        ['gb', ['великобрит', 'англи', 'london', 'britain']],
+        ['es', ['испани', 'spain', 'madrid']],
+        ['it', ['итали', 'italy', 'milan', 'rome']],
+        ['al', ['албани', 'albania', 'tirana']],
+        ['md', ['молдов', 'moldova', 'chisinau']],
+        ['ru', ['росси', 'russia', 'moscow']],
+        ['ua', ['украин', 'ukraine', 'kyiv']],
+        ['tr', ['турци', 'turkey', 'istanbul']],
+        ['kz', ['казахст', 'kazakh', 'almaty', 'astana']],
+        ['us', ['сша', 'usa', 'united states', 'america']],
+        ['ca', ['канад', 'canada', 'toronto']],
+        ['ae', ['оаэ', 'uae', 'dubai']],
+        ['sg', ['сингапур', 'singapore']],
+        ['jp', ['япони', 'japan', 'tokyo']],
+        ['th', ['таиланд', 'thailand', 'bangkok']],
+        ['in', ['инди', 'india', 'mumbai']],
+        ['eu', ['европ', 'europe', 'авто']]
+      ];
+      for (const [code, keys] of map) {
+        if (keys.some(k => lower.includes(k))) return code;
+      }
+      const prefix = lower.match(/^([a-z]{2})\s+/);
+      if (prefix) return prefix[1];
+      return null;
+    }
+
+    function detectFlagFromName(name) {
+      const code = detectCountryCode(name);
+      return code ? getFlagEmoji(code) : '🌐';
+    }
+
+    const SVG_FLAGS = {
+      nl: '<rect width="24" height="6" fill="#AE1C28"/><rect y="6" width="24" height="6" fill="#FFF"/><rect y="12" width="24" height="6" fill="#21468B"/>',
+      de: '<rect width="24" height="6" fill="#111"/><rect y="6" width="24" height="6" fill="#DD0000"/><rect y="12" width="24" height="6" fill="#FFCE00"/>',
+      ru: '<rect width="24" height="6" fill="#FFF"/><rect y="6" width="24" height="6" fill="#0039A6"/><rect y="12" width="24" height="6" fill="#D52B1E"/>',
+      lt: '<rect width="24" height="6" fill="#FDB913"/><rect y="6" width="24" height="6" fill="#006A44"/><rect y="12" width="24" height="6" fill="#C1272D"/>',
+      ee: '<rect width="24" height="6" fill="#0072CE"/><rect y="6" width="24" height="6" fill="#111"/><rect y="12" width="24" height="6" fill="#FFF"/>',
+      lv: '<rect width="24" height="18" fill="#9E3039"/><rect y="7" width="24" height="4" fill="#FFF"/>',
+      pl: '<rect width="24" height="9" fill="#FFF"/><rect y="9" width="24" height="9" fill="#DC143C"/>',
+      ua: '<rect width="24" height="9" fill="#005BBB"/><rect y="9" width="24" height="9" fill="#FFD500"/>',
+      fr: '<rect width="8" height="18" fill="#0055A4"/><rect x="8" width="8" height="18" fill="#FFF"/><rect x="16" width="8" height="18" fill="#EF4135"/>',
+      it: '<rect width="8" height="18" fill="#009246"/><rect x="8" width="8" height="18" fill="#FFF"/><rect x="16" width="8" height="18" fill="#CE2B37"/>',
+      se: '<rect width="24" height="18" fill="#006AA7"/><rect x="7" width="3" height="18" fill="#FECC00"/><rect y="7.5" width="24" height="3" fill="#FECC00"/>',
+      fi: '<rect width="24" height="18" fill="#FFF"/><rect x="7" width="3.5" height="18" fill="#003580"/><rect y="7" width="24" height="4" fill="#003580"/>',
+      cz: '<rect width="24" height="9" fill="#FFF"/><rect y="9" width="24" height="9" fill="#D7141A"/><polygon points="0,0 11,9 0,18" fill="#11457E"/>',
+      gb: '<rect width="24" height="18" fill="#012169"/><path d="M0,0 L24,18 M24,0 L0,18" stroke="#FFF" stroke-width="3"/><path d="M0,0 L24,18 M24,0 L0,18" stroke="#C8102E" stroke-width="1.4"/><rect x="10" width="4" height="18" fill="#FFF"/><rect y="7" width="24" height="4" fill="#FFF"/><rect x="10.8" width="2.4" height="18" fill="#C8102E"/><rect y="7.8" width="24" height="2.4" fill="#C8102E"/>',
+      us: '<rect width="24" height="18" fill="#B22234"/><path d="M0,3 H24 M0,7 H24 M0,11 H24 M0,15 H24" stroke="#FFF" stroke-width="1.6"/><rect width="11" height="10" fill="#3C3B6E"/>',
+      ca: '<rect width="6" height="18" fill="#FF0000"/><rect x="6" width="12" height="18" fill="#FFF"/><rect x="18" width="6" height="18" fill="#FF0000"/><circle cx="12" cy="9" r="3" fill="#FF0000"/>',
+      es: '<rect width="24" height="18" fill="#AA151B"/><rect y="4.5" width="24" height="9" fill="#F1BF00"/>',
+      tr: '<rect width="24" height="18" fill="#E30A17"/><circle cx="10" cy="9" r="4.5" fill="#FFF"/><circle cx="11.3" cy="9" r="3.6" fill="#E30A17"/><circle cx="14.5" cy="9" r="1.3" fill="#FFF"/>',
+      kz: '<rect width="24" height="18" fill="#00AFCA"/><circle cx="12" cy="9" r="3.5" fill="#FEC50C"/>',
+      al: '<rect width="24" height="18" fill="#E41E20"/><circle cx="12" cy="9" r="3.2" fill="#111"/>',
+      md: '<rect width="8" height="18" fill="#0046AE"/><rect x="8" width="8" height="18" fill="#FFD200"/><rect x="16" width="8" height="18" fill="#CC092F"/>',
+      ae: '<rect width="24" height="6" fill="#00732F"/><rect y="6" width="24" height="6" fill="#FFF"/><rect y="12" width="24" height="6" fill="#111"/><rect width="6" height="18" fill="#FF0000"/>',
+      sg: '<rect width="24" height="9" fill="#EF3340"/><rect y="9" width="24" height="9" fill="#FFF"/><circle cx="6.5" cy="4.5" r="2.5" fill="#FFF"/><circle cx="7.5" cy="4.5" r="2.2" fill="#EF3340"/>',
+      jp: '<rect width="24" height="18" fill="#FFF"/><circle cx="12" cy="9" r="4.8" fill="#BC002D"/>',
+      th: '<rect width="24" height="18" fill="#A51931"/><rect y="3" width="24" height="12" fill="#F4F5F8"/><rect y="6" width="24" height="6" fill="#2D2A4A"/>',
+      in: '<rect width="24" height="6" fill="#FF9933"/><rect y="6" width="24" height="6" fill="#FFF"/><rect y="12" width="24" height="6" fill="#138808"/><circle cx="12" cy="9" r="2" fill="#000080"/>',
+      eu: '<rect width="24" height="18" fill="#003399"/><circle cx="12" cy="9" r="5" fill="none" stroke="#FFCC00" stroke-width="1.5" stroke-dasharray="1.5 1.8"/>'
+    };
+
+    function renderFlagIcon(server) {
+      const code = detectCountryCode(server?.name, server?.flag);
+      if (code && SVG_FLAGS[code]) {
+        return `<svg viewBox="0 0 24 18" width="22" height="16" style="border-radius: 3px; border: 1px solid rgba(255,255,255,0.12); flex-shrink: 0; display: block;">${SVG_FLAGS[code]}</svg>`;
+      }
+      if (code) {
+        return `<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:16px;border-radius:3px;background:var(--md-sys-color-surface-container-highest);border:1px solid var(--md-sys-color-outline-variant);font-size:9.5px;font-weight:600;color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;">${escapeHtml(code)}</span>`;
+      }
+      return `<span class="material-symbols-outlined" style="font-size: 18px; color: var(--md-sys-color-on-surface-variant);">public</span>`;
     }
 
     // Tab Navigation
@@ -2564,13 +2729,19 @@
           }
         } catch (err) {
           setConnectionState('disconnected');
-          // TUN admin error: switch mode to proxy silently on server and show single error snackbar (§8.8 fix #35, #36)
           if (err.message && err.message.toLowerCase().includes('администратор')) {
+            if (window.electronAPI && confirm('Режим TUN (Wintun) требует прав администратора. Перезапустить WouldApp от имени администратора и сразу подключиться?')) {
+              showSnackbar('Перезапуск с правами администратора...');
+              const r = await window.electronAPI.relaunchAsAdmin({ serverId: activeServer.id });
+              if (r && r.success) return;
+            }
             await changeMode('proxy', false);
             const selectEl = document.getElementById('setting-mode-select');
             if (selectEl) selectEl.value = 'proxy';
+            showSnackbar('Переключено на Системный прокси (без прав администратора)');
+          } else {
+            showSnackbar(`Ошибка запуска: ${err.message}`, 'error');
           }
-          showSnackbar(`Ошибка запуска: ${err.message}`, 'error');
         } finally {
           appState.busy = false;
         }
@@ -2746,39 +2917,52 @@
 
         // Real traffic from server (§8.2)
         if (data.traffic) {
-          const downDelta = Math.max(0, data.traffic.downBytes - appState.prevTrafficDown);
-          const upDelta = Math.max(0, data.traffic.upBytes - appState.prevTrafficUp);
+          const downDelta = typeof data.traffic.downSpeedBytes === 'number'
+            ? data.traffic.downSpeedBytes
+            : Math.max(0, data.traffic.downBytes - appState.prevTrafficDown);
+          const upDelta = typeof data.traffic.upSpeedBytes === 'number'
+            ? data.traffic.upSpeedBytes
+            : Math.max(0, data.traffic.upBytes - appState.prevTrafficUp);
           appState.prevTrafficDown = data.traffic.downBytes;
           appState.prevTrafficUp = data.traffic.upBytes;
 
-          // Speed = delta bytes per second → MB/s
-          const downSpeed = (downDelta / 1024 / 1024).toFixed(1);
-          const upSpeed = (upDelta / 1024 / 1024).toFixed(1);
+          const formatSpeed = (bps) => {
+            if (!bps || bps < 1024) return `${Math.round(bps || 0)} B/s`;
+            if (bps < 1024 * 1024) return `${(bps / 1024).toFixed(1)} KB/s`;
+            return `${(bps / 1024 / 1024).toFixed(2)} MB/s`;
+          };
 
           if (data.running) {
-            document.getElementById('tel-down').textContent = `${downSpeed} MB/s`;
-            document.getElementById('tel-up').textContent = `${upSpeed} MB/s`;
+            document.getElementById('tel-down').textContent = formatSpeed(downDelta);
+            document.getElementById('tel-up').textContent = formatSpeed(upDelta);
 
             appState.waveData.shift();
-            appState.waveData.push(parseFloat(downSpeed));
+            appState.waveData.push(parseFloat((downDelta / 1024 / 1024).toFixed(2)));
             drawSpeedWave();
           }
 
           // Update total traffic stat (§8.2 fix #4)
-          const totalDown = (data.traffic.downBytes / 1024 / 1024).toFixed(1);
-          const totalUp = (data.traffic.upBytes / 1024 / 1024).toFixed(1);
+          const formatTotal = (b) => {
+            if (!b || b < 1024 * 1024) return `${((b || 0) / 1024).toFixed(1)} KB`;
+            return `${(b / 1024 / 1024).toFixed(1)} MB`;
+          };
           appState.totalDownloaded = data.traffic.downBytes;
           appState.totalUploaded = data.traffic.upBytes;
           const trafficTxt = document.getElementById('traffic-stat-text');
-          if (trafficTxt) trafficTxt.textContent = `Загружено: ${totalDown} MB • Отправлено: ${totalUp} MB`;
+          if (trafficTxt) trafficTxt.textContent = `Загружено: ${formatTotal(data.traffic.downBytes)} • Отправлено: ${formatTotal(data.traffic.upBytes)}`;
         }
 
-        // Logs update (§8.1) — merged with poll, no separate 2500ms timer
-        if (data.logs) {
+        // Logs update (§8.1) — only re-render when changed, preserve scroll if user scrolled up
+        if (Array.isArray(data.logs)) {
           const term = document.getElementById('terminal-body');
-          if (term) {
-            term.innerHTML = data.logs.map(l => `<div>${escapeHtml(l)}</div>`).join('');
-            term.scrollTop = term.scrollHeight;
+          const logsKey = data.logs.join('\n');
+          if (term && term.dataset.lastLogs !== logsKey) {
+            const wasAtBottom = (term.scrollHeight - term.scrollTop - term.clientHeight) < 40;
+            term.dataset.lastLogs = logsKey;
+            term.innerHTML = data.logs.length > 0
+              ? data.logs.map(l => `<div>${escapeHtml(l)}</div>`).join('')
+              : '<div style="opacity:0.6">[ожидание событий sing-box...]</div>';
+            if (wasAtBottom) term.scrollTop = term.scrollHeight;
           }
         }
 
@@ -2962,7 +3146,7 @@
           const portStr = srvPort ? `:${srvPort}` : '';
           div.innerHTML = `
             <div class="srv-left">
-              <span class="srv-flag">${s.flag || '🌐'}</span>
+              <span class="srv-flag">${renderFlagIcon(s)}</span>
               <div class="srv-info">
                 <span class="srv-name">${escapeHtml(s.name)}</span>
                 <span class="srv-meta">${escapeHtml(s.proto)} • IP: ${escapeHtml(s.ip)}${portStr}</span>
@@ -3064,7 +3248,7 @@
           const srvPort = s.outbound?.server_port || s.port || 443;
           div.innerHTML = `
             <div class="srv-left">
-              <span class="srv-flag">${s.flag || '🌐'}</span>
+              <span class="srv-flag">${renderFlagIcon(s)}</span>
               <div class="srv-info">
                 <span class="srv-name" style="font-size: 15px;">${escapeHtml(s.name)}</span>
                 <span class="srv-meta">Протокол: ${escapeHtml(s.proto)} • Адрес сервера: ${escapeHtml(s.ip)}:${srvPort}</span>
@@ -3355,14 +3539,47 @@
       }
     }
 
-    async function changeMode(mode) {
+    async function createDesktopShortcutUI() {
+      if (!window.electronAPI || !window.electronAPI.createDesktopShortcut) {
+        showSnackbar('Доступно только в десктопном приложении Electron', 'error');
+        return;
+      }
+      const res = await window.electronAPI.createDesktopShortcut();
+      if (res && res.success) {
+        showSnackbar('✓ Ярлык WouldApp с иконкой создан на рабочем столе');
+      } else {
+        showSnackbar(`Не удалось создать ярлык: ${res?.error || 'ошибка'}`, 'error');
+      }
+    }
+
+    async function changeMode(mode, notify = true) {
+      if (mode === 'tun' && notify && window.electronAPI) {
+        try {
+          const st = await window.electronAPI.getStatus();
+          if (st && !st.isAdmin) {
+            if (confirm('Режим TUN (Wintun) требует прав администратора. Перезапустить WouldApp от имени администратора и сразу подключиться?')) {
+              showSnackbar('Перезапуск с правами администратора...');
+              const r = await window.electronAPI.relaunchAsAdmin({ serverId: appState.selectedId });
+              if (r && r.success) return;
+            }
+            // User declined UAC or cancelled — stay in proxy mode cleanly
+            mode = 'proxy';
+            const sel = document.getElementById('setting-mode-select');
+            if (sel) sel.value = 'proxy';
+            showSnackbar('Оставлен режим Системный прокси');
+            return;
+          }
+        } catch (e) {}
+      }
+
       appState.mode = mode;
       const tag = document.getElementById('conn-mode-tag');
-      if (tag) tag.textContent = mode === 'tun' ? 'TUN (WINTUN)' : 'СИСТЕМНЫЙ ПРОКСИ';
-      showSnackbar(`Режим переключен: ${mode.toUpperCase()}`);
+      if (tag) tag.textContent = mode === 'tun' ? 'TUN (Wintun)' : 'Системный прокси';
+      if (notify) showSnackbar(`Режим переключен: ${mode === 'tun' ? 'TUN (Wintun)' : 'Системный прокси'}`);
       try {
         await apiFetch('/api/settings', {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mode })
         });
       } catch (e) {}
@@ -3451,6 +3668,69 @@
         surfaceHighest: '#3b4c6d'
       }
     };
+
+    const POWER_SHAPES = {
+      wavy: {
+        name: 'Волна (MD3 Cookie)',
+        d: 'M 151 80 C 151 84.57, 132.78 87.8, 131.19 93.72 C 129.6 99.64, 143.78 111.54, 141.49 115.5 C 139.21 119.46, 121.81 113.15, 117.48 117.48 C 113.15 121.81, 119.46 139.21, 115.5 141.49 C 111.54 143.78, 99.64 129.6, 93.72 131.19 C 87.8 132.78, 84.57 151, 80 151 C 75.43 151, 72.2 132.78, 66.28 131.19 C 60.36 129.6, 48.46 143.78, 44.5 141.49 C 40.54 139.21, 46.85 121.81, 42.52 117.48 C 38.19 113.15, 20.8 119.46, 18.51 115.5 C 16.23 111.54, 30.39 99.64, 28.81 93.72 C 27.22 87.8, 9 84.57, 9 80 C 9 75.43, 27.22 72.2, 28.81 66.28 C 30.39 60.36, 16.23 48.46, 18.51 44.5 C 20.8 40.54, 38.19 46.85, 42.52 42.52 C 46.85 38.19, 40.54 20.8, 44.5 18.51 C 48.46 16.23, 60.36 30.39, 66.28 28.81 C 72.2 27.22, 75.43 9, 80 9 C 84.57 9, 87.8 27.22, 93.72 28.81 C 99.64 30.39, 111.54 16.23, 115.5 18.51 C 119.46 20.8, 113.15 38.19, 117.48 42.52 C 121.81 46.85, 139.21 40.54, 141.49 44.5 C 143.78 48.46, 129.6 60.36, 131.19 66.28 C 132.78 72.2, 151 75.43, 151 80 Z'
+      },
+      circle: {
+        name: 'Круг',
+        d: 'M 80 12 A 68 68 0 1 1 79.9 12 Z'
+      },
+      squircle: {
+        name: 'Сквиркл (MD3)',
+        d: 'M 80 12 C 132 12, 148 28, 148 80 C 148 132, 132 148, 80 148 C 28 148, 12 132, 12 80 C 12 28, 28 12, 80 12 Z'
+      },
+      clover: {
+        name: 'Клевер (MD3)',
+        d: 'M 80 26 C 102 6, 138 22, 134 52 C 154 66, 154 94, 134 108 C 138 138, 102 154, 80 134 C 58 154, 22 138, 26 108 C 6 94, 6 66, 26 52 C 22 22, 58 6, 80 26 Z'
+      },
+      hexagon: {
+        name: 'Гексагон (MD3)',
+        d: 'M 70 15 Q 80 9 90 15 L 136 42 Q 146 48 146 60 L 146 100 Q 146 112 136 118 L 90 145 Q 80 151 70 145 L 24 118 Q 14 112 14 100 L 14 60 Q 14 48 24 42 Z'
+      }
+    };
+
+    function applyLiquidGlass(enabled, playSnd = true) {
+      const rail = document.querySelector('.m3-nav-rail');
+      const sw = document.getElementById('switch-liquid-glass');
+      if (rail) rail.classList.toggle('liquid-glass', !!enabled);
+      if (sw) sw.classList.toggle('checked', !!enabled);
+      try {
+        localStorage.setItem('wouldapp_liquid_glass', enabled ? '1' : '0');
+      } catch (e) {}
+      if (playSnd) {
+        SoundFX.play('click');
+        showSnackbar(enabled ? 'Жидкое стекло включено' : 'Жидкое стекло выключено');
+      }
+    }
+
+    function toggleLiquidGlass() {
+      const sw = document.getElementById('switch-liquid-glass');
+      const next = sw ? !sw.classList.contains('checked') : true;
+      applyLiquidGlass(next, true);
+    }
+
+    function applyPowerShape(shapeKey, playSnd = true) {
+      const shape = POWER_SHAPES[shapeKey] || POWER_SHAPES.wavy;
+      const pathEl = document.querySelector('#power-btn .wavy-btn-shape');
+      if (pathEl) pathEl.setAttribute('d', shape.d);
+
+      Object.keys(POWER_SHAPES).forEach(k => {
+        const item = document.getElementById(`shape-item-${k}`);
+        if (item) item.classList.toggle('active', k === shapeKey);
+      });
+
+      try {
+        localStorage.setItem('wouldapp_power_shape', shapeKey);
+      } catch (e) {}
+
+      if (playSnd) {
+        SoundFX.play('click');
+        showSnackbar(`Форма кнопки: ${shape.name}`);
+      }
+    }
 
     function applyAccent(themeKey, playSnd = true) {
       const theme = ACCENT_THEMES[themeKey] || ACCENT_THEMES.cyan;
@@ -3622,6 +3902,19 @@
       }
     }
 
+    async function updateServerSetting(key, value) {
+      appState[key] = value;
+      SoundFX.play('click');
+      try {
+        await apiFetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [key]: value })
+        });
+        showSnackbar('Настройка сохранена (применится при следующем подключении)');
+      } catch (e) {}
+    }
+
     async function loadSettingsFromServer() {
       try {
         const resp = await apiFetch('/api/settings');
@@ -3633,12 +3926,36 @@
             const sel = document.getElementById('setting-mode-select');
             if (sel) sel.value = s.mode;
             const tag = document.getElementById('conn-mode-tag');
-            if (tag) tag.textContent = s.mode === 'tun' ? 'TUN (WINTUN)' : 'СИСТЕМНЫЙ ПРОКСИ';
+            if (tag) tag.textContent = s.mode === 'tun' ? 'TUN (Wintun)' : 'Системный прокси';
           }
           if (s.dns) {
             appState.dns = s.dns;
             const sel = document.getElementById('setting-dns-select');
             if (sel) sel.value = s.dns;
+          }
+          if (s.routingMode) {
+            const sel = document.getElementById('setting-routing-select');
+            if (sel) sel.value = s.routingMode;
+          }
+          if (s.ipType) {
+            const sel = document.getElementById('setting-iptype-select');
+            if (sel) sel.value = s.ipType;
+          }
+          if (s.language) {
+            const sel = document.getElementById('setting-language-select');
+            if (sel) sel.value = s.language;
+          }
+          if (s.fragmentEnabled !== undefined) {
+            const sw = document.getElementById('switch-fragment');
+            if (sw) sw.classList.toggle('checked', !!s.fragmentEnabled);
+          }
+          if (s.muxEnabled !== undefined) {
+            const sw = document.getElementById('switch-mux');
+            if (sw) sw.classList.toggle('checked', !!s.muxEnabled);
+          }
+          if (s.allowLan !== undefined) {
+            const sw = document.getElementById('switch-allowlan');
+            if (sw) sw.classList.toggle('checked', !!s.allowLan);
           }
           if (s.killSwitch !== undefined) {
             appState.killSwitch = !!s.killSwitch;
@@ -3673,11 +3990,22 @@
           if (sw) sw.classList.toggle('checked', appState.soundEnabled);
         }
 
-        const accent = localStorage.getItem('wouldapp_accent_theme') || 'cyan';
-        applyAccent(accent, false);
-
-        const surface = localStorage.getItem('wouldapp_surface_theme') || 'navy';
-        applySurfaceTheme(surface, false);
+        const savedSurface = localStorage.getItem('wouldapp_surface_theme');
+        if (savedSurface) {
+          applySurfaceTheme(savedSurface, false);
+          const selTheme = document.getElementById('setting-theme-select');
+          if (selTheme) selTheme.value = savedSurface;
+        }
+        const savedAccent = localStorage.getItem('wouldapp_accent_theme');
+        if (savedAccent) {
+          applyAccent(savedAccent, false);
+        }
+        const savedShape = localStorage.getItem('wouldapp_power_shape');
+        if (savedShape) {
+          applyPowerShape(savedShape, false);
+        }
+        const savedGlass = localStorage.getItem('wouldapp_liquid_glass');
+        applyLiquidGlass(savedGlass === null ? true : savedGlass === '1', false);
 
         const ks = localStorage.getItem('wouldapp_setting_killSwitch');
         if (ks !== null) {
@@ -3802,8 +4130,42 @@
       startPolling();
       window.addEventListener('resize', drawSpeedWave);
 
+      // Handle pending TUN auto-connect after UAC admin relaunch
+      let autoTunTriggered = false;
+      if (window.electronAPI) {
+        try {
+          const st = await window.electronAPI.getStatus();
+          if (st && st.pendingTunConnect) {
+            await window.electronAPI.saveSettings({
+              pendingTunConnect: false,
+              pendingServerId: null,
+              mode: st.isAdmin ? 'tun' : 'proxy'
+            });
+            if (st.isAdmin) {
+              appState.mode = 'tun';
+              const sel = document.getElementById('setting-mode-select');
+              if (sel) sel.value = 'tun';
+              const tag = document.getElementById('conn-mode-tag');
+              if (tag) tag.textContent = 'TUN (Wintun)';
+              if (st.pendingServerId && appState.servers.some(s => s.id === st.pendingServerId)) {
+                appState.selectedId = st.pendingServerId;
+                renderServerList();
+              }
+              if (appState.servers.some(s => s.outbound) && appState.status === 'disconnected') {
+                autoTunTriggered = true;
+                setTimeout(() => toggleVpn(), 350);
+              }
+            } else {
+              appState.mode = 'proxy';
+              const sel = document.getElementById('setting-mode-select');
+              if (sel) sel.value = 'proxy';
+            }
+          }
+        } catch (e) {}
+      }
+
       // AutoConnect on startup if enabled (§8.5 fix #16)
-      if (appState.autoConnect) {
+      if (!autoTunTriggered && appState.autoConnect) {
         const canConnect = appState.servers.some(s => s.outbound);
         if (canConnect && appState.status === 'disconnected') {
           toggleVpn();

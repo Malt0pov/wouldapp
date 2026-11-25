@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
   getServers: () => ipcRenderer.invoke('get-servers'),
   saveServers: (payload) => ipcRenderer.invoke('save-servers', payload),
+  relaunchAsAdmin: (payload) => ipcRenderer.invoke('relaunch-as-admin', payload),
+  createDesktopShortcut: () => ipcRenderer.invoke('create-desktop-shortcut'),
   minimizeWindow: () => ipcRenderer.invoke('window-minimize'),
   closeWindow: () => ipcRenderer.invoke('window-close')
 });

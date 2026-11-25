@@ -19,7 +19,19 @@ const https = require('https');
 const crypto = require('crypto');
 const os = require('os');
 const net = require('net');
-const { spawn, exec, execSync } = require('child_process');
+const { spawn, spawnSync, exec, execSync } = require('child_process');
+
+function runPowerShellEncoded(script) {
+  const encoded = Buffer.from(script, 'utf16le').toString('base64');
+  const res = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', encoded], {
+    windowsHide: true,
+    encoding: 'utf8'
+  });
+  if (res.status !== 0) {
+    throw new Error((res.stderr || res.stdout || `PowerShell exited with code ${res.status}`).trim());
+  }
+  return (res.stdout || '').trim();
+}
 const { URL } = require('url');
 
 const DIR = __dirname;
@@ -63,31 +75,89 @@ let serverSettings = {
   autoConnect: false,
   autoStart: false,
   sound: true,
-  minimizeToTray: true
+  minimizeToTray: true,
+  routingMode: 'global',
+  fragmentEnabled: false,
+  muxEnabled: false,
+  ipType: 'prefer_ipv4',
+  allowLan: false,
+  language: 'ru'
 };
 
 let lastTrafficDown = 0;
 let lastTrafficUp = 0;
+let currentDownSpeed = 0;
+let currentUpSpeed = 0;
+let trafficStreamReq = null;
+
+function startTrafficStream() {
+  stopTrafficStream();
+  if (!singboxProcess) return;
+  try {
+    trafficStreamReq = http.get({ host: '127.0.0.1', port: 9090, path: '/traffic' }, (res) => {
+      let buf = '';
+      res.on('data', (chunk) => {
+        buf += chunk.toString();
+        const lines = buf.split('\n');
+        buf = lines.pop() || '';
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          try {
+            const p = JSON.parse(trimmed);
+            if (typeof p.down === 'number') currentDownSpeed = p.down;
+            if (typeof p.up === 'number') currentUpSpeed = p.up;
+          } catch (e) {}
+        }
+      });
+      res.on('end', () => { trafficStreamReq = null; });
+    });
+    trafficStreamReq.on('error', () => { trafficStreamReq = null; });
+  } catch (e) {
+    trafficStreamReq = null;
+  }
+}
+
+function stopTrafficStream() {
+  currentDownSpeed = 0;
+  currentUpSpeed = 0;
+  if (trafficStreamReq) {
+    try { trafficStreamReq.destroy(); } catch (e) {}
+    trafficStreamReq = null;
+  }
+}
 
 async function fetchSingboxTraffic() {
-  if (!singboxProcess) return { downBytes: 0, upBytes: 0, connections: 0 };
+  if (!singboxProcess) {
+    stopTrafficStream();
+    return { downBytes: 0, upBytes: 0, downSpeedBytes: 0, upSpeedBytes: 0, connections: 0 };
+  }
+  if (!trafficStreamReq) startTrafficStream();
+
   return new Promise((resolve) => {
-    const req = http.get({ host: '127.0.0.1', port: 9090, path: '/traffic', timeout: 1500 }, (res) => {
+    const req = http.get({ host: '127.0.0.1', port: 9090, path: '/connections', timeout: 1200 }, (res) => {
       let data = '';
-      res.on('data', chunk => { data += chunk; req.destroy(); });
+      res.on('data', chunk => data += chunk);
       res.on('end', () => {
         try {
-          const parsed = JSON.parse(data.trim().split('\n').pop());
-          lastTrafficDown += parsed.down || 0;
-          lastTrafficUp += parsed.up || 0;
-          resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 });
+          const parsed = JSON.parse(data);
+          if (typeof parsed.downloadTotal === 'number') lastTrafficDown = parsed.downloadTotal;
+          if (typeof parsed.uploadTotal === 'number') lastTrafficUp = parsed.uploadTotal;
+          const conns = Array.isArray(parsed.connections) ? parsed.connections.length : 0;
+          resolve({
+            downBytes: lastTrafficDown,
+            upBytes: lastTrafficUp,
+            downSpeedBytes: currentDownSpeed,
+            upSpeedBytes: currentUpSpeed,
+            connections: conns
+          });
         } catch (e) {
-          resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 });
+          resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, downSpeedBytes: currentDownSpeed, upSpeedBytes: currentUpSpeed, connections: 0 });
         }
       });
     });
-    req.on('error', () => resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 }));
-    req.on('timeout', () => { req.destroy(); resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 }); });
+    req.on('error', () => resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, downSpeedBytes: currentDownSpeed, upSpeedBytes: currentUpSpeed, connections: 0 }));
+    req.on('timeout', () => { req.destroy(); resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, downSpeedBytes: currentDownSpeed, upSpeedBytes: currentUpSpeed, connections: 0 }); });
   });
 }
 
@@ -745,6 +815,7 @@ function buildSingBoxConfig(outbound, requestedMode = 'proxy', dnsChoice = 'goog
   const dnsServers = {
     google: { server: '8.8.8.8', type: 'udp' },
     cloudflare: { server: '1.1.1.1', type: 'udp' },
+    quad9: { server: '9.9.9.9', type: 'udp' },
     adguard: { server: '94.140.14.14', type: 'udp' }
   };
   const selectedDns = dnsServers[dnsChoice] || dnsServers.google;
@@ -753,7 +824,7 @@ function buildSingBoxConfig(outbound, requestedMode = 'proxy', dnsChoice = 'goog
     {
       type: 'mixed',
       tag: 'mixed-in',
-      listen: '127.0.0.1',
+      listen: serverSettings.allowLan ? '0.0.0.0' : '127.0.0.1',
       listen_port: 2080
     }
   ];
@@ -773,11 +844,27 @@ function buildSingBoxConfig(outbound, requestedMode = 'proxy', dnsChoice = 'goog
   const cleanOutbound = { ...outbound, tag: 'proxy' };
   delete cleanOutbound._unsupported;
 
+  if (serverSettings.fragmentEnabled && cleanOutbound.tls?.enabled && cleanOutbound.type !== 'hysteria2') {
+    cleanOutbound.tls = { ...cleanOutbound.tls, fragment: true };
+  }
+  if (serverSettings.muxEnabled && cleanOutbound.type !== 'hysteria2' && !cleanOutbound.flow) {
+    cleanOutbound.multiplex = { enabled: true, protocol: 'h2mux', max_connections: 4 };
+  }
+
   const outbounds = [
     cleanOutbound,
     { type: 'direct', tag: 'direct' },
     { type: 'block', tag: 'block' }
   ];
+
+  const routeRules = [
+    { action: 'sniff' },
+    { protocol: 'dns', action: 'hijack-dns' },
+    { ip_is_private: true, outbound: 'direct' }
+  ];
+  if (serverSettings.routingMode === 'bypass_ru') {
+    routeRules.push({ domain_suffix: ['.ru', '.su', '.xn--p1ai'], outbound: 'direct' });
+  }
 
   return {
     log: { level: 'info', timestamp: true },
@@ -800,18 +887,14 @@ function buildSingBoxConfig(outbound, requestedMode = 'proxy', dnsChoice = 'goog
           type: 'local'
         }
       ],
-      strategy: 'prefer_ipv4'
+      strategy: serverSettings.ipType || 'prefer_ipv4'
     },
     inbounds,
     outbounds,
     route: {
       default_domain_resolver: 'local-dns',
-      rules: [
-        { action: 'sniff' },
-        { protocol: 'dns', action: 'hijack-dns' },
-        { ip_is_private: true, outbound: 'direct' }
-      ],
-      final: 'proxy',
+      rules: routeRules,
+      final: serverSettings.routingMode === 'direct' ? 'direct' : 'proxy',
       auto_detect_interface: true
     }
   };
@@ -1014,6 +1097,32 @@ async function realProxyPing(servers) {
   return servers.map(s => ({ id: s.id, ping: resultsMap.has(s.id) ? resultsMap.get(s.id) : null }));
 }
 
+let cachedIsAdmin = null;
+function isRunningAsAdmin() {
+  if (cachedIsAdmin !== null) return cachedIsAdmin;
+  try {
+    execSync('fltmc', { stdio: 'ignore', windowsHide: true });
+    cachedIsAdmin = true;
+    return true;
+  } catch (e) {}
+  try {
+    execSync('net session', { stdio: 'ignore', windowsHide: true });
+    cachedIsAdmin = true;
+    return true;
+  } catch (e) {}
+  try {
+    const out = execSync(
+      'powershell -NoProfile -Command "([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)"',
+      { encoding: 'utf8', windowsHide: true }
+    ).trim();
+    cachedIsAdmin = out.toLowerCase() === 'true';
+    return cachedIsAdmin;
+  } catch (e) {
+    cachedIsAdmin = false;
+    return false;
+  }
+}
+
 function startSingBox(outbound, requestedMode, cb) {
   isTrafficBlocked = false;
   const p = new Promise(async (resolve, reject) => {
@@ -1027,17 +1136,10 @@ function startSingBox(outbound, requestedMode, cb) {
       await stopSingBox();
 
       const tryTun = (requestedMode === 'tun');
-      if (tryTun) {
-        let isAdmin = false;
-        try {
-          execSync('net session', { stdio: 'ignore', windowsHide: true });
-          isAdmin = true;
-        } catch (e) {}
-        if (!isAdmin) {
-          const err = new Error('Режим TUN требует запуска от имени администратора!');
-          err.code = 'tun_requires_admin';
-          return reject(err);
-        }
+      if (tryTun && !isRunningAsAdmin()) {
+        const err = new Error('Режим TUN требует прав администратора');
+        err.code = 'tun_requires_admin';
+        return reject(err);
       }
 
       const config = buildSingBoxConfig(outbound, requestedMode, serverSettings.dns);
@@ -1141,16 +1243,25 @@ let tray = null;
 let isQuitting = false;
 
 app.whenReady().then(() => {
-  fs.appendFileSync(path.join(__dirname, 'boot.log'), 'app.whenReady reached at ' + new Date().toISOString() + '\n');
+  try { app.setAppUserModelId('com.wouldapp.vpn'); } catch (e) {}
   loadSettingsFromDisk();
+  if (!isRunningAsAdmin() && serverSettings.mode === 'tun' && !serverSettings.pendingTunConnect) {
+    serverSettings.mode = 'proxy';
+    activeMode = 'proxy';
+    saveSettingsToDisk();
+  }
   restoreProxyOnStartup();
   createWindow();
   createTray();
   setupIpcHandlers();
-  fs.appendFileSync(path.join(__dirname, 'boot.log'), 'createWindow & Tray initialized\n');
+  addLog(`WouldApp backend initialized (sing-box 1.14.4, admin=${isRunningAsAdmin()}).`);
 });
 
 function createWindow() {
+  const icoPath = path.join(DIR, 'app.ico');
+  const pngPath = path.join(DIR, 'app_icon.png');
+  const winIcon = nativeImage.createFromPath(fs.existsSync(icoPath) ? icoPath : pngPath);
+
   mainWindow = new BrowserWindow({
     width: 1120,
     height: 780,
@@ -1158,8 +1269,8 @@ function createWindow() {
     minHeight: 650,
     frame: false,
     show: false,
-    backgroundColor: '#0b0f19',
-    icon: path.join(DIR, 'app.ico'),
+    backgroundColor: '#111318',
+    icon: winIcon,
     webPreferences: {
       preload: path.join(DIR, 'preload.js'),
       contextIsolation: true,
@@ -1258,14 +1369,23 @@ function setupIpcHandlers() {
     }
     const traffic = await fetchSingboxTraffic();
     return {
+      success: true,
       running: isRunning,
       mode: activeMode,
+      isAdmin: isRunningAsAdmin(),
+      pendingTunConnect: !!serverSettings.pendingTunConnect,
+      pendingServerId: serverSettings.pendingServerId || null,
       uptimeSeconds,
       killSwitch: serverSettings.killSwitch,
       blocked: isTrafficBlocked,
       settings: { ...serverSettings },
-      traffic: { downBytes: traffic.downBytes, upBytes: traffic.upBytes },
-      logs: logsBuffer.slice(-30)
+      traffic: {
+        downBytes: traffic.downBytes,
+        upBytes: traffic.upBytes,
+        downSpeedBytes: traffic.downSpeedBytes,
+        upSpeedBytes: traffic.upSpeedBytes
+      },
+      logs: logsBuffer.slice(-80)
     };
   });
 
@@ -1351,7 +1471,7 @@ function setupIpcHandlers() {
 
   ipcMain.handle('save-settings', async (event, partial) => {
     try {
-      const allowed = ['dns', 'mode', 'killSwitch', 'autoConnect', 'autoStart', 'sound', 'minimizeToTray'];
+      const allowed = ['dns', 'mode', 'killSwitch', 'autoConnect', 'autoStart', 'sound', 'minimizeToTray', 'routingMode', 'fragmentEnabled', 'muxEnabled', 'ipType', 'allowLan', 'language', 'pendingTunConnect', 'pendingServerId'];
       for (const key of allowed) {
         if (key in partial) serverSettings[key] = partial[key];
       }
@@ -1371,6 +1491,77 @@ function setupIpcHandlers() {
   ipcMain.handle('save-servers', async (event, payload) => {
     const ok = saveServersToDisk(payload?.servers, payload?.selectedId);
     return { success: ok };
+  });
+
+  ipcMain.handle('relaunch-as-admin', async (event, payload) => {
+    try {
+      serverSettings.mode = 'tun';
+      serverSettings.pendingTunConnect = true;
+      serverSettings.pendingServerId = payload?.serverId || null;
+      saveSettingsToDisk();
+
+      const launcherExe = path.join(DIR, 'WouldApp.exe');
+      const useLauncher = fs.existsSync(launcherExe);
+      const filePath = useLauncher ? launcherExe : process.execPath;
+      const psEsc = (s) => String(s).replace(/'/g, "''");
+
+      const cmd = useLauncher
+        ? `Start-Process -FilePath '${psEsc(filePath)}' -WorkingDirectory '${psEsc(DIR)}' -Verb RunAs`
+        : `Start-Process -FilePath '${psEsc(filePath)}' -ArgumentList '${psEsc(DIR)}' -WorkingDirectory '${psEsc(DIR)}' -Verb RunAs`;
+
+      runPowerShellEncoded(cmd);
+      await stopSingBox();
+      isQuitting = true;
+      setTimeout(() => app.exit(0), 200);
+      return { success: true };
+    } catch (err) {
+      serverSettings.pendingTunConnect = false;
+      serverSettings.pendingServerId = null;
+      serverSettings.mode = 'proxy';
+      saveSettingsToDisk();
+      return { success: false, cancelled: true, error: err.message };
+    }
+  });
+
+  ipcMain.handle('create-desktop-shortcut', async () => {
+    try {
+      const launcherExe = path.join(DIR, 'WouldApp.exe');
+      const targetPath = fs.existsSync(launcherExe) ? launcherExe : process.execPath;
+      const args = fs.existsSync(launcherExe) ? '' : `"${DIR}"`;
+      const srcIco = path.join(DIR, 'app.ico');
+      let iconPath = fs.existsSync(srcIco) ? srcIco : targetPath;
+      try {
+        const safeDataDir = path.join(process.env.ProgramData || 'C:\\ProgramData', 'WouldApp');
+        fs.mkdirSync(safeDataDir, { recursive: true });
+        const safeIco = path.join(safeDataDir, 'app.ico');
+        if (fs.existsSync(srcIco)) {
+          fs.copyFileSync(srcIco, safeIco);
+          iconPath = safeIco;
+        }
+      } catch (e) {}
+
+      const psEsc = (s) => String(s).replace(/'/g, "''");
+
+      const script = [
+        "$WshShell = New-Object -ComObject WScript.Shell;",
+        "$Desktop = [Environment]::GetFolderPath('Desktop');",
+        "$LnkPath = Join-Path $Desktop 'WouldApp.lnk';",
+        "if (Test-Path $LnkPath) { Remove-Item -Force $LnkPath -ErrorAction SilentlyContinue };",
+        "$Shortcut = $WshShell.CreateShortcut($LnkPath);",
+        `$Shortcut.TargetPath = '${psEsc(targetPath)}';`,
+        args ? `$Shortcut.Arguments = '${psEsc(args)}';` : '',
+        `$Shortcut.WorkingDirectory = '${psEsc(DIR)}';`,
+        `$Shortcut.IconLocation = '${psEsc(iconPath)},0';`,
+        "$Shortcut.Save();",
+        `try { Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class WouldShellUtil { [DllImport("shell32.dll")] public static extern void SHChangeNotify(int wEventId, int uFlags, IntPtr dwItem1, IntPtr dwItem2); }' -ErrorAction SilentlyContinue; [WouldShellUtil]::SHChangeNotify(0x08000000, 0x0000, [IntPtr]::Zero, [IntPtr]::Zero) } catch {};`,
+        "if (Get-Command ie4uinit.exe -ErrorAction SilentlyContinue) { ie4uinit.exe -show }"
+      ].filter(Boolean).join('\n');
+
+      runPowerShellEncoded(script);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   });
 
   ipcMain.handle('window-minimize', () => {

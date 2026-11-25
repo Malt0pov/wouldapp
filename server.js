@@ -55,33 +55,91 @@ let serverSettings = {
   killSwitch: false,
   autoConnect: false,
   autoStart: false,
-  sound: true
+  sound: true,
+  routingMode: 'global',
+  fragmentEnabled: false,
+  muxEnabled: false,
+  ipType: 'prefer_ipv4',
+  allowLan: false,
+  language: 'ru'
 };
 
 // Traffic tracking for /api/traffic (API_CONTRACT §2)
 let lastTrafficDown = 0;
 let lastTrafficUp = 0;
+let currentDownSpeed = 0;
+let currentUpSpeed = 0;
+let trafficStreamReq = null;
+
+function startTrafficStream() {
+  stopTrafficStream();
+  if (!singboxProcess) return;
+  try {
+    trafficStreamReq = http.get({ host: '127.0.0.1', port: 9090, path: '/traffic' }, (res) => {
+      let buf = '';
+      res.on('data', (chunk) => {
+        buf += chunk.toString();
+        const lines = buf.split('\n');
+        buf = lines.pop() || '';
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          try {
+            const p = JSON.parse(trimmed);
+            if (typeof p.down === 'number') currentDownSpeed = p.down;
+            if (typeof p.up === 'number') currentUpSpeed = p.up;
+          } catch (e) {}
+        }
+      });
+      res.on('end', () => { trafficStreamReq = null; });
+    });
+    trafficStreamReq.on('error', () => { trafficStreamReq = null; });
+  } catch (e) {
+    trafficStreamReq = null;
+  }
+}
+
+function stopTrafficStream() {
+  currentDownSpeed = 0;
+  currentUpSpeed = 0;
+  if (trafficStreamReq) {
+    try { trafficStreamReq.destroy(); } catch (e) {}
+    trafficStreamReq = null;
+  }
+}
 
 // Fetch real traffic from sing-box Clash API (localhost:9090)
 async function fetchSingboxTraffic() {
-  if (!singboxProcess) return { downBytes: 0, upBytes: 0, connections: 0 };
+  if (!singboxProcess) {
+    stopTrafficStream();
+    return { downBytes: 0, upBytes: 0, downSpeedBytes: 0, upSpeedBytes: 0, connections: 0 };
+  }
+  if (!trafficStreamReq) startTrafficStream();
+
   return new Promise((resolve) => {
-    const req = http.get({ host: '127.0.0.1', port: 9090, path: '/traffic', timeout: 1500 }, (res) => {
+    const req = http.get({ host: '127.0.0.1', port: 9090, path: '/connections', timeout: 1200 }, (res) => {
       let data = '';
-      res.on('data', chunk => { data += chunk; req.destroy(); });
+      res.on('data', chunk => data += chunk);
       res.on('end', () => {
         try {
-          const parsed = JSON.parse(data.trim().split('\n').pop());
-          lastTrafficDown += parsed.down || 0;
-          lastTrafficUp += parsed.up || 0;
-          resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 });
+          const parsed = JSON.parse(data);
+          if (typeof parsed.downloadTotal === 'number') lastTrafficDown = parsed.downloadTotal;
+          if (typeof parsed.uploadTotal === 'number') lastTrafficUp = parsed.uploadTotal;
+          const conns = Array.isArray(parsed.connections) ? parsed.connections.length : 0;
+          resolve({
+            downBytes: lastTrafficDown,
+            upBytes: lastTrafficUp,
+            downSpeedBytes: currentDownSpeed,
+            upSpeedBytes: currentUpSpeed,
+            connections: conns
+          });
         } catch (e) {
-          resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 });
+          resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, downSpeedBytes: currentDownSpeed, upSpeedBytes: currentUpSpeed, connections: 0 });
         }
       });
     });
-    req.on('error', () => resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 }));
-    req.on('timeout', () => { req.destroy(); resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, connections: 0 }); });
+    req.on('error', () => resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, downSpeedBytes: currentDownSpeed, upSpeedBytes: currentUpSpeed, connections: 0 }));
+    req.on('timeout', () => { req.destroy(); resolve({ downBytes: lastTrafficDown, upBytes: lastTrafficUp, downSpeedBytes: currentDownSpeed, upSpeedBytes: currentUpSpeed, connections: 0 }); });
   });
 }
 
@@ -876,11 +934,19 @@ async function parseAnyInput(input) {
 
 // Build valid sing-box 1.14 configuration with native DNS & Route
 function buildSingBoxConfig(outbound, withTun = false) {
+  const dnsServers = {
+    google: '8.8.8.8',
+    cloudflare: '1.1.1.1',
+    quad9: '9.9.9.9',
+    adguard: '94.140.14.14'
+  };
+  const dnsIp = dnsServers[serverSettings.dns] || '8.8.8.8';
+
   const inbounds = [
     {
       type: 'mixed',
       tag: 'mixed-in',
-      listen: '127.0.0.1',
+      listen: serverSettings.allowLan ? '0.0.0.0' : '127.0.0.1',
       listen_port: 2080
     }
   ];
@@ -900,6 +966,22 @@ function buildSingBoxConfig(outbound, withTun = false) {
   const cleanOutbound = { ...outbound, tag: 'proxy' };
   delete cleanOutbound._unsupported;
 
+  if (serverSettings.fragmentEnabled && cleanOutbound.tls?.enabled && cleanOutbound.type !== 'hysteria2') {
+    cleanOutbound.tls = { ...cleanOutbound.tls, fragment: true };
+  }
+  if (serverSettings.muxEnabled && cleanOutbound.type !== 'hysteria2' && !cleanOutbound.flow) {
+    cleanOutbound.multiplex = { enabled: true, protocol: 'h2mux', max_connections: 4 };
+  }
+
+  const routeRules = [
+    { action: 'sniff' },
+    { protocol: 'dns', action: 'hijack-dns' },
+    { ip_is_private: true, outbound: 'direct' }
+  ];
+  if (serverSettings.routingMode === 'bypass_ru') {
+    routeRules.push({ domain_suffix: ['.ru', '.su', '.xn--p1ai'], outbound: 'direct' });
+  }
+
   return {
     log: {
       level: 'info',
@@ -915,7 +997,7 @@ function buildSingBoxConfig(outbound, withTun = false) {
         {
           type: 'udp',
           tag: 'remote-dns',
-          server: '8.8.8.8',
+          server: dnsIp,
           detour: 'proxy'
         },
         {
@@ -923,7 +1005,7 @@ function buildSingBoxConfig(outbound, withTun = false) {
           tag: 'local-dns'
         }
       ],
-      strategy: 'prefer_ipv4'
+      strategy: serverSettings.ipType || 'prefer_ipv4'
     },
     inbounds: inbounds,
     outbounds: [
@@ -935,17 +1017,9 @@ function buildSingBoxConfig(outbound, withTun = false) {
     ],
     route: {
       default_domain_resolver: 'local-dns',
-      rules: [
-        {
-          action: 'sniff'
-        },
-        {
-          protocol: 'dns',
-          action: 'hijack-dns'
-        }
-      ],
+      rules: routeRules,
       auto_detect_interface: true,
-      final: 'proxy'
+      final: serverSettings.routingMode === 'direct' ? 'direct' : 'proxy'
     }
   };
 }
@@ -1329,18 +1403,26 @@ const server = http.createServer((req, res) => {
   if (req.method === 'GET' && urlParsed === '/api/status') {
     const running = !!singboxProcess;
     const uptimeSeconds = processStartTime ? Math.floor((Date.now() - processStartTime) / 1000) : 0;
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({
-      success: true,
-      running,
-      mode: activeMode,
-      uptimeSeconds,
-      killSwitch: serverSettings.killSwitch,
-      blocked: isTrafficBlocked,
-      settings: { ...serverSettings },
-      traffic: { downBytes: lastTrafficDown, upBytes: lastTrafficUp },
-      logs: logsBuffer.slice(-30)
-    }));
+    fetchSingboxTraffic().then((traffic) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        running,
+        mode: activeMode,
+        uptimeSeconds,
+        killSwitch: serverSettings.killSwitch,
+        blocked: isTrafficBlocked,
+        settings: { ...serverSettings },
+        traffic: {
+          downBytes: traffic.downBytes,
+          upBytes: traffic.upBytes,
+          downSpeedBytes: traffic.downSpeedBytes,
+          upSpeedBytes: traffic.upSpeedBytes
+        },
+        logs: logsBuffer.slice(-80)
+      }));
+    });
+    return;
   }
 
   // API: Get Traffic (API_CONTRACT §2)
@@ -1392,7 +1474,7 @@ const server = http.createServer((req, res) => {
       req.on('end', () => {
         try {
           const partial = JSON.parse(body);
-          const allowed = ['dns', 'mode', 'killSwitch', 'autoConnect', 'autoStart', 'sound'];
+          const allowed = ['dns', 'mode', 'killSwitch', 'autoConnect', 'autoStart', 'sound', 'routingMode', 'fragmentEnabled', 'muxEnabled', 'ipType', 'allowLan', 'language'];
           for (const key of allowed) {
             if (key in partial) serverSettings[key] = partial[key];
           }
