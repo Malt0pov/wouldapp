@@ -1,13 +1,13 @@
 # WouldApp — Windows VPN-клиент на sing-box
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version: 0.1.0 Beta](https://img.shields.io/badge/Version-0.1.0%20Beta-7c3aed.svg)](package.json)
+[![Version: 0.1.1 Beta](https://img.shields.io/badge/Version-0.1.1%20Beta-7c3aed.svg)](package.json)
 [![Core: Sing-box 1.14.4](https://img.shields.io/badge/Core-Sing--box%201.14.4-10b981.svg)](https://github.com/SagerNet/sing-box)
 [![Platform: Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%2F11-0078d4.svg)](https://www.microsoft.com/windows)
 
 **WouldApp** — нативный десктопный VPN-клиент для Windows на ядре **sing-box 1.14.4** с интерфейсом в стиле **Material Design 3** и эффектом жидкого стекла. Работает как самостоятельное приложение (Electron) с системным треем, проверкой реальной работы туннеля и управлением подписками.
 
-Скачать готовую сборку: **[Releases (v0.1.0 Beta)](https://github.com/Malt0pov/wouldapp/releases/tag/v0.1.0-beta)**
+Скачать готовую сборку: **[Releases (v0.1.0 Beta)](https://github.com/Malt0pov/wouldapp/releases/tag/v0.1.1-beta)**
 
 ---
 
@@ -57,7 +57,7 @@
 
 ## Установка и запуск (для пользователей)
 
-1. Перейдите в **[Releases](https://github.com/Malt0pov/wouldapp/releases/tag/v0.1.0-beta)** и скачайте архив **`WouldApp-v0.1.0-beta-win-x64.zip`**.
+1. Перейдите в **[Releases](https://github.com/Malt0pov/wouldapp/releases/tag/v0.1.1-beta)** и скачайте архив **`WouldApp-v0.1.1-beta-win-x64.zip`**.
 2. Распакуйте архив в любую удобную папку.
 3. Запустите **`WouldApp.exe`**.
    - *Примечание про Windows SmartScreen:* так как бета-сборка пока не имеет коммерческой цифровой подписи, при первом запуске Windows может показать окно защиты. Нажмите **«Подробнее» → «Выполнить в любом случае»**.

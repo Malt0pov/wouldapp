@@ -3055,6 +3055,95 @@
       if (appState.activeTab === 'servers') renderFullServers();
     }
 
+    function getSubUrlsMap() {
+      try {
+        return JSON.parse(localStorage.getItem('wouldapp_sub_urls') || '{}') || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveSubUrl(groupName, url) {
+      if (!groupName || !url) return;
+      try {
+        const map = getSubUrlsMap();
+        map[groupName] = url;
+        localStorage.setItem('wouldapp_sub_urls', JSON.stringify(map));
+      } catch (e) {}
+    }
+
+    function getSubUrl(groupName, items) {
+      const fromItem = (items || []).find(s => s.subUrl)?.subUrl;
+      if (fromItem) return fromItem;
+      return getSubUrlsMap()[groupName] || null;
+    }
+
+    async function refreshSubGroup(groupName, e) {
+      if (e) e.stopPropagation();
+      const items = appState.servers.filter(s => getServerGroupName(s) === groupName);
+      let url = getSubUrl(groupName, items);
+      if (!url) {
+        const entered = prompt(`Вставьте ссылку подписки для «${groupName}» (сохранится для будущих обновлений):`);
+        if (!entered || !/^https?:\/\//i.test(entered.trim())) {
+          if (entered !== null) showSnackbar('Укажите корректную http/https ссылку подписки', 'error');
+          return;
+        }
+        url = entered.trim();
+        saveSubUrl(groupName, url);
+      }
+
+      showSnackbar(`Обновление подписки «${groupName}»...`);
+      try {
+        const resp = await apiFetch('/api/parse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ link: url })
+        });
+        const res = await resp.json();
+        if (!res.success || (!res.nodes && !res.data)) {
+          throw new Error(res.error || 'Не удалось обновить подписку');
+        }
+        const list = res.nodes || [res.data];
+        const prevSelected = appState.servers.find(s => s.id === appState.selectedId);
+        const prevSelectedName = prevSelected && getServerGroupName(prevSelected) === groupName ? prevSelected.name : null;
+
+        // Replace nodes of this group while keeping other subscriptions untouched
+        appState.servers = appState.servers.filter(s => getServerGroupName(s) !== groupName);
+        const addedItems = list.map((n, idx) => {
+          const protoName = (n.outbound?.type || 'vless').toUpperCase() +
+            (n.outbound?.tls?.reality ? ' Reality' : (n.outbound?.tls ? ' TLS' : ''));
+          return {
+            id: 'user-' + Date.now() + '-' + idx,
+            name: n.name || `Узел #${idx + 1}`,
+            flag: detectFlagFromName(n.name),
+            ping: null,
+            proto: protoName,
+            ip: n.outbound?.server || '127.0.0.1',
+            outbound: n.outbound,
+            rawLink: n.rawLink || url,
+            subName: groupName,
+            subUrl: url
+          };
+        });
+
+        appState.servers = [...addedItems, ...appState.servers];
+        if (prevSelectedName) {
+          const match = addedItems.find(x => x.name === prevSelectedName);
+          appState.selectedId = match ? match.id : (addedItems[0]?.id || appState.selectedId);
+        } else if (!appState.servers.some(s => s.id === appState.selectedId)) {
+          appState.selectedId = appState.servers[0]?.id || null;
+        }
+
+        saveSubUrl(groupName, url);
+        saveServersToStorage();
+        renderServerList();
+        if (appState.activeTab === 'servers') renderFullServers();
+        showSnackbar(`✓ Подписка «${groupName}» обновлена (${addedItems.length} узлов)`);
+      } catch (err) {
+        showSnackbar(`Ошибка обновления: ${err.message}`, 'error');
+      }
+    }
+
     function deleteSubGroup(groupName, e) {
       if (e) e.stopPropagation();
       const before = appState.servers.length;
@@ -3062,6 +3151,11 @@
       const removed = before - appState.servers.length;
       expandedGroupsSet.delete(groupName);
       saveExpandedGroups();
+      try {
+        const map = getSubUrlsMap();
+        delete map[groupName];
+        localStorage.setItem('wouldapp_sub_urls', JSON.stringify(map));
+      } catch (err) {}
       if (!appState.servers.some(s => s.id === appState.selectedId)) {
         appState.selectedId = appState.servers.length > 0 ? appState.servers[0].id : null;
       }
@@ -3106,6 +3200,7 @@
         const isExpanded = forceExpand || expandedGroupsSet.has(groupName);
         const hasSelected = items.some(s => s.id === appState.selectedId);
         const aliveCount = items.filter(s => s.ping != null).length;
+        const hasSubUrl = !!getSubUrl(groupName, items);
 
         const wrap = document.createElement('div');
         wrap.className = 'sub-group-wrap';
@@ -3125,6 +3220,7 @@
           </div>
           <div class="sub-group-right">
             <span class="sub-count-badge">${items.length}</span>
+            <button type="button" class="btn-delete-node" title="Обновить подписку" data-refresh-group="${escapeHtml(groupName)}"><span class="material-symbols-outlined" style="font-size: 16px;">refresh</span></button>
             <button type="button" class="btn-delete-node" title="Удалить всю подписку" data-delete-group="${escapeHtml(groupName)}">
               <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
             </button>
@@ -3167,6 +3263,12 @@
       });
 
       container.onclick = (e) => {
+        const refGroupBtn = e.target.closest('[data-refresh-group]');
+        if (refGroupBtn) {
+          e.stopPropagation();
+          refreshSubGroup(refGroupBtn.getAttribute('data-refresh-group'), e);
+          return;
+        }
         const delGroupBtn = e.target.closest('[data-delete-group]');
         if (delGroupBtn) {
           e.stopPropagation();
@@ -3209,6 +3311,7 @@
         const isExpanded = expandedGroupsSet.has(groupName);
         const hasSelected = items.some(s => s.id === appState.selectedId);
         const aliveCount = items.filter(s => s.ping != null).length;
+        const hasSubUrl = !!getSubUrl(groupName, items);
 
         const wrap = document.createElement('div');
         wrap.className = 'sub-group-wrap';
@@ -3228,6 +3331,7 @@
           </div>
           <div class="sub-group-right">
             <span class="sub-count-badge">${items.length}</span>
+            <button type="button" class="btn-delete-node" title="Обновить подписку" data-refresh-group="${escapeHtml(groupName)}"><span class="material-symbols-outlined" style="font-size: 16px;">refresh</span></button>
             <button type="button" class="btn-delete-node" title="Удалить всю подписку" data-delete-group="${escapeHtml(groupName)}">
               <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
             </button>
@@ -3269,6 +3373,12 @@
       });
 
       container.onclick = async (e) => {
+        const refGroupBtn = e.target.closest('[data-refresh-group]');
+        if (refGroupBtn) {
+          e.stopPropagation();
+          refreshSubGroup(refGroupBtn.getAttribute('data-refresh-group'), e);
+          return;
+        }
         const delGroupBtn = e.target.closest('[data-delete-group]');
         if (delGroupBtn) {
           e.stopPropagation();
@@ -3500,8 +3610,10 @@
           }
 
           let fallbackSubName = 'Мои узлы';
+          let importedSubUrl = null;
           if (/^https?:\/\//i.test(raw.trim())) {
-            try { fallbackSubName = new URL(raw.trim()).hostname; } catch (e) {}
+            importedSubUrl = raw.trim();
+            try { fallbackSubName = new URL(importedSubUrl).hostname; } catch (e) {}
           }
 
           list.forEach((n, idx) => {
@@ -3509,6 +3621,7 @@
             const protoName = (n.outbound?.type || 'vless').toUpperCase() + 
               (n.outbound?.tls?.reality ? ' Reality' : (n.outbound?.tls ? ' TLS' : ''));
             const subName = n.subName || fallbackSubName;
+            if (importedSubUrl) saveSubUrl(subName, importedSubUrl);
 
             const item = {
               id: 'user-' + Date.now() + '-' + idx,
@@ -3519,7 +3632,8 @@
               ip: n.outbound?.server || '127.0.0.1',
               outbound: n.outbound,
               rawLink: n.rawLink || raw,
-              subName: subName
+              subName: subName,
+              subUrl: importedSubUrl || undefined
             };
             appState.servers.unshift(item);
             expandedGroupsSet.add(subName);

@@ -1,6 +1,6 @@
 {
   "name": "wouldapp-vpn-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "WouldApp — Windows VPN client на sing-box 1.14 (Beta)",
   "main": "main.js",
